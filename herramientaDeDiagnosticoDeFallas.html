@@ -812,6 +812,13 @@
         display: none !important;
       }
     }
+    .tab-locked {
+      opacity: 0.5;
+      cursor: not-allowed !important;
+      pointer-events: none;
+      background: #f3f4f6;
+      color: #9ca3af !important;
+    }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -1026,9 +1033,6 @@
               <marker id="ish-arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
                 <polygon points="0 0, 10 3.5, 0 7" fill="#1e3a5f"/>
               </marker>
-              <filter id="ish-sh" x="-15%" y="-15%" width="130%" height="130%">
-                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.12"/>
-              </filter>
             </defs>
 
             <!-- Fish tail -->
@@ -1057,98 +1061,98 @@
             <!-- UPPER LABELS -->
             <!-- Máquina (center x=115, box y=30 h=92) -->
             <g id="ishikawa-label-maquina" class="ish-label-group" onclick="editCategory('maquina')" style="cursor:pointer">
-              <rect id="ishikawa-rect-maquina" x="50" y="30" width="130" height="92" rx="8" fill="white" stroke="#3b82f6" stroke-width="1.5" filter="url(#ish-sh)"/>
+              <rect id="ishikawa-rect-maquina" x="50" y="30" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
               <foreignObject x="50" y="30" width="130" height="30">
                 <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;height:100%;font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#1e3a5f;">
                   <i class="fas fa-cog" style="margin-right:4px;"></i>Máquina
                 </div>
               </foreignObject>
               <line x1="58" y1="60" x2="172" y2="60" stroke="#e2e8f0" stroke-width="1"/>
-              <text id="ishikawa-kw1-maquina" x="115" y="74" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-kw2-maquina" x="115" y="87" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-kw3-maquina" x="115" y="100" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-check-maquina" x="173" y="38" font-size="14" fill="#22c55e" visibility="hidden">&#x2713;</text>
+              <foreignObject x="55" y="65" width="120" height="50">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-maquina" style="font-family:Inter,sans-serif;font-size:10px;color:#9ca3af;line-height:1.3;word-wrap:break-word;overflow:hidden;height:100%;"></div>
+              </foreignObject>
+              <text id="ishikawa-check-maquina" x="173" y="38" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
             </g>
 
             <!-- Método (center x=310, box y=30 h=92) -->
             <g id="ishikawa-label-metodo" class="ish-label-group" onclick="editCategory('metodo')" style="cursor:pointer">
-              <rect id="ishikawa-rect-metodo" x="245" y="30" width="130" height="92" rx="8" fill="white" stroke="#3b82f6" stroke-width="1.5" filter="url(#ish-sh)"/>
+              <rect id="ishikawa-rect-metodo" x="245" y="30" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
               <foreignObject x="245" y="30" width="130" height="30">
                 <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;height:100%;font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#1e3a5f;">
                   <i class="fas fa-clipboard-list" style="margin-right:4px;"></i>Método
                 </div>
               </foreignObject>
               <line x1="253" y1="60" x2="367" y2="60" stroke="#e2e8f0" stroke-width="1"/>
-              <text id="ishikawa-kw1-metodo" x="310" y="74" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-kw2-metodo" x="310" y="87" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-kw3-metodo" x="310" y="100" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-check-metodo" x="368" y="38" font-size="14" fill="#22c55e" visibility="hidden">&#x2713;</text>
+              <foreignObject x="250" y="65" width="120" height="50">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-metodo" style="font-family:Inter,sans-serif;font-size:10px;color:#9ca3af;line-height:1.3;word-wrap:break-word;overflow:hidden;height:100%;"></div>
+              </foreignObject>
+              <text id="ishikawa-check-metodo" x="368" y="38" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
             </g>
 
             <!-- Materiales (center x=505, box y=30 h=92) -->
             <g id="ishikawa-label-materiales" class="ish-label-group" onclick="editCategory('materiales')" style="cursor:pointer">
-              <rect id="ishikawa-rect-materiales" x="440" y="30" width="130" height="92" rx="8" fill="white" stroke="#3b82f6" stroke-width="1.5" filter="url(#ish-sh)"/>
+              <rect id="ishikawa-rect-materiales" x="440" y="30" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
               <foreignObject x="440" y="30" width="130" height="30">
                 <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;height:100%;font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#1e3a5f;">
                   <i class="fas fa-box" style="margin-right:4px;"></i>Materiales
                 </div>
               </foreignObject>
               <line x1="448" y1="60" x2="562" y2="60" stroke="#e2e8f0" stroke-width="1"/>
-              <text id="ishikawa-kw1-materiales" x="505" y="74" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-kw2-materiales" x="505" y="87" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-kw3-materiales" x="505" y="100" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-check-materiales" x="563" y="38" font-size="14" fill="#22c55e" visibility="hidden">&#x2713;</text>
+              <foreignObject x="445" y="65" width="120" height="50">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-materiales" style="font-family:Inter,sans-serif;font-size:10px;color:#9ca3af;line-height:1.3;word-wrap:break-word;overflow:hidden;height:100%;"></div>
+              </foreignObject>
+              <text id="ishikawa-check-materiales" x="563" y="38" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
             </g>
 
             <!-- LOWER LABELS -->
             <!-- Mano de Obra (center x=115, box y=298 h=92) -->
             <g id="ishikawa-label-manoObra" class="ish-label-group" onclick="editCategory('manoObra')" style="cursor:pointer">
-              <rect id="ishikawa-rect-manoObra" x="50" y="298" width="130" height="92" rx="8" fill="white" stroke="#3b82f6" stroke-width="1.5" filter="url(#ish-sh)"/>
+              <rect id="ishikawa-rect-manoObra" x="50" y="298" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
               <foreignObject x="50" y="298" width="130" height="30">
                 <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;height:100%;font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#1e3a5f;">
                   <i class="fas fa-users" style="margin-right:4px;"></i>Mano Obra
                 </div>
               </foreignObject>
               <line x1="58" y1="328" x2="172" y2="328" stroke="#e2e8f0" stroke-width="1"/>
-              <text id="ishikawa-kw1-manoObra" x="115" y="342" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-kw2-manoObra" x="115" y="355" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-kw3-manoObra" x="115" y="368" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-check-manoObra" x="173" y="306" font-size="14" fill="#22c55e" visibility="hidden">&#x2713;</text>
+              <foreignObject x="55" y="333" width="120" height="50">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-manoObra" style="font-family:Inter,sans-serif;font-size:10px;color:#9ca3af;line-height:1.3;word-wrap:break-word;overflow:hidden;height:100%;"></div>
+              </foreignObject>
+              <text id="ishikawa-check-manoObra" x="173" y="306" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
             </g>
 
             <!-- Medición (center x=310, box y=298 h=92) -->
             <g id="ishikawa-label-medicion" class="ish-label-group" onclick="editCategory('medicion')" style="cursor:pointer">
-              <rect id="ishikawa-rect-medicion" x="245" y="298" width="130" height="92" rx="8" fill="white" stroke="#3b82f6" stroke-width="1.5" filter="url(#ish-sh)"/>
+              <rect id="ishikawa-rect-medicion" x="245" y="298" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
               <foreignObject x="245" y="298" width="130" height="30">
                 <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;height:100%;font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#1e3a5f;">
                   <i class="fas fa-chart-line" style="margin-right:4px;"></i>Medición
                 </div>
               </foreignObject>
               <line x1="253" y1="328" x2="367" y2="328" stroke="#e2e8f0" stroke-width="1"/>
-              <text id="ishikawa-kw1-medicion" x="310" y="342" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-kw2-medicion" x="310" y="355" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-kw3-medicion" x="310" y="368" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-check-medicion" x="368" y="306" font-size="14" fill="#22c55e" visibility="hidden">&#x2713;</text>
+              <foreignObject x="250" y="333" width="120" height="50">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-medicion" style="font-family:Inter,sans-serif;font-size:10px;color:#9ca3af;line-height:1.3;word-wrap:break-word;overflow:hidden;height:100%;"></div>
+              </foreignObject>
+              <text id="ishikawa-check-medicion" x="368" y="306" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
             </g>
 
             <!-- Medio Ambiente (center x=505, box y=298 h=92) -->
             <g id="ishikawa-label-medioAmbiente" class="ish-label-group" onclick="editCategory('medioAmbiente')" style="cursor:pointer">
-              <rect id="ishikawa-rect-medioAmbiente" x="440" y="298" width="130" height="92" rx="8" fill="white" stroke="#3b82f6" stroke-width="1.5" filter="url(#ish-sh)"/>
+              <rect id="ishikawa-rect-medioAmbiente" x="440" y="298" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
               <foreignObject x="440" y="298" width="130" height="30">
-                <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;height:100%;font-family:Inter,sans-serif;font-size:11px;font-weight:700;color:#1e3a5f;">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;height:100%;font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#1e3a5f;">
                   <i class="fas fa-leaf" style="margin-right:4px;"></i>Medio Amb.
                 </div>
               </foreignObject>
               <line x1="448" y1="328" x2="562" y2="328" stroke="#e2e8f0" stroke-width="1"/>
-              <text id="ishikawa-kw1-medioAmbiente" x="505" y="342" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-kw2-medioAmbiente" x="505" y="355" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-kw3-medioAmbiente" x="505" y="368" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" fill="#475569"></text>
-              <text id="ishikawa-check-medioAmbiente" x="563" y="306" font-size="14" fill="#22c55e" visibility="hidden">&#x2713;</text>
+              <foreignObject x="445" y="333" width="120" height="50">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-medioAmbiente" style="font-family:Inter,sans-serif;font-size:10px;color:#9ca3af;line-height:1.3;word-wrap:break-word;overflow:hidden;height:100%;"></div>
+              </foreignObject>
+              <text id="ishikawa-check-medioAmbiente" x="563" y="306" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
             </g>
 
             <!-- PROBLEM / EFFECT BOX -->
             <g id="ishikawa-cause">
-              <rect x="767" y="164" width="220" height="120" rx="10" fill="#1e3a5f" filter="url(#ish-sh)"/>
+              <rect x="767" y="164" width="220" height="120" rx="10" fill="#1e3a5f"/>
               <foreignObject x="767" y="164" width="220" height="120">
                 <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:12px;font-family:Inter,sans-serif;">
                   <div style="font-size:10px;font-weight:700;color:white;letter-spacing:0.8;margin-bottom:4px;">PROBLEMA</div>
@@ -1350,112 +1354,13 @@
     let paretoData = [];
 
     const ISHIKAWA_CATEGORY_CONFIG = {
-      maquina: {
-        label: 'Máquina',
-        diagramLabel: '🔧 Máquina',
-        keywords: ['maquina', 'máquina', 'equipo', 'motor', 'pieza', 'rodamiento', 'banda', 'sensor', 'falla', 'averia', 'avería', 'desgaste', 'rotura', 'mantenimiento', 'ajuste', 'lubricacion', 'lubricación', 'presion', 'presión', 'voltaje', 'valvula', 'válvula']
-      },
-      metodo: {
-        label: 'Método',
-        diagramLabel: '📋 Método',
-        keywords: ['metodo', 'método', 'procedimiento', 'proceso', 'instruccion', 'instrucción', 'operacion', 'operación', 'protocolo', 'tecnica', 'técnica', 'estandar', 'estándar', 'secuencia', 'revision', 'revisión', 'cambio', 'limpieza', 'arranque', 'parada']
-      },
-      materiales: {
-        label: 'Materiales',
-        diagramLabel: '📦 Materiales',
-        keywords: ['material', 'materiales', 'repuesto', 'insumo', 'componente', 'suministro', 'calidad', 'defectuoso', 'defectuosa', 'inadecuado', 'inadecuada', 'recambio', 'lote', 'producto', 'quimico', 'químico', 'materia prima', 'refaccion', 'refacción']
-      },
-      manoObra: {
-        label: 'Mano de obra',
-        diagramLabel: '👷 Mano de obra',
-        keywords: ['operador', 'operaria', 'operario', 'tecnico', 'técnico', 'personal', 'empleado', 'trabajador', 'capacitacion', 'capacitación', 'formacion', 'formación', 'error', 'descuido', 'turno', 'supervision', 'supervisión', 'experiencia']
-      },
-      medicion: {
-        label: 'Medición',
-        diagramLabel: '📊 Medición',
-        keywords: ['medicion', 'medición', 'sensor', 'control', 'instrumento', 'verificacion', 'verificación', 'inspeccion', 'inspección', 'dato', 'datos', 'indicador', 'calibracion', 'calibración', 'lectura', 'registro', 'medidor']
-      },
-      medioAmbiente: {
-        label: 'Medio ambiente',
-        diagramLabel: '🌍 Medio ambiente',
-        keywords: ['ambiente', 'temperatura', 'humedad', 'condiciones', 'clima', 'polvo', 'suciedad', 'limpieza', 'ruido', 'vibracion', 'vibración', 'ventilacion', 'ventilación', 'iluminacion', 'iluminación', 'calor', 'frio', 'frío']
-      }
+      maquina: { label: 'Máquina', icon: 'fas fa-cog' },
+      metodo: { label: 'Método', icon: 'fas fa-clipboard-list' },
+      materiales: { label: 'Materiales', icon: 'fas fa-box' },
+      manoObra: { label: 'Mano de obra', icon: 'fas fa-users' },
+      medicion: { label: 'Medición', icon: 'fas fa-chart-line' },
+      medioAmbiente: { label: 'Medio ambiente', icon: 'fas fa-leaf' }
     };
-
-    const ISHIKAWA_THEME_BUNDLES = [
-      {
-        name: 'mecanico',
-        triggers: ['maquina', 'máquina', 'equipo', 'motor', 'pieza', 'rodamiento', 'banda', 'desgaste', 'rotura', 'lubricacion', 'lubricación', 'ajuste', 'valvula', 'válvula', 'mantenimiento'],
-        categories: {
-          maquina: ['desgaste', 'lubricación', 'ajuste', 'componente', 'mantenimiento'],
-          metodo: ['inspección', 'procedimiento', 'preventivo'],
-          materiales: ['repuesto', 'componente', 'lubricante'],
-          manoObra: ['técnico', 'operador', 'capacitación'],
-          medicion: ['sensor', 'medición', 'calibración'],
-          medioAmbiente: ['temperatura', 'suciedad', 'vibración']
-        }
-      },
-      {
-        name: 'proceso',
-        triggers: ['proceso', 'procedimiento', 'metodo', 'método', 'operacion', 'operación', 'secuencia', 'arranque', 'parada', 'revision', 'revisión'],
-        categories: {
-          maquina: ['ajuste', 'equipo', 'parámetro'],
-          metodo: ['procedimiento', 'secuencia', 'estándar', 'instrucción'],
-          materiales: ['insumo', 'material', 'especificación'],
-          manoObra: ['operador', 'supervisión', 'capacitación'],
-          medicion: ['verificación', 'registro', 'control'],
-          medioAmbiente: ['orden', 'limpieza', 'condiciones']
-        }
-      },
-      {
-        name: 'material',
-        triggers: ['material', 'materiales', 'repuesto', 'insumo', 'componente', 'lote', 'producto', 'materia prima', 'defectuoso', 'defectuosa', 'calidad'],
-        categories: {
-          maquina: ['componente', 'desgaste', 'ajuste'],
-          metodo: ['inspección', 'recepción', 'manejo'],
-          materiales: ['repuesto', 'insumo', 'lote', 'calidad'],
-          manoObra: ['almacenista', 'operador', 'capacitación'],
-          medicion: ['verificación', 'muestreo', 'especificación'],
-          medioAmbiente: ['almacenamiento', 'humedad', 'contaminación']
-        }
-      },
-      {
-        name: 'mano_obra',
-        triggers: ['operador', 'tecnico', 'técnico', 'personal', 'error', 'descuido', 'fatiga', 'supervision', 'supervisión', 'capacitacion', 'capacitación'],
-        categories: {
-          maquina: ['ajuste', 'uso', 'operación'],
-          metodo: ['instrucción', 'procedimiento', 'estándar'],
-          materiales: ['insumo', 'repuesto', 'componente'],
-          manoObra: ['capacitación', 'supervisión', 'experiencia', 'error'],
-          medicion: ['verificación', 'registro', 'inspección'],
-          medioAmbiente: ['orden', 'limpieza', 'seguridad']
-        }
-      },
-      {
-        name: 'medicion',
-        triggers: ['sensor', 'medicion', 'medición', 'calibracion', 'calibración', 'registro', 'indicador', 'lectura', 'control', 'verificacion', 'verificación', 'inspeccion', 'inspección'],
-        categories: {
-          maquina: ['sensor', 'instrumento', 'equipo'],
-          metodo: ['verificación', 'control', 'revisión'],
-          materiales: ['patrón', 'formato', 'insumo'],
-          manoObra: ['inspector', 'técnico', 'capacitación'],
-          medicion: ['calibración', 'lectura', 'registro', 'indicador'],
-          medioAmbiente: ['temperatura', 'humedad', 'interferencia']
-        }
-      },
-      {
-        name: 'ambiente',
-        triggers: ['temperatura', 'humedad', 'polvo', 'suciedad', 'ruido', 'vibracion', 'vibración', 'ventilacion', 'ventilación', 'calor', 'frio', 'frío', 'ambiente'],
-        categories: {
-          maquina: ['vibración', 'desgaste', 'sobrecalentamiento'],
-          metodo: ['limpieza', 'inspección', 'control'],
-          materiales: ['contaminación', 'humedad', 'almacenamiento'],
-          manoObra: ['EPP', 'supervisión', 'orden'],
-          medicion: ['monitoreo', 'registro', 'sensor'],
-          medioAmbiente: ['temperatura', 'humedad', 'polvo', 'ventilación']
-        }
-      }
-    ];
 
     const CATEGORY_ORDER = Object.keys(ISHIKAWA_CATEGORY_CONFIG);
 
@@ -1508,13 +1413,6 @@
       });
     }
 
-    function mergeDelimitedText(currentText = '', newValues = []) {
-      return sanitizeKeywordEntries([
-        ...splitTextValues(currentText),
-        ...newValues
-      ]).join(', ');
-    }
-
     function truncateText(text = '', maxLength = 80) {
       const cleanText = text.toString().trim();
       if (cleanText.length <= maxLength) return cleanText;
@@ -1554,22 +1452,6 @@
         .filter(entry => entry.value);
     }
 
-    function formatIshikawaLabelContent(categoryKey, value = '') {
-      const baseLabel = ISHIKAWA_CATEGORY_CONFIG[categoryKey].diagramLabel;
-      const keywordLines = splitTextValues(value)
-        .slice(0, 3)
-        .map(keyword => escapeHtml(truncateText(keyword, 18)));
-
-      if (keywordLines.length === 0) {
-        return `<span class="fishbone-label-title">${escapeHtml(baseLabel)}</span>`;
-      }
-
-      return `
-        <span class="fishbone-label-title">${escapeHtml(baseLabel)}</span>
-        <span class="fishbone-label-value">${keywordLines.join('<br>')}</span>
-      `;
-    }
-
     function refreshIshikawaDiagram() {
       const diagram = document.getElementById('ishikawa-diagram');
       if (!diagram) return;
@@ -1583,78 +1465,15 @@
 
       CATEGORY_ORDER.forEach(categoryKey => {
         const value = (document.getElementById(`ishikawa-${categoryKey}`)?.value || '').trim();
-        const keywords = splitTextValues(value).slice(0, 3).map(k => truncateText(k, 20));
-        for (let i = 1; i <= 3; i++) {
-          const el = document.getElementById(`ishikawa-kw${i}-${categoryKey}`);
-          if (el) el.textContent = keywords[i - 1] || '';
-        }
+        const firstLine = value.split('\n')[0] || '';
+        const displayText = truncateText(firstLine, 70);
+        const el = document.getElementById(`ishikawa-content-${categoryKey}`);
+        if (el) el.textContent = displayText;
       });
 
       const problema = (document.getElementById('descripcionProblema')?.value || '').trim();
       const causeText = document.getElementById('ishikawa-cause-text');
       if (causeText) causeText.textContent = problema || 'No definido';
-    }
-
-    function getCategoryMatchesFromTexts(texts = []) {
-      const combinedText = normalizeText(texts.join(' '));
-      const matches = {};
-
-      CATEGORY_ORDER.forEach(categoryKey => {
-        const keywords = ISHIKAWA_CATEGORY_CONFIG[categoryKey].keywords;
-        matches[categoryKey] = uniqueValues(
-          keywords.filter(keyword => combinedText.includes(normalizeText(keyword)))
-        );
-      });
-
-      return matches;
-    }
-
-    function getThemeMatchesFromTexts(texts = []) {
-      const combinedText = normalizeText(texts.join(' '));
-      return ISHIKAWA_THEME_BUNDLES.filter(theme =>
-        theme.triggers.some(trigger => combinedText.includes(normalizeText(trigger)))
-      );
-    }
-
-    function buildIshikawaKeywordsFromTexts(texts = []) {
-      const directMatches = getCategoryMatchesFromTexts(texts);
-      const detectedThemes = getThemeMatchesFromTexts(texts);
-      const categoryKeywords = {};
-
-      CATEGORY_ORDER.forEach(categoryKey => {
-        categoryKeywords[categoryKey] = [...(directMatches[categoryKey] || [])];
-      });
-
-      detectedThemes.forEach(theme => {
-        CATEGORY_ORDER.forEach(categoryKey => {
-          categoryKeywords[categoryKey].push(...(theme.categories[categoryKey] || []));
-        });
-      });
-
-      CATEGORY_ORDER.forEach(categoryKey => {
-        categoryKeywords[categoryKey] = uniqueValues(categoryKeywords[categoryKey]);
-      });
-
-      return categoryKeywords;
-    }
-
-    function applyIshikawaMatches(matches = {}) {
-      CATEGORY_ORDER.forEach(categoryKey => {
-        const field = document.getElementById(`ishikawa-${categoryKey}`);
-        if (!field) return;
-
-        const mergedValue = mergeDelimitedText(field.value, matches[categoryKey] || []);
-        field.value = mergedValue;
-        rcaData.ishikawa[categoryKey] = mergedValue;
-      });
-
-      const detectedCategories = {};
-      CATEGORY_ORDER.forEach(categoryKey => {
-        detectedCategories[categoryKey] = !!((matches[categoryKey] || []).length || (rcaData.ishikawa[categoryKey] || '').trim());
-      });
-
-      refreshIshikawaDiagram();
-      updateIshikawaDiagram(detectedCategories);
     }
 
     function applyWhysIfNeeded(suggestions = []) {
@@ -1842,14 +1661,13 @@
     }
 
     function buildAccionHTML(tipo, index, accion = {}) {
-      const color = tipo === 'correctiva' ? 'green' : 'blue';
       const descripcion = escapeHtml(accion.descripcion || '');
       const responsable = escapeHtml(accion.responsable || '');
       const fecha = escapeHtml(accion.fecha || getTodayISODate());
       const prioridad = accion.prioridad || 'media';
 
       return `
-        <div class="bg-${color}-50 border border-${color}-200 rounded-lg p-3 sm:p-4">
+        <div class="accion-card bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-3 items-end">
             <div class="lg:col-span-5">
               <label class="block text-sm font-semibold text-gray-700 mb-2">Descripción</label>
@@ -1963,6 +1781,7 @@
         if (whyField) {
           whyField.addEventListener('input', updateClearAllButton);
           whyField.addEventListener('change', updateClearAllButton);
+          whyField.addEventListener('change', syncWhysToIshikawa);
         }
       }
 
@@ -1987,6 +1806,14 @@
 
     // Navegación de tabs
     function showTab(tabName) {
+      // Bloquear navegación a tabs bloqueados excepto captura
+      if (tabName !== 'captura') {
+        const tabBtn = document.getElementById(`tab-${tabName}`);
+        if (tabBtn && tabBtn.classList.contains('tab-locked')) {
+          return;
+        }
+      }
+      
       // Ocultar todos los contenidos
       document.querySelectorAll('[id^="content-"]').forEach(el => el.classList.add('hidden'));
       // Desactivar todos los tabs
@@ -2001,12 +1828,33 @@
         syncPlanFromAnalysis();
       }
       
+      // Sincronizar 5 Porqués a Ishikawa al cambiar al tab de Ishikawa
+      if (tabName === 'ishikawa') {
+        syncWhysToIshikawa();
+      }
+      
       // Actualizar diagrama de Pareto si es el tab de Pareto
       if (tabName === 'pareto') {
         setTimeout(() => {
           updateParetoChart();
         }, 100);
       }
+    }
+
+    function updateTabLockState() {
+      const capturaCompleta = !!(rcaData.captura && rcaData.captura.problema);
+      const lockedTabs = ['5whys', 'ishikawa', 'pareto', 'plan'];
+      lockedTabs.forEach(tabName => {
+        const btn = document.getElementById(`tab-${tabName}`);
+        if (!btn) return;
+        if (capturaCompleta) {
+          btn.classList.remove('tab-locked');
+          btn.onclick = null;
+          btn.onclick = function() { showTab(tabName); };
+        } else {
+          btn.classList.add('tab-locked');
+        }
+      });
     }
 
     // Guardar captura
@@ -2027,6 +1875,7 @@
       
       syncPlanFromAnalysis();
       persistCurrentState();
+      updateTabLockState();
       showTab('5whys');
     }
 
@@ -2073,15 +1922,7 @@
       });
 
       if (emptyCategories.length > 0) {
-        const categoryNames = {
-          maquina: 'Máquina',
-          metodo: 'Método',
-          materiales: 'Materiales',
-          manoObra: 'Mano de obra',
-          medicion: 'Medición',
-          medioAmbiente: 'Medio ambiente'
-        };
-        const missingNames = emptyCategories.map(cat => categoryNames[cat]).join(', ');
+        const missingNames = emptyCategories.map(cat => ISHIKAWA_CATEGORY_CONFIG[cat].label).join(', ');
         alert(`Por favor completa todas las categorías del diagrama de Ishikawa antes de guardar.\n\nCategorías faltantes: ${missingNames}`);
         return;
       }
@@ -2115,14 +1956,9 @@
         diagram.classList.add('hidden');
       }
 
-      updateIshikawaDiagram({
-        maquina: false,
-        metodo: false,
-        materiales: false,
-        manoObra: false,
-        medicion: false,
-        medioAmbiente: false
-      });
+      const emptyState = {};
+      CATEGORY_ORDER.forEach(cat => { emptyState[cat] = false; });
+      updateIshikawaDiagram(emptyState);
       syncPlanFromAnalysis();
       persistCurrentState();
     }
@@ -2134,81 +1970,110 @@
     }
 
     // ===== FUNCIONES DE SINCRONIZACIÓN =====
+
+    function extractKeywords(text) {
+      const raw = text.trim();
+      if (raw.length < 5) return [];
+
+      const stopWords = new Set([
+        'el', 'la', 'los', 'las', 'de', 'del', 'en', 'por', 'para', 'con',
+        'sin', 'que', 'es', 'un', 'una', 'se', 'no', 'lo', 'su', 'al',
+        'como', 'mas', 'pero', 'sus', 'le', 'ya', 'este', 'entre', 'era',
+        'muy', 'todo', 'tambien', 'tras', 'donde', 'cual', 'cuando',
+        'porque', 'debido', 'esta', 'esto', 'esa', 'ese', 'eso',
+        'son', 'fue', 'han', 'has', 'cada', 'asi', 'aun', 'aunque',
+        'habia', 'hizo', 'hace', 'ser', 'sido', 'siendo',
+        'sobre', 'ante', 'bajo', 'contra', 'durante', 'mediante',
+        'segun', 'segun', 'sin', 'tiene', 'tenia', 'tener',
+        'parte', 'causa', 'forma', 'tipo', 'falla',
+        'porque', 'cual', 'cuales', 'quien', 'donde', 'como',
+        'cuando', 'tanto', 'poco', 'mucho', 'varios', 'varias',
+        'solo', 'mismo', 'propio', 'otro', 'otra', 'otros', 'otras',
+        'dicho', 'dicha', 'dichos', 'dichas', 'cada', 'ambos'
+      ]);
+
+      // Try comma/semicolon split first
+      const parts = raw.split(/[,;]+/).map(p => p.trim()).filter(p => {
+        const cleaned = p.split(/\s+/).filter(w => !stopWords.has(normalizeText(w))).join(' ');
+        return cleaned.length > 4;
+      });
+      if (parts.length >= 2) {
+        return parts.map(p => {
+          const cleaned = p.split(/\s+/).filter(w => !stopWords.has(normalizeText(w))).join(' ');
+          return cleaned.length > 4 ? cleaned : null;
+        }).filter(Boolean).slice(0, 4);
+      }
+
+      // Fallback: extract meaningful 2-3 word phrases
+      const words = raw.split(/\s+/).filter(w => w.length > 2);
+      const significant = words.filter(w => !stopWords.has(normalizeText(w)));
+
+      if (significant.length === 0) return [];
+
+      const phrases = [];
+      for (let i = 0; i < significant.length; i++) {
+        for (let len = 2; len <= 3; len++) {
+          if (i + len <= significant.length) {
+            const phrase = significant.slice(i, i + len).join(' ');
+            if (phrase.length > 5 && !phrases.some(p => p.includes(phrase) || phrase.includes(p))) {
+              phrases.push(phrase);
+            }
+          }
+        }
+      }
+
+      // Sort by length descending (longer phrases are more meaningful)
+      phrases.sort((a, b) => b.length - a.length);
+      return phrases.slice(0, 3);
+    }
     
-    // Sincronizar 5 Porqués hacia Ishikawa
     function syncWhysToIshikawa() {
       const whyTexts = getWhyTexts().filter(Boolean);
       if (whyTexts.length === 0) return;
 
-      // Clasificar cada porqué en la categoría más apropiada
-      const categoryAssignments = {};
-      
-      whyTexts.forEach((whyText, index) => {
-        const matches = getCategoryMatchesFromTexts([whyText]);
-        let bestCategory = null;
-        let maxMatches = 0;
-
-        // Encontrar la categoría con más coincidencias
-        CATEGORY_ORDER.forEach(categoryKey => {
-          const matchCount = (matches[categoryKey] || []).length;
-          if (matchCount > maxMatches) {
-            maxMatches = matchCount;
-            bestCategory = categoryKey;
-          }
-        });
-
-        // Si no hay coincidencias claras, usar la primera categoría con alguna coincidencia
-        if (!bestCategory && maxMatches === 0) {
-          CATEGORY_ORDER.forEach(categoryKey => {
-            if ((matches[categoryKey] || []).length > 0 && !bestCategory) {
-              bestCategory = categoryKey;
-            }
-          });
-        }
-
-        // Si aún no hay categoría, asignar a "Método" por defecto
-        if (!bestCategory) {
-          bestCategory = 'metodo';
-        }
-
-        if (!categoryAssignments[bestCategory]) {
-          categoryAssignments[bestCategory] = [];
-        }
-        categoryAssignments[bestCategory].push(whyText);
+      const allKeywords = [];
+      whyTexts.forEach(text => {
+        allKeywords.push(...extractKeywords(text));
       });
 
-      // Aplicar las asignaciones a los textareas del Ishikawa
+      const uniqueKeywords = [];
+      const seen = new Set();
+      allKeywords.forEach(kw => {
+        const n = normalizeText(kw);
+        if (!seen.has(n)) { seen.add(n); uniqueKeywords.push(kw); }
+      });
+
+      if (uniqueKeywords.length === 0) return;
+
+      const assignments = {};
+      uniqueKeywords.forEach((kw, index) => {
+        const catKey = CATEGORY_ORDER[index % CATEGORY_ORDER.length];
+        if (!assignments[catKey]) assignments[catKey] = [];
+        assignments[catKey].push(kw);
+      });
+
       CATEGORY_ORDER.forEach(categoryKey => {
         const field = document.getElementById(`ishikawa-${categoryKey}`);
         if (!field) return;
 
-        const assignedWhys = categoryAssignments[categoryKey] || [];
-        if (assignedWhys.length > 0) {
-          const currentValue = field.value.trim();
-          
-          // Fusionar con saltos de línea, evitando duplicados
-          const existingLines = currentValue ? currentValue.split('\n').map(l => l.trim()).filter(Boolean) : [];
-          const newLines = assignedWhys.map(w => w.trim()).filter(Boolean);
-          
-          // Combinar sin duplicados
-          const allLines = [...existingLines];
-          newLines.forEach(newLine => {
-            const normalized = normalizeText(newLine);
-            if (!allLines.some(existing => normalizeText(existing) === normalized)) {
-              allLines.push(newLine);
-            }
-          });
-          
-          const mergedValue = allLines.join('\n');
-          field.value = mergedValue;
-          rcaData.ishikawa[categoryKey] = mergedValue;
-        }
+        const newItems = assignments[categoryKey] || [];
+        const currentValue = field.value.trim();
+        const existing = currentValue ? currentValue.split('\n').map(l => l.trim()).filter(Boolean) : [];
+        const allLines = [...existing];
+        newItems.forEach(item => {
+          if (!allLines.some(l => normalizeText(l) === normalizeText(item))) {
+            allLines.push(item);
+          }
+        });
+
+        const mergedValue = allLines.join('\n');
+        field.value = mergedValue;
+        rcaData.ishikawa[categoryKey] = mergedValue;
       });
 
-      // Actualizar el diagrama visual
       const detectedCategories = {};
       CATEGORY_ORDER.forEach(categoryKey => {
-        detectedCategories[categoryKey] = !!(categoryAssignments[categoryKey]?.length || (rcaData.ishikawa[categoryKey] || '').trim());
+        detectedCategories[categoryKey] = !!(rcaData.ishikawa[categoryKey] || '').trim();
       });
 
       refreshIshikawaDiagram();
@@ -2217,48 +2082,19 @@
     
     // Actualizar diagrama visual de Ishikawa con detección de palabras clave
     function updateIshikawaDiagram(detectedCategories) {
-      // Reset all label rects to default state
       CATEGORY_ORDER.forEach(cat => {
         const rect = document.getElementById(`ishikawa-rect-${cat}`);
-        if (rect) { rect.setAttribute('fill', 'white'); rect.setAttribute('stroke', '#3b82f6'); }
-        const title = document.getElementById(`ishikawa-title-${cat}`);
-        if (title) title.setAttribute('fill', '#1e3a5f');
-        for (let i = 1; i <= 3; i++) {
-          const kw = document.getElementById(`ishikawa-kw${i}-${cat}`);
-          if (kw) kw.setAttribute('fill', '#475569');
-        }
+        const content = document.getElementById(`ishikawa-content-${cat}`);
         const check = document.getElementById(`ishikawa-check-${cat}`);
-        if (check) check.setAttribute('visibility', 'hidden');
-      });
 
-      // Highlight detected categories in green
-      Object.keys(detectedCategories).forEach(cat => {
         if (detectedCategories[cat]) {
-          const rect = document.getElementById(`ishikawa-rect-${cat}`);
-          if (rect) { rect.setAttribute('fill', '#22c55e'); rect.setAttribute('stroke', '#16a34a'); }
-          const title = document.getElementById(`ishikawa-title-${cat}`);
-          if (title) title.setAttribute('fill', 'white');
-          for (let i = 1; i <= 3; i++) {
-            const kw = document.getElementById(`ishikawa-kw${i}-${cat}`);
-            if (kw) kw.setAttribute('fill', 'rgba(255,255,255,0.85)');
-          }
-          const check = document.getElementById(`ishikawa-check-${cat}`);
+          if (rect) { rect.setAttribute('fill', '#e0f2fe'); rect.setAttribute('stroke', '#3b82f6'); }
+          if (content) content.setAttribute('fill', '#1e40af');
           if (check) check.setAttribute('visibility', 'visible');
-        }
-      });
-
-      // Update textarea borders (unchanged)
-      Object.keys(detectedCategories).forEach(category => {
-        const textarea = document.getElementById(`ishikawa-${category}`);
-        if (textarea) {
-          textarea.classList.remove('border-gray-300', 'border-blue-300', 'border-indigo-300',
-            'border-purple-300', 'border-pink-300', 'border-orange-300', 'border-green-300',
-            'border-red-500', 'border-yellow-500', 'ring-2', 'ring-red-200', 'ring-yellow-200', 'ring-green-200');
-          if (detectedCategories[category]) {
-            textarea.classList.add('border-green-500', 'ring-2', 'ring-green-200');
-          } else {
-            textarea.classList.add('border-gray-300');
-          }
+        } else {
+          if (rect) { rect.setAttribute('fill', 'white'); rect.setAttribute('stroke', '#d1d5db'); }
+          if (content) content.setAttribute('fill', '#9ca3af');
+          if (check) check.setAttribute('visibility', 'hidden');
         }
       });
     }
@@ -2292,7 +2128,7 @@
 
     // Eliminar acción
     function removeAccion(btn, tipo) {
-      btn.closest('.bg-green-50, .bg-blue-50').remove();
+      btn.closest('.accion-card').remove();
       persistCurrentState();
     }
 
@@ -2350,13 +2186,12 @@
           'Fecha',
           'Máquina', 
           'Problema',
-          'Causa',
-          'Correctivo',
+          'Tipo de Mantenimiento',
           'Plan de Acción',
-          'Estado',
-          'Descripción del Estado',
+          'Status del Plan',
           'Responsable',
-          'Fecha de Finalización'
+          'Fecha de Finalización',
+          'Causa Raíz'
         ]
       ];
 
@@ -2392,13 +2227,12 @@
           rcaData.captura.fecha || '',
           rcaData.captura.maquina || '',
           rcaData.captura.problema || '',
-          causaRaiz,
           tipoAccion,
           planesAccion,
-          '', // Estado (vacío)
-          '', // Descripción del estado (vacío)
+          'Pendiente',
           responsables || rcaData.captura.responsable || '',
-          fechasFin
+          fechasFin,
+          causaRaiz
         ]);
       } else {
         // Sin acciones: una fila con los datos básicos
@@ -2406,102 +2240,99 @@
           rcaData.captura.fecha || '',
           rcaData.captura.maquina || '',
           rcaData.captura.problema || '',
-          causaRaiz,
-          '', // Correctivo
-          '', // Plan de acción
-          '', // Estado
-          '', // Descripción del estado
+          '',
+          '',
+          'Pendiente',
           rcaData.captura.responsable || '',
-          '' // Fecha de finalización
+          '',
+          causaRaiz
         ]);
+      }
+
+      // Calcular anchos de columna según el contenido
+      function calcColumnWidths(data, minWidth = 8, maxWidth = 60) {
+        if (!data || data.length === 0) return [];
+        const numCols = Math.max(...data.map(r => r.length));
+        const widths = Array(numCols).fill(0);
+        data.forEach(row => {
+          for (let c = 0; c < row.length; c++) {
+            const cell = String(row[c] ?? '');
+            const maxLineLen = cell.split('\n').reduce((max, l) => Math.max(max, l.length), 0);
+            widths[c] = Math.max(widths[c], maxLineLen);
+          }
+        });
+        return widths.map(w => ({ wch: Math.min(Math.max(w + 2, minWidth), maxWidth) }));
       }
 
       // Crear hoja principal con las columnas solicitadas
       const reporteSheet = XLSX.utils.aoa_to_sheet(reporteData);
-
-      // Agregar autofilter a todas las columnas (incluyendo máquina)
-      const range = XLSX.utils.decode_range(reporteSheet['!ref']);
-      reporteSheet['!autofilter'] = { ref: XLSX.utils.encode_range(range) };
-
-      // Ajustar anchos de columna para mejor visualización
-      const columnWidths = [
-        { wch: 12 }, // fecha
-        { wch: 20 }, // maquina
-        { wch: 40 }, // problema
-        { wch: 40 }, // causa
-        { wch: 15 }, // correctivo
-        { wch: 50 }, // plan de accion
-        { wch: 10 }, // estado
-        { wch: 20 }, // descripcion del estado
-        { wch: 25 }, // responsable
-        { wch: 15 }  // fecha de finalizacion
-      ];
-      reporteSheet['!cols'] = columnWidths;
+      reporteSheet['!cols'] = calcColumnWidths(reporteData);
+      const reporteRange = XLSX.utils.decode_range(reporteSheet['!ref']);
+      reporteSheet['!autofilter'] = { ref: XLSX.utils.encode_range(reporteRange) };
 
       XLSX.utils.book_append_sheet(workbook, reporteSheet, 'Reporte de Fallas');
 
       // Hoja adicional: Datos completos del análisis (opcional, para referencia)
-      const datosCompletos = [
-        ['Sección', 'Campo', 'Valor'],
-        ['Captura', 'Fecha del análisis', rcaData.captura.fecha || ''],
-        ['Captura', 'Máquina/Equipo', rcaData.captura.maquina || ''],
-        ['Captura', 'Tiempo de paro (minutos)', rcaData.captura.tiempoParo || ''],
-        ['Captura', 'Descripción del problema', rcaData.captura.problema || ''],
-        ['Captura', 'Síntomas observados', rcaData.captura.sintomas || ''],
-        ['Captura', 'Responsable del análisis', rcaData.captura.responsable || '']
-      ];
+      const datas = rcaData.captura;
+      const whys = rcaData.whys;
+      const ishikawa = rcaData.ishikawa;
+      const nombresCategoria = {
+        maquina: 'Máquina', metodo: 'Método', materiales: 'Materiales',
+        manoObra: 'Mano de obra', medicion: 'Medición', medioAmbiente: 'Medio ambiente'
+      };
 
-      for (let i = 1; i <= 5; i++) {
-        datosCompletos.push(['5 Porqués', `Por qué ${i}`, rcaData.whys[`why${i}`] || '']);
-      }
+      const datosCompletos = [[
+        'Fecha', 'Máquina', 'Tiempo de paro (min)', 'Problema', 'Síntomas', 'Responsable',
+        'Por qué 1', 'Por qué 2', 'Por qué 3', 'Por qué 4', 'Por qué 5',
+        'Ishikawa Máquina', 'Ishikawa Método', 'Ishikawa Materiales',
+        'Ishikawa Mano de obra', 'Ishikawa Medición', 'Ishikawa Medio ambiente'
+      ]];
 
-      const categorias = ['maquina', 'metodo', 'materiales', 'manoObra', 'medicion', 'medioAmbiente'];
-      const nombresCategorias = ['Máquina', 'Método', 'Materiales', 'Mano de obra', 'Medición', 'Medio ambiente'];
-      categorias.forEach((cat, i) => {
-        datosCompletos.push(['Ishikawa', nombresCategorias[i], rcaData.ishikawa[cat] || '']);
-      });
+      datosCompletos.push([
+        datas.fecha || '',
+        datas.maquina || '',
+        datas.tiempoParo || '',
+        datas.problema || '',
+        datas.sintomas || '',
+        datas.responsable || '',
+        whys.why1 || '',
+        whys.why2 || '',
+        whys.why3 || '',
+        whys.why4 || '',
+        whys.why5 || '',
+        ishikawa.maquina || '',
+        ishikawa.metodo || '',
+        ishikawa.materiales || '',
+        ishikawa.manoObra || '',
+        ishikawa.medicion || '',
+        ishikawa.medioAmbiente || ''
+      ]);
 
       const datosCompletosSheet = XLSX.utils.aoa_to_sheet(datosCompletos);
+      datosCompletosSheet['!cols'] = calcColumnWidths(datosCompletos);
       XLSX.utils.book_append_sheet(workbook, datosCompletosSheet, 'Datos Completos');
 
       // Hoja adicional: Análisis de Pareto (categorías de fallas)
       if (paretoData && paretoData.length > 0) {
-        const paretoSheetData = [
-          ['Categoría de Falla', 'Frecuencia', 'Porcentaje', 'Porcentaje Acumulado']
-        ];
-
-        // Ordenar por frecuencia descendente
         const sortedPareto = [...paretoData].sort((a, b) => b.frecuencia - a.frecuencia);
         const totalFreq = sortedPareto.reduce((sum, item) => sum + item.frecuencia, 0);
         let acumulado = 0;
 
+        const header = [];
+        const row = [];
         sortedPareto.forEach(item => {
           acumulado += item.frecuencia;
-          const porcentaje = ((item.frecuencia / totalFreq) * 100).toFixed(1);
-          const porcentajeAcumulado = ((acumulado / totalFreq) * 100).toFixed(1);
-
-          paretoSheetData.push([
-            item.causa,
-            item.frecuencia,
-            parseFloat(porcentaje),
-            parseFloat(porcentajeAcumulado)
-          ]);
+          const pct = ((item.frecuencia / totalFreq) * 100).toFixed(1);
+          const pctAcum = ((acumulado / totalFreq) * 100).toFixed(1);
+          header.push('Categoría', 'Frecuencia', '%', '% Acum');
+          row.push(item.causa, item.frecuencia, parseFloat(pct), parseFloat(pctAcum));
         });
+        header.push('Total fallas');
+        row.push(totalFreq);
 
-        // Agregar fila de totales
-        paretoSheetData.push(['', '', '', '']);
-        paretoSheetData.push(['Total', totalFreq, '100.0', '']);
-
+        const paretoSheetData = [header, row];
         const paretoSheet = XLSX.utils.aoa_to_sheet(paretoSheetData);
-
-        // Ajustar anchos de columna
-        const paretoColumnWidths = [
-          { wch: 35 }, // categoría
-          { wch: 12 }, // frecuencia
-          { wch: 12 }, // porcentaje
-          { wch: 18 }  // porcentaje acumulado
-        ];
-        paretoSheet['!cols'] = paretoColumnWidths;
+        paretoSheet['!cols'] = calcColumnWidths(paretoSheetData, 10, 50);
 
         // Agregar autofilter
         const paretoRange = XLSX.utils.decode_range(paretoSheet['!ref']);
@@ -2536,39 +2367,29 @@
             excelFileHandle = handle;
           }
 
-          // Si existe un workbook, agregar la nueva fila a la hoja principal
+          // Si existe un workbook, agregar datos nuevos a todas las hojas
           if (existingWorkbook) {
-            const sheetName = existingWorkbook.SheetNames[0];
-            const sheet = existingWorkbook.Sheets[sheetName];
-            const range = XLSX.utils.decode_range(sheet['!ref']);
-            
-            // Obtener la nueva fila del workbook actual
-            const currentSheetName = workbook.SheetNames[0];
-            const currentSheet = workbook.Sheets[currentSheetName];
-            const currentRange = XLSX.utils.decode_range(currentSheet['!ref']);
-            
-            // La nueva fila está en la fila 2 (índice 1, ya que la fila 0 es el encabezado)
-            const newRow = [];
-            for (let col = currentRange.s.c; col <= currentRange.e.c; col++) {
-              const cellAddress = XLSX.utils.encode_cell({ r: 1, c: col });
-              const cell = currentSheet[cellAddress];
-              newRow.push(cell ? cell.v : '');
-            }
-            
-            // Agregar la nueva fila al workbook existente
-            const newRowNum = range.e.r + 1;
-            for (let col = 0; col < newRow.length; col++) {
-              const cellAddress = XLSX.utils.encode_cell({ r: newRowNum, c: col });
-              sheet[cellAddress] = { v: newRow[col] };
-            }
-            
-            // Actualizar el rango de la hoja
-            sheet['!ref'] = XLSX.utils.encode_range({
-              s: { r: 0, c: 0 },
-              e: { r: newRowNum, c: newRow.length - 1 }
+            existingWorkbook.SheetNames.forEach(sheetName => {
+              const existingSheet = existingWorkbook.Sheets[sheetName];
+              const newSheet = workbook.Sheets[sheetName];
+              if (!existingSheet || !newSheet) return;
+
+              const existingData = XLSX.utils.sheet_to_json(existingSheet, { header: 1, defval: '' });
+              const newData = XLSX.utils.sheet_to_json(newSheet, { header: 1, defval: '' });
+
+              // Saltar encabezado de los datos nuevos (fila 0)
+              const newRows = newData.slice(1).filter(row => row.some(cell => cell !== ''));
+              if (newRows.length === 0) return;
+
+              // Agregar nuevos rows sin separador
+              newRows.forEach(row => existingData.push([...row]));
+
+              // Reconstruir hoja con ancho de columna autoajustado
+              const mergedSheet = XLSX.utils.aoa_to_sheet(existingData);
+              mergedSheet['!cols'] = calcColumnWidths(existingData);
+              existingWorkbook.Sheets[sheetName] = mergedSheet;
             });
-            
-            // Usar el workbook existente actualizado
+
             workbook = existingWorkbook;
           }
 
@@ -2584,7 +2405,7 @@
           // Cerrar el archivo
           await writable.close();
 
-          alert(existingWorkbook ? 'Archivo actualizado exitosamente (fila agregada)' : 'Archivo guardado exitosamente');
+          alert(existingWorkbook ? 'Archivo actualizado exitosamente (nuevos datos agregados)' : 'Archivo guardado exitosamente');
         } catch (error) {
           console.error('Error al guardar el archivo:', error);
           if (error.name === 'AbortError') {
@@ -2641,17 +2462,17 @@
       function addHeader() {
         // Fondo del encabezado
         doc.setFillColor(...colors.navy);
-        doc.rect(0, 0, pageWidth, 40, 'F');
+        doc.rect(0, 0, pageWidth, 28, 'F');
 
         // Título principal
         doc.setTextColor(255, 255, 255);
-        doc.setFontSize(22);
+        doc.setFontSize(16);
         doc.setFont('helvetica', 'bold');
-        doc.text('Reporte de Diagnóstico de Fallas', pageWidth / 2, 18, { align: 'center' });
+        doc.text('Reporte de Diagnóstico de Fallas', pageWidth / 2, 11, { align: 'center' });
 
         // Fecha de generación debajo del título
         doc.setTextColor(255, 255, 255);
-        doc.setFontSize(11);
+        doc.setFontSize(8);
         doc.setFont('helvetica', 'normal');
         const fechaGeneracion = new Date().toLocaleDateString('es-ES', {
           weekday: 'long',
@@ -2659,34 +2480,34 @@
           month: 'long',
           day: 'numeric'
         });
-        doc.text(`Fecha de generación: ${fechaGeneracion}`, pageWidth / 2, 30, { align: 'center' });
+        doc.text(`Generado: ${fechaGeneracion}`, pageWidth / 2, 21, { align: 'center' });
 
         // Línea decorativa
         doc.setFillColor(...colors.blue);
-        doc.rect(0, 40, pageWidth, 3, 'F');
+        doc.rect(0, 28, pageWidth, 1, 'F');
 
-        yPosition = 60;
+        yPosition = 38;
       }
 
       // Función para agregar pie de página
       function addFooter() {
-        const footerY = pageHeight - 15;
+        const footerY = pageHeight - 12;
         doc.setFillColor(...colors.navy);
-        doc.rect(0, footerY, pageWidth, 15, 'F');
+        doc.rect(0, footerY, pageWidth, 12, 'F');
 
         doc.setTextColor(255, 255, 255);
-        doc.setFontSize(8);
+        doc.setFontSize(7);
         doc.setFont('helvetica', 'italic');
-        doc.text('Generado por Herramienta de Diagnóstico de Fallas - Proquinal', pageWidth / 2, footerY + 10, { align: 'center' });
+        doc.text('Generado por Herramienta de Diagnóstico de Fallas - Proquinal', pageWidth / 2, footerY + 8, { align: 'center' });
       }
 
       // Función para agregar nueva página si es necesario
       function checkPageBreak(requiredHeight) {
-        if (yPosition + requiredHeight > pageHeight - 30) {
+        if (yPosition + requiredHeight > pageHeight - 22) {
           addFooter();
           doc.addPage();
           addHeader();
-          yPosition = 60; // Asegurar espacio suficiente después del encabezado
+          yPosition = 38;
           return true;
         }
         return false;
@@ -2824,124 +2645,437 @@
       // Función para crear diagrama Ishikawa simplificado
       function createSimplifiedIshikawa() {
         const canvas = document.createElement('canvas');
-        canvas.width = 400;
-        canvas.height = 200;
+        canvas.width = 1000;
+        canvas.height = 420;
         const ctx = canvas.getContext('2d');
-        
-        // Fondo blanco
+
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Espina principal del pescado
+
+        const categories = CATEGORY_ORDER.map(key => ({
+          key,
+          label: ISHIKAWA_CATEGORY_CONFIG[key].label,
+          value: (document.getElementById(`ishikawa-${key}`)?.value || '').trim()
+        }));
+
+        const hasData = categories.some(c => c.value);
+        if (!hasData) {
+          ctx.font = '12px Arial';
+          ctx.fillStyle = '#666666';
+          ctx.fillText('No hay datos de Ishikawa disponibles', 370, 210);
+          return { imgData: canvas.toDataURL(), width: canvas.width, height: canvas.height };
+        }
+
+        const spineY = 210;
+        const contactXs = [205, 400, 595];
+        const upperCenters = [115, 310, 505];
+        const lowerCenters = [115, 310, 505];
+
+        ctx.lineCap = 'round';
+
+        // Fish tail
         ctx.strokeStyle = '#1e3a5f';
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.moveTo(85, spineY);
+        ctx.lineTo(48, 178);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(85, spineY);
+        ctx.lineTo(48, 242);
+        ctx.stroke();
         ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.moveTo(50, 100);
-        ctx.lineTo(350, 100);
+        ctx.moveTo(48, 178);
+        ctx.lineTo(48, 242);
         ctx.stroke();
-        
-        // Cabeza del pescado
+
+        // Main spine
+        ctx.strokeStyle = '#1e3a5f';
+        ctx.lineWidth = 4;
         ctx.beginPath();
-        ctx.moveTo(350, 100);
-        ctx.lineTo(380, 85);
-        ctx.lineTo(380, 115);
-        ctx.closePath();
+        ctx.moveTo(85, spineY);
+        ctx.lineTo(762, spineY);
+        ctx.stroke();
+
+        // Spine arrow head
         ctx.fillStyle = '#1e3a5f';
+        ctx.beginPath();
+        ctx.moveTo(762, spineY);
+        ctx.lineTo(752, spineY - 6);
+        ctx.lineTo(752, spineY + 6);
+        ctx.closePath();
         ctx.fill();
-        
-        // Ramas y etiquetas
-        const branches = [
-          { x: 100, y: 100, label: 'Máquina', angle: -45 },
-          { x: 150, y: 100, label: 'Método', angle: -30 },
-          { x: 200, y: 100, label: 'Materiales', angle: -15 },
-          { x: 250, y: 100, label: 'Mano Obra', angle: 15 },
-          { x: 300, y: 100, label: 'Medición', angle: 30 }
-        ];
-        
-        ctx.strokeStyle = '#2563eb';
+
+        // Spine tick marks
+        ctx.strokeStyle = '#1e3a5f';
         ctx.lineWidth = 2;
-        ctx.font = '10px Arial';
-        ctx.fillStyle = '#000000';
-        
-        branches.forEach(branch => {
-          // Dibujar rama
-          ctx.beginPath();
-          ctx.moveTo(branch.x, branch.y);
-          const endX = branch.x + Math.cos(branch.angle * Math.PI / 180) * 30;
-          const endY = branch.y + Math.sin(branch.angle * Math.PI / 180) * 30;
-          ctx.lineTo(endX, endY);
-          ctx.stroke();
-          
-          // Etiqueta
-          ctx.fillText(branch.label, endX - 20, endY - 5);
+        ctx.beginPath();
+        contactXs.forEach(x => {
+          ctx.moveTo(x, spineY - 7);
+          ctx.lineTo(x, spineY + 7);
         });
-        
+        ctx.stroke();
+
+        // Branch lines
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 2.5;
+        upperCenters.forEach((cx, i) => {
+          ctx.beginPath();
+          ctx.moveTo(cx, 122);
+          ctx.lineTo(contactXs[i], spineY);
+          ctx.stroke();
+        });
+        lowerCenters.forEach((cx, i) => {
+          ctx.beginPath();
+          ctx.moveTo(cx, 298);
+          ctx.lineTo(contactXs[i], spineY);
+          ctx.stroke();
+        });
+
+        // Draw category cards
+        function drawCard(x, y, w, h, r, cat) {
+          const hasContent = !!cat.value;
+          ctx.lineWidth = 1.5;
+          if (hasContent) {
+            ctx.fillStyle = '#e0f2fe';
+            ctx.strokeStyle = '#3b82f6';
+          } else {
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#d1d5db';
+          }
+          roundRect(ctx, x, y, w, h, r);
+          ctx.fill();
+          ctx.stroke();
+
+          // Divider line
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x + 8, y + 30);
+          ctx.lineTo(x + w - 8, y + 30);
+          ctx.stroke();
+
+          // Category label
+          ctx.fillStyle = '#1e3a5f';
+          ctx.font = 'bold 12px Arial, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(cat.label, x + w / 2, y + 16);
+
+          // Checkmark
+          if (hasContent) {
+            ctx.fillStyle = '#3b82f6';
+            ctx.font = '16px Arial, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'top';
+            ctx.fillText('\u2713', x + w - 6, y + 6);
+          }
+
+          // Content text
+          if (hasContent) {
+            ctx.fillStyle = '#1e40af';
+            ctx.font = '10px Arial, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            const maxContentY = y + h - 8;
+            wrapCanvasText(ctx, cat.value, x + 8, y + 38, w - 16, 14, maxContentY);
+          } else {
+            ctx.fillStyle = '#9ca3af';
+            ctx.font = 'italic 10px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('Sin datos', x + w / 2, y + h / 2 + 10);
+          }
+        }
+
+        function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxY) {
+          text = text.replace(/\n/g, ' ');
+          const words = text.split(' ');
+          let line = '';
+          let ly = y;
+          for (const word of words) {
+            const test = line ? line + ' ' + word : word;
+            if (ctx.measureText(test).width > maxWidth && line) {
+              if (ly + lineHeight > maxY) {
+                ctx.fillText(line.slice(0, -3) + '...', x, ly);
+                return;
+              }
+              ctx.fillText(line, x, ly);
+              line = word;
+              ly += lineHeight;
+            } else {
+              line = test;
+            }
+          }
+          if (line && ly + lineHeight <= maxY + lineHeight) {
+            const finalLine = line.length > maxWidth / 5 ? line : line;
+            ctx.fillText(finalLine, x, ly);
+          }
+        }
+
+        // Upper cards
+        const cardW = 130, cardH = 92, cardR = 8;
+        const upperCardXs = [50, 245, 440];
+        categories.slice(0, 3).forEach((cat, i) => {
+          drawCard(upperCardXs[i], 30, cardW, cardH, cardR, cat);
+        });
+
+        // Lower cards
+        const lowerCardXs = [50, 245, 440];
+        categories.slice(3, 6).forEach((cat, i) => {
+          drawCard(lowerCardXs[i], 298, cardW, cardH, cardR, cat);
+        });
+
+        // Problem / effect box
+        const problema = (document.getElementById('descripcionProblema')?.value || '').trim() || 'No definido';
+        const pbX = 767, pbY = 164, pbW = 220, pbH = 120, pbR = 10;
+        ctx.fillStyle = '#1e3a5f';
+        roundRect(ctx, pbX, pbY, pbW, pbH, pbR);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 10px Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText('PROBLEMA', pbX + pbW / 2, pbY + 15);
+
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(pbX + 20, pbY + 30);
+        ctx.lineTo(pbX + pbW - 20, pbY + 30);
+        ctx.stroke();
+
+        ctx.fillStyle = '#93c5fd';
+        ctx.font = '11px Arial, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        wrapCanvasText(ctx, problema, pbX + 15, pbY + 38, pbW - 30, 15, pbY + pbH - 10);
+
         return { imgData: canvas.toDataURL(), width: canvas.width, height: canvas.height };
       }
       
       // Función para crear diagrama Pareto simplificado
       function createSimplifiedPareto() {
         const canvas = document.createElement('canvas');
-        canvas.width = 400;
-        canvas.height = 250;
+        canvas.width = 500;
+        canvas.height = 300;
         const ctx = canvas.getContext('2d');
 
         // Fondo blanco
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Obtener datos del Pareto (solo categorías de fallas)
+        // Obtener datos del Pareto
         const paretoItems = paretoData && paretoData.length > 0 ? [...paretoData] : [];
 
         if (paretoItems.length === 0) {
           ctx.font = '12px Arial';
           ctx.fillStyle = '#666666';
-          ctx.fillText('No hay datos de Pareto disponibles', 100, 125);
+          ctx.fillText('No hay datos de Pareto disponibles', 150, 150);
           return { imgData: canvas.toDataURL(), width: canvas.width, height: canvas.height };
         }
 
-        // Ordenar por frecuencia
+        // Ordenar por frecuencia descendente
         paretoItems.sort((a, b) => b.frecuencia - a.frecuencia);
 
-        // Calcular dimensiones
-        const maxFreq = Math.max(...paretoItems.map(item => item.frecuencia));
-        const barWidth = (canvas.width - 80) / paretoItems.length;
-        const chartHeight = canvas.height - 80;
+        // Configuración del gráfico
+        const margin = { top: 30, right: 55, bottom: 60, left: 55 };
+        const chartWidth = canvas.width - margin.left - margin.right;
+        const chartHeight = canvas.height - margin.top - margin.bottom;
 
-        // Dibujar ejes
+        const maxFreq = Math.max(...paretoItems.map(item => item.frecuencia));
+        const totalFreq = paretoItems.reduce((sum, item) => sum + item.frecuencia, 0);
+        const barSpacing = chartWidth / paretoItems.length;
+        const barWidth = Math.min(barSpacing * 0.65, 50);
+
+        const startX = margin.left;
+        const startY = canvas.height - margin.bottom;
+
+        // ---- Cuadrícula y eje Y izquierdo (frecuencia) ----
+        const gridSteps = 5;
+        for (let i = 0; i <= gridSteps; i++) {
+          const y = startY - (i * chartHeight / gridSteps);
+          const freqValue = Math.round(maxFreq * i / gridSteps);
+
+          // Línea de cuadrícula
+          ctx.strokeStyle = '#e5e7eb';
+          ctx.lineWidth = 0.8;
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath();
+          ctx.moveTo(startX, y);
+          ctx.lineTo(canvas.width - margin.right, y);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Etiqueta izquierda (frecuencia)
+          ctx.fillStyle = '#6b7280';
+          ctx.font = 'bold 10px Arial';
+          ctx.textAlign = 'end';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(freqValue.toString(), startX - 8, y);
+        }
+
+        // ---- Eje Y derecho (porcentaje acumulado) ----
+        for (let i = 0; i <= gridSteps; i++) {
+          const y = startY - (i * chartHeight / gridSteps);
+          const pctValue = Math.round(100 * i / gridSteps);
+          ctx.fillStyle = '#dc2626';
+          ctx.font = 'bold 10px Arial';
+          ctx.textAlign = 'start';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(pctValue + '%', canvas.width - margin.right + 5, y);
+        }
+
+        // ---- Ejes principales ----
         ctx.strokeStyle = '#374151';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([]);
+        // Eje Y
         ctx.beginPath();
-        ctx.moveTo(60, 30);
-        ctx.lineTo(60, canvas.height - 50);
-        ctx.lineTo(canvas.width - 40, canvas.height - 50);
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(startX, margin.top);
+        ctx.stroke();
+        // Eje X
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(canvas.width - margin.right, startY);
         ctx.stroke();
 
-        // Dibujar barras
-        ctx.fillStyle = '#93c5fd';
+        // ---- Línea de referencia 80% ----
+        const eightyY = startY - (0.8 * chartHeight);
+        ctx.strokeStyle = 'rgba(220, 38, 38, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(startX, eightyY);
+        ctx.lineTo(canvas.width - margin.right, eightyY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // ---- Barras y línea acumulada ----
+        let acumulado = 0;
+        const linePoints = [];
+
         paretoItems.forEach((item, index) => {
           const barHeight = (item.frecuencia / maxFreq) * chartHeight;
-          const x = 60 + index * barWidth;
-          const y = canvas.height - 50 - barHeight;
+          const x = startX + (index * barSpacing) + (barSpacing - barWidth) / 2;
+          const y = startY - barHeight;
 
-          ctx.fillRect(x + 5, y, barWidth - 10, barHeight);
-
-          // Etiqueta de frecuencia
-          ctx.fillStyle = '#1f2937';
-          ctx.font = '10px Arial';
-          ctx.fillText(item.frecuencia.toString(), x + barWidth/2 - 5, y + 15);
+          // Barra
           ctx.fillStyle = '#93c5fd';
+          ctx.strokeStyle = '#3b82f6';
+          ctx.lineWidth = 1;
+          roundRect(ctx, x, y, barWidth, barHeight, 2);
+          ctx.fill();
+          ctx.stroke();
 
-          // Etiqueta de causa
-          ctx.save();
-          ctx.translate(x + barWidth/2, canvas.height - 45);
-          ctx.rotate(-Math.PI/4);
-          ctx.font = '8px Arial';
-          ctx.fillText(item.causa.substring(0, 15), 0, 0);
-          ctx.restore();
+          // Valor sobre la barra
+          ctx.fillStyle = '#1f2937';
+          ctx.font = 'bold 10px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(item.frecuencia.toString(), x + barWidth / 2, y - 3);
+
+          // Etiqueta en eje X
+          ctx.fillStyle = '#374151';
+          ctx.font = 'bold 8px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+          const label = item.causa.length > 12 ? item.causa.substring(0, 12) + '...' : item.causa;
+          ctx.fillText(label, x + barWidth / 2, startY + 5);
+
+          // Calcular porcentaje acumulado
+          acumulado += item.frecuencia;
+          const cumPct = (acumulado / totalFreq) * 100;
+          const lineX = x + barWidth / 2;
+          const lineY = startY - (cumPct / 100) * chartHeight;
+          linePoints.push({ x: lineX, y: lineY, pct: cumPct, label: cumPct.toFixed(0) + '%' });
         });
 
+        // ---- Dibujar línea de porcentaje acumulado ----
+        if (linePoints.length > 0) {
+          ctx.beginPath();
+          ctx.strokeStyle = '#dc2626';
+          ctx.lineWidth = 2.5;
+          ctx.setLineDash([]);
+          ctx.moveTo(linePoints[0].x, linePoints[0].y);
+          for (let i = 1; i < linePoints.length; i++) {
+            ctx.lineTo(linePoints[i].x, linePoints[i].y);
+          }
+          ctx.stroke();
+
+          // Puntos en la línea
+          linePoints.forEach((pt, i) => {
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, 3.5, 0, 2 * Math.PI);
+            ctx.fillStyle = '#dc2626';
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Etiqueta de porcentaje (primero, último y cerca de 80%)
+            if (i === 0 || i === linePoints.length - 1 || pt.pct >= 75) {
+              ctx.fillStyle = '#dc2626';
+              ctx.font = 'bold 9px Arial';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'bottom';
+              ctx.fillText(pt.label, pt.x, pt.y - 7);
+            }
+          });
+        }
+
+        // ---- Leyenda ----
+        const legendY = canvas.height - margin.bottom + 35;
+        // Barra de frecuencia
+        ctx.fillStyle = '#93c5fd';
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 1;
+        roundRect(ctx, startX, legendY, 14, 10, 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#374151';
+        ctx.font = 'bold 10px Arial';
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Frecuencia', startX + 20, legendY + 5);
+
+        // Línea acumulada
+        const legendLineX = startX + 100;
+        ctx.strokeStyle = '#dc2626';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(legendLineX, legendY + 5);
+        ctx.lineTo(legendLineX + 30, legendY + 5);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(legendLineX + 15, legendY + 5, 3, 0, 2 * Math.PI);
+        ctx.fillStyle = '#dc2626';
+        ctx.fill();
+        ctx.fillStyle = '#374151';
+        ctx.font = 'bold 10px Arial';
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('% Acumulado', legendLineX + 36, legendY + 5);
+
         return { imgData: canvas.toDataURL(), width: canvas.width, height: canvas.height };
+      }
+
+      // Helper: rectángulo redondeado
+      function roundRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
       }
       
       yPosition += 10;
@@ -2968,6 +3102,8 @@
 
       // Función para agregar label y valor en la misma línea
       function addLabelValue(label, value, fontSize = 11, fontStyle = 'bold') {
+        checkPageBreak(fontSize * 0.4 + 10);
+
         doc.setFontSize(fontSize);
         doc.setFont('helvetica', fontStyle);
         doc.setTextColor(...colors.navy);
@@ -3021,27 +3157,35 @@
 
       // 3. DIAGRAMA DE ISHIKAWA
       addSectionTitle('3. DIAGRAMA DE ISHIKAWA');
+
+      const hasAnyIshikawaData = CATEGORY_ORDER.some(cat => !!(document.getElementById(`ishikawa-${cat}`)?.value || '').trim());
+      if (hasAnyIshikawaData) {
+        checkPageBreak(200);
+        const ishikawaImage = createSimplifiedIshikawa();
+        if (ishikawaImage && ishikawaImage.imgData) {
+          const imgWidth = 175;
+          const imgHeight = (ishikawaImage.height / ishikawaImage.width) * imgWidth;
+          doc.addImage(ishikawaImage.imgData, 'PNG', margin, yPosition, imgWidth, imgHeight);
+          yPosition += imgHeight + 12;
+        }
+      }
+
+      const categorias = CATEGORY_ORDER.map(key => ({
+        id: key,
+        nombre: ISHIKAWA_CATEGORY_CONFIG[key].label
+      }));
       
-      const categorias = [
-        { id: 'maquina', nombre: 'Máquina' },
-        { id: 'metodo', nombre: 'Método' },
-        { id: 'materiales', nombre: 'Materiales' },
-        { id: 'manoObra', nombre: 'Mano de Obra' },
-        { id: 'medicion', nombre: 'Medición' },
-        { id: 'medioAmbiente', nombre: 'Medio Ambiente' }
-      ];
-      
-      let hasIshikawaData = false;
+      let hasIshikawaText = false;
       categorias.forEach(categoria => {
         const valor = document.getElementById(`ishikawa-${categoria.id}`).value;
         if (valor) {
-          hasIshikawaData = true;
+          hasIshikawaText = true;
           addText(`${categoria.nombre}:`, 12, 'bold');
           addText(valor);
         }
       });
       
-      if (!hasIshikawaData) {
+      if (!hasIshikawaText) {
         addText('No se registraron datos en el diagrama de Ishikawa.');
       }
       
@@ -3701,6 +3845,9 @@ Esta acción no se puede deshacer.`;
         // Volver al primer tab
         showTab('captura');
 
+        // Bloquear tabs nuevamente
+        updateTabLockState();
+
         // Ocultar botón Limpiar Todo
         updateClearAllButton();
 
@@ -3883,6 +4030,9 @@ Esta acción no se puede deshacer.`;
 
       // Inicializar listeners para detectar cambios en datos
       addDataListeners();
+
+      // Bloquear/desbloquear tabs según estado de captura
+      updateTabLockState();
 
       // Verificar si hay datos y mostrar botón Limpiar Todo
       updateClearAllButton();
