@@ -77,8 +77,17 @@
       padding: 8px 4px;
     }
     .ishikawa-svg-wrap svg { display: block; width: 100%; min-width: 620px; }
-    .ish-label-group { transition: opacity 0.2s; }
+    .ish-label-group { transition: opacity 0.2s; cursor: pointer; }
     .ish-label-group:hover rect { filter: brightness(0.96); }
+    .ish-category-header { display: flex; align-items: center; justify-content: center; height: 100%; font-family: Inter, sans-serif; font-size: 12px; font-weight: 700; color: #1e3a5f; }
+    .ish-category-header i { margin-right: 4px; }
+    .ish-category-content { font-family: Inter, sans-serif; font-size: 10px; color: #9ca3af; line-height: 1.3; word-wrap: break-word; overflow: hidden; height: 100%; }
+    .ish-problem-box { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 12px; font-family: Inter, sans-serif; }
+    .ish-problem-label { font-size: 10px; font-weight: 700; color: white; letter-spacing: 0.8px; margin-bottom: 4px; }
+    .ish-problem-divider { width: 100%; height: 1px; background: rgba(255,255,255,0.2); margin-bottom: 6px; }
+    .ish-problem-text { font-size: 11px; color: #93c5fd; text-align: center; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; line-height: 1.4; max-width: 200px; width: 100%; }
+    .pareto-diagram-box { height: 450px; position: relative; }
+    .pareto-diagram-box > div { width: 100%; height: 100%; }
     .why-card {
       position: relative;
       width: 100%;
@@ -438,12 +447,12 @@
         
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
-            <label class="std-label">Fecha del análisis</label>
+            <label class="std-label" for="fechaEvento">Fecha del análisis</label>
             <input type="date" id="fechaEvento" class="std-input" max="">
           </div>
           
           <div class="select-wrapper">
-            <label class="std-label">Máquina / Equipo</label>
+            <label class="std-label" for="maquina">Máquina / Equipo</label>
             <select id="maquina" class="std-input enhanced-select">
               <option value="">Seleccionar...</option>
               <option value="Generadora 1">Generadora 1</option>
@@ -459,22 +468,22 @@
           </div>
           
           <div>
-            <label class="std-label">Tiempo de paro (minutos)</label>
+            <label class="std-label" for="tiempoParo">Tiempo de paro (minutos)</label>
             <input type="number" id="tiempoParo" min="0" placeholder="0" class="std-input">
           </div>
           
           <div>
-            <label class="std-label">Responsable del análisis</label>
+            <label class="std-label" for="responsable">Responsable del análisis</label>
             <input type="text" id="responsable" name="responsable" placeholder="Nombre del analista" class="std-input">
           </div>
           
           <div class="sm:col-span-2">
-            <label class="std-label">Descripción del problema</label>
+            <label class="std-label" for="descripcionProblema">Descripción del problema</label>
             <textarea id="descripcionProblema" rows="4" placeholder="Describe detalladamente qué ocurrió..." class="std-textarea"></textarea>
           </div>
           
           <div class="sm:col-span-2">
-            <label class="std-label">Síntomas observados</label>
+            <label class="std-label" for="sintomas">Síntomas observados</label>
             <textarea id="sintomas" rows="3" placeholder="¿Qué se observó? ¿Ruidos, olores, vibraciones, alarmas?" class="std-textarea"></textarea>
           </div>
         </div>
@@ -506,7 +515,7 @@
             <div class="flex items-center gap-3">
               <div class="w-7 h-7 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0 text-xs">1</div>
               <div class="flex-1">
-                <label class="std-label">¿Por qué ocurrió el problema?</label>
+                <label class="std-label" for="why1">¿Por qué ocurrió el problema?</label>
                 <input type="text" id="why1" class="std-input" placeholder="Describe la primera causa...">
               </div>
             </div>
@@ -517,7 +526,7 @@
             <div class="flex items-center gap-3">
               <div class="w-7 h-7 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0 text-xs">2</div>
               <div class="flex-1">
-                <label class="std-label">¿Por qué ocurrió eso?</label>
+                <label class="std-label" for="why2">¿Por qué ocurrió eso?</label>
                 <input type="text" id="why2" class="std-input" placeholder="Profundiza en la causa...">
               </div>
             </div>
@@ -528,7 +537,7 @@
             <div class="flex items-center gap-3">
               <div class="w-7 h-7 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0 text-xs">3</div>
               <div class="flex-1">
-                <label class="std-label">¿Por qué ocurrió eso?</label>
+                <label class="std-label" for="why3">¿Por qué ocurrió eso?</label>
                 <input type="text" id="why3" class="std-input" placeholder="Sigue profundizando...">
               </div>
             </div>
@@ -539,7 +548,7 @@
             <div class="flex items-center gap-3">
               <div class="w-7 h-7 bg-pink-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0 text-xs">4</div>
               <div class="flex-1">
-                <label class="std-label">¿Por qué ocurrió eso?</label>
+                <label class="std-label" for="why4">¿Por qué ocurrió eso?</label>
                 <input type="text" id="why4" class="std-input" placeholder="Casi llegamos a la raíz...">
               </div>
             </div>
@@ -550,7 +559,7 @@
             <div class="flex items-center gap-3">
               <div class="w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0 text-xs">5</div>
               <div class="flex-1">
-                <label class="std-label">¿Por qué ocurrió eso? <span class="text-red-500 font-normal">(Causa Raíz)</span></label>
+                <label class="std-label" for="why5">¿Por qué ocurrió eso? <span class="text-red-500 font-normal">(Causa Raíz)</span></label>
                 <input type="text" id="why5" class="std-input" placeholder="Esta es la causa raíz fundamental...">
               </div>
             </div>
@@ -625,92 +634,92 @@
 
             <!-- UPPER LABELS -->
             <!-- Máquina (center x=115, box y=30 h=92) -->
-            <g id="ishikawa-label-maquina" class="ish-label-group" onclick="editCategory('maquina')" style="cursor:pointer">
+            <g id="ishikawa-label-maquina" class="ish-label-group" onclick="editCategory('maquina')">
               <rect id="ishikawa-rect-maquina" x="50" y="30" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
               <foreignObject x="50" y="30" width="130" height="30">
-                <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;height:100%;font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#1e3a5f;">
-                  <i class="fas fa-cog" style="margin-right:4px;"></i>Máquina
+                <div xmlns="http://www.w3.org/1999/xhtml" class="ish-category-header">
+                  <i class="fas fa-cog"></i>Máquina
                 </div>
               </foreignObject>
               <line x1="58" y1="60" x2="172" y2="60" stroke="#e2e8f0" stroke-width="1"/>
               <foreignObject x="55" y="65" width="120" height="50">
-                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-maquina" style="font-family:Inter,sans-serif;font-size:10px;color:#9ca3af;line-height:1.3;word-wrap:break-word;overflow:hidden;height:100%;"></div>
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-maquina" class="ish-category-content"></div>
               </foreignObject>
               <text id="ishikawa-check-maquina" x="173" y="38" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
             </g>
 
             <!-- Método (center x=310, box y=30 h=92) -->
-            <g id="ishikawa-label-metodo" class="ish-label-group" onclick="editCategory('metodo')" style="cursor:pointer">
+            <g id="ishikawa-label-metodo" class="ish-label-group" onclick="editCategory('metodo')" >
               <rect id="ishikawa-rect-metodo" x="245" y="30" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
               <foreignObject x="245" y="30" width="130" height="30">
-                <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;height:100%;font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#1e3a5f;">
-                  <i class="fas fa-clipboard-list" style="margin-right:4px;"></i>Método
+                <div xmlns="http://www.w3.org/1999/xhtml" class="ish-category-header">
+                  <i class="fas fa-clipboard-list"></i>Método
                 </div>
               </foreignObject>
               <line x1="253" y1="60" x2="367" y2="60" stroke="#e2e8f0" stroke-width="1"/>
               <foreignObject x="250" y="65" width="120" height="50">
-                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-metodo" style="font-family:Inter,sans-serif;font-size:10px;color:#9ca3af;line-height:1.3;word-wrap:break-word;overflow:hidden;height:100%;"></div>
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-metodo" class="ish-category-content"></div>
               </foreignObject>
               <text id="ishikawa-check-metodo" x="368" y="38" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
             </g>
 
             <!-- Materiales (center x=505, box y=30 h=92) -->
-            <g id="ishikawa-label-materiales" class="ish-label-group" onclick="editCategory('materiales')" style="cursor:pointer">
+            <g id="ishikawa-label-materiales" class="ish-label-group" onclick="editCategory('materiales')" >
               <rect id="ishikawa-rect-materiales" x="440" y="30" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
               <foreignObject x="440" y="30" width="130" height="30">
-                <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;height:100%;font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#1e3a5f;">
-                  <i class="fas fa-box" style="margin-right:4px;"></i>Materiales
+                <div xmlns="http://www.w3.org/1999/xhtml" class="ish-category-header">
+                  <i class="fas fa-box"></i>Materiales
                 </div>
               </foreignObject>
               <line x1="448" y1="60" x2="562" y2="60" stroke="#e2e8f0" stroke-width="1"/>
               <foreignObject x="445" y="65" width="120" height="50">
-                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-materiales" style="font-family:Inter,sans-serif;font-size:10px;color:#9ca3af;line-height:1.3;word-wrap:break-word;overflow:hidden;height:100%;"></div>
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-materiales" class="ish-category-content"></div>
               </foreignObject>
               <text id="ishikawa-check-materiales" x="563" y="38" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
             </g>
 
             <!-- LOWER LABELS -->
             <!-- Mano de Obra (center x=115, box y=298 h=92) -->
-            <g id="ishikawa-label-manoObra" class="ish-label-group" onclick="editCategory('manoObra')" style="cursor:pointer">
+            <g id="ishikawa-label-manoObra" class="ish-label-group" onclick="editCategory('manoObra')" >
               <rect id="ishikawa-rect-manoObra" x="50" y="298" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
               <foreignObject x="50" y="298" width="130" height="30">
-                <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;height:100%;font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#1e3a5f;">
-                  <i class="fas fa-users" style="margin-right:4px;"></i>Mano Obra
+                <div xmlns="http://www.w3.org/1999/xhtml" class="ish-category-header">
+                  <i class="fas fa-users"></i>Mano Obra
                 </div>
               </foreignObject>
               <line x1="58" y1="328" x2="172" y2="328" stroke="#e2e8f0" stroke-width="1"/>
               <foreignObject x="55" y="333" width="120" height="50">
-                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-manoObra" style="font-family:Inter,sans-serif;font-size:10px;color:#9ca3af;line-height:1.3;word-wrap:break-word;overflow:hidden;height:100%;"></div>
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-manoObra" class="ish-category-content"></div>
               </foreignObject>
               <text id="ishikawa-check-manoObra" x="173" y="306" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
             </g>
 
             <!-- Medición (center x=310, box y=298 h=92) -->
-            <g id="ishikawa-label-medicion" class="ish-label-group" onclick="editCategory('medicion')" style="cursor:pointer">
+            <g id="ishikawa-label-medicion" class="ish-label-group" onclick="editCategory('medicion')" >
               <rect id="ishikawa-rect-medicion" x="245" y="298" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
               <foreignObject x="245" y="298" width="130" height="30">
-                <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;height:100%;font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#1e3a5f;">
-                  <i class="fas fa-chart-line" style="margin-right:4px;"></i>Medición
+                <div xmlns="http://www.w3.org/1999/xhtml" class="ish-category-header">
+                  <i class="fas fa-chart-line"></i>Medición
                 </div>
               </foreignObject>
               <line x1="253" y1="328" x2="367" y2="328" stroke="#e2e8f0" stroke-width="1"/>
               <foreignObject x="250" y="333" width="120" height="50">
-                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-medicion" style="font-family:Inter,sans-serif;font-size:10px;color:#9ca3af;line-height:1.3;word-wrap:break-word;overflow:hidden;height:100%;"></div>
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-medicion" class="ish-category-content"></div>
               </foreignObject>
               <text id="ishikawa-check-medicion" x="368" y="306" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
             </g>
 
             <!-- Medio Ambiente (center x=505, box y=298 h=92) -->
-            <g id="ishikawa-label-medioAmbiente" class="ish-label-group" onclick="editCategory('medioAmbiente')" style="cursor:pointer">
+            <g id="ishikawa-label-medioAmbiente" class="ish-label-group" onclick="editCategory('medioAmbiente')" >
               <rect id="ishikawa-rect-medioAmbiente" x="440" y="298" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
               <foreignObject x="440" y="298" width="130" height="30">
-                <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;height:100%;font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#1e3a5f;">
-                  <i class="fas fa-leaf" style="margin-right:4px;"></i>Medio Amb.
+                <div xmlns="http://www.w3.org/1999/xhtml" class="ish-category-header">
+                  <i class="fas fa-leaf"></i>Medio Amb.
                 </div>
               </foreignObject>
               <line x1="448" y1="328" x2="562" y2="328" stroke="#e2e8f0" stroke-width="1"/>
               <foreignObject x="445" y="333" width="120" height="50">
-                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-medioAmbiente" style="font-family:Inter,sans-serif;font-size:10px;color:#9ca3af;line-height:1.3;word-wrap:break-word;overflow:hidden;height:100%;"></div>
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-medioAmbiente" class="ish-category-content"></div>
               </foreignObject>
               <text id="ishikawa-check-medioAmbiente" x="563" y="306" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
             </g>
@@ -719,10 +728,10 @@
             <g id="ishikawa-cause">
               <rect x="767" y="164" width="220" height="120" rx="10" fill="#1e3a5f"/>
               <foreignObject x="767" y="164" width="220" height="120">
-                <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:12px;font-family:Inter,sans-serif;">
-                  <div style="font-size:10px;font-weight:700;color:white;letter-spacing:0.8;margin-bottom:4px;">PROBLEMA</div>
-                  <div style="width:100%;height:1px;background:rgba(255,255,255,0.2);margin-bottom:6px;"></div>
-                  <div id="ishikawa-cause-text" style="font-size:11px;color:#93c5fd;text-align:center;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;line-height:1.4;max-width:200px;width:100%;">No definido</div>
+                <div xmlns="http://www.w3.org/1999/xhtml" class="ish-problem-box">
+                  <div class="ish-problem-label">PROBLEMA</div>
+                  <div class="ish-problem-divider"></div>
+                  <div id="ishikawa-cause-text" class="ish-problem-text">No definido</div>
                 </div>
               </foreignObject>
             </g>
@@ -788,7 +797,9 @@
             <h3 class="font-bold text-[#1e3a5f] mb-3 text-sm sm:text-base">Agregar Categoría de Falla</h3>
             <div class="space-y-3">
               <div class="flex gap-2">
+                <label for="pareto-causa" class="sr-only">Causa de la falla</label>
                 <input type="text" id="pareto-causa" placeholder="Ej. Obstrucciones/Suciedad" class="std-input">
+                <label for="pareto-frecuencia" class="sr-only">Frecuencia</label>
                 <input type="number" id="pareto-frecuencia" placeholder="Veces" min="0" class="std-input std-input-sm-fixed">
                 <button onclick="addParetoItem()" class="std-button std-button-primary">
                   <i class="fas fa-plus"></i>
@@ -827,8 +838,8 @@
         </div>
         
         <!-- Diagrama de ancho completo -->
-        <div id="pareto-diagram" class="bg-gray-50 rounded-lg p-4 mb-4 sm:mb-6 border border-gray-200 hidden" style="height: 450px; position: relative;">
-          <div id="pareto-chart-simple" style="width: 100%; height: 100%;"></div>
+        <div id="pareto-diagram" class="bg-gray-50 rounded-lg p-4 mb-4 sm:mb-6 border border-gray-200 hidden pareto-diagram-box">
+          <div id="pareto-chart-simple"></div>
         </div>
         
         <!-- Botones de acción -->
@@ -1176,19 +1187,19 @@
         <div class="accion-card bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-3 items-end">
             <div class="lg:col-span-5">
-              <label class="std-label">Descripción</label>
+              <label class="std-label" for="accion-${tipo}-${index}-desc">Descripción</label>
               <input type="text" id="accion-${tipo}-${index}-desc" value="${descripcion}" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base" placeholder="Describa la acción...">
             </div>
             <div class="lg:col-span-2">
-              <label class="std-label">Responsable</label>
+              <label class="std-label" for="accion-${tipo}-${index}-resp">Responsable</label>
               <input type="text" id="accion-${tipo}-${index}-resp" value="${responsable}" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base" placeholder="Nombre...">
             </div>
             <div class="lg:col-span-2">
-              <label class="std-label">Fecha límite</label>
+              <label class="std-label" for="accion-${tipo}-${index}-fecha">Fecha límite</label>
               <input type="date" id="accion-${tipo}-${index}-fecha" value="${fecha}" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base">
             </div>
             <div class="select-wrapper lg:col-span-2">
-              <label class="std-label">Prioridad</label>
+              <label class="std-label" for="accion-${tipo}-${index}-prio">Prioridad</label>
               <select id="accion-${tipo}-${index}-prio" class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base enhanced-select">
                 <option value="alta" ${prioridad === 'alta' ? 'selected' : ''}>Alta</option>
                 <option value="media" ${prioridad === 'media' ? 'selected' : ''}>Media</option>
