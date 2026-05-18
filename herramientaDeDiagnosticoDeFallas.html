@@ -6,7 +6,7 @@
   <title>Herramienta de Diagnóstico de Fallas</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
@@ -48,17 +48,8 @@
       background: white;
     }
 
-    /* Footer sticky */
-    footer {
-      position: sticky;
-      bottom: 0;
-      z-index: 30;
-    }
-
     /* Contenido principal con scroll */
     .main-content {
-      height: calc(100vh - 88px - 72px - 60px); /* Altura total - header(88px) - tabs(72px) - footer(60px) */
-      overflow-y: auto;
       padding-top: 0.5rem;
       padding-bottom: 0.5rem;
     }
@@ -291,10 +282,6 @@
       width: 100px;
     }
     
-    main {
-      overflow: visible !important;
-    }
-    
     .bg-white.rounded-xl.shadow-md {
       overflow: visible !important;
     }
@@ -362,8 +349,20 @@
       button {
         display: none !important;
       }
+      
+      #fab { display: none !important; }
     }
-    
+
+    #fab-toggle {
+      transition: all 0.3s ease;
+    }
+    .fab-open #fab-toggle {
+      transform: rotate(45deg);
+    }
+    #fab-menu {
+      transition: all 0.2s ease;
+    }
+
     .tab-locked {
       opacity: 0.5;
       cursor: not-allowed !important;
@@ -482,7 +481,8 @@
         <h2 class="text-lg sm:text-xl font-bold text-[#1e3a5f] mb-4 sm:mb-6">
           <i class="fas fa-question-circle mr-2 text-blue-500"></i>Los 5 Porqués
         </h2>
-        <p class="text-gray-500 mb-4 sm:mb-6 text-sm">Pregunta "¿por qué?" repetidamente hasta encontrar la causa raíz.</p>
+        <p class="text-gray-500 mb-4 sm:mb-6 text-sm"><strong>¿Qué es?</strong> La técnica de los 5 Porqués consiste en preguntar "¿por qué?" repetidamente para profundizar en las causas de un problema hasta encontrar su origen.</p>
+        <p class="text-gray-500 mb-4 sm:mb-6 text-sm"><strong>Cómo usarlo:</strong> Responde cada "¿Por qué?" basándote en hechos. La respuesta de cada nivel se convierte en la pregunta del siguiente. Al llegar al quinto nivel, habrás identificado la causa raíz.</p>
 
         <div class="space-y-2" id="whysContainer">
 
@@ -570,11 +570,8 @@
         <h2 class="text-lg sm:text-xl font-bold text-[#1e3a5f] mb-4 sm:mb-6">
           <i class="fas fa-project-diagram mr-2 text-green-500"></i>Diagrama de Ishikawa
         </h2>
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 sm:mb-6">
-          <h3 class="font-bold text-[#1e3a5f] mb-2 text-sm sm:text-base">¿Qué es y cómo funciona?</h3>
-          <p class="text-gray-700 text-sm sm:text-base mb-2">El Diagrama de Ishikawa (espina de pescado) organiza visualmente las causas potenciales de un problema en 6 categorías: <strong>Máquina, Método, Materiales, Mano de obra, Medición y Medio ambiente</strong>.</p>
-          <p class="text-gray-700 text-sm sm:text-base mb-0"><strong>Cómo usarlo:</strong> Escribe en cada categoría las causas que identificaste. Al guardar, el diagrama se genera automáticamente mostrando las categorías completadas. Haz clic en cualquier recuadro del diagrama para editar esa categoría.</p>
-        </div>
+        <p class="text-gray-500 mb-4 sm:mb-6 text-sm"><strong>¿Qué es?</strong> El Diagrama de Ishikawa (espina de pescado) organiza visualmente las causas potenciales de un problema en 6 categorías: Máquina, Método, Materiales, Mano de obra, Medición y Medio ambiente.</p>
+        <p class="text-gray-500 mb-4 sm:mb-6 text-sm"><strong>Cómo usarlo:</strong> Escribe en cada categoría las causas que identificaste. Al guardar, el diagrama se genera automáticamente. Haz clic en cualquier recuadro del diagrama para editar esa categoría.</p>
         
         <!-- Diagrama visual -->
         <div id="ishikawa-diagram" class="ishikawa-svg-wrap mb-6 sm:mb-8 hidden">
@@ -765,7 +762,8 @@
         <h2 class="text-lg sm:text-xl font-bold text-[#1e3a5f] mb-4 sm:mb-6">
           <i class="fas fa-tasks mr-2 text-red-500"></i>Plan de Acción
         </h2>
-        <p class="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base leading-relaxed">Define las acciones correctivas y preventivas basadas en la causa raíz identificada.</p>
+        <p class="text-gray-500 mb-4 sm:mb-6 text-sm"><strong>¿Qué es?</strong> El Plan de Acción registra las acciones correctivas (para solucionar la causa raíz) y preventivas (para evitar que vuelva a ocurrir), asignando responsables y fechas límite.</p>
+        <p class="text-gray-500 mb-4 sm:mb-6 text-sm"><strong>Cómo usarlo:</strong> Agrega las acciones necesarias, especifica quién es responsable y la fecha de finalización esperada. Marca la prioridad de cada acción para enfocar los esfuerzos.</p>
         
         <!-- Resumen del análisis -->
         <div class="bg-gray-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
@@ -806,25 +804,29 @@
   </main>
 
   <!-- ===== Footer ===== -->
-  <footer class="bg-gray-800 text-gray-400 py-3 sm:py-4 mt-auto">
-    <div class="max-w-8xl xl:max-w-9xl mx-auto px-4 sm:px-6 flex items-center justify-between">
+  <footer class="bg-gray-800 text-gray-400 py-4 sm:py-5 mt-8">
+    <div class="max-w-8xl xl:max-w-9xl mx-auto px-4 sm:px-6 text-center">
       <p class="text-xs sm:text-sm">Herramienta de Análisis Causa Raíz · Generado para gestión de mantenimiento y confiabilidad</p>
-      <div class="flex items-center gap-2 sm:gap-3">
-        <button onclick="handlePDFExport()" class="bg-blue-700/30 hover:bg-blue-700/50 text-blue-300 font-semibold px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
-          <i class="fas fa-file-pdf"></i>
-          <span class="hidden sm:inline">Exportar PDF</span>
-        </button>
-        <button onclick="exportExcel()" class="bg-green-700/30 hover:bg-green-700/50 text-green-300 font-semibold px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
-          <i class="fas fa-file-excel"></i>
-          <span class="hidden sm:inline">Exportar Excel</span>
-        </button>
-        <button id="clearAllBtn" onclick="clearAll()" class="bg-red-700/30 hover:bg-red-700/50 text-red-300 font-semibold px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 hidden">
-          <i class="fas fa-trash-alt"></i>
-          <span>Limpiar Todo</span>
-        </button>
-      </div>
     </div>
   </footer>
+
+  <!-- ===== FAB ===== -->
+  <div id="fab" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div id="fab-menu" class="hidden mb-3 flex flex-col gap-2">
+      <button onclick="handlePDFExport()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2.5 rounded-lg shadow-lg transition text-sm flex items-center gap-2 whitespace-nowrap">
+        <i class="fas fa-file-pdf"></i> Exportar PDF
+      </button>
+      <button onclick="exportExcel()" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2.5 rounded-lg shadow-lg transition text-sm flex items-center gap-2 whitespace-nowrap">
+        <i class="fas fa-file-excel"></i> Exportar Excel
+      </button>
+      <button id="clearAllBtn" onclick="clearAll()" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2.5 rounded-lg shadow-lg transition text-sm flex items-center gap-2 whitespace-nowrap hidden">
+        <i class="fas fa-trash-alt"></i> Limpiar Todo
+      </button>
+    </div>
+    <button id="fab-toggle" onclick="toggleFab(event)" class="w-14 h-14 bg-[#1e3a5f] hover:bg-[#2563eb] text-white rounded-full shadow-xl flex items-center justify-center text-2xl transition-all duration-300">
+      <i class="fas fa-plus"></i>
+    </button>
+  </div>
 
   <!-- ===== JavaScript ===== -->
   <script>
@@ -855,6 +857,30 @@
         .replace(/[\u0300-\u036f]/g, '')
         .trim();
     }
+
+    function toggleFab(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById('fab-menu');
+      const fab = document.getElementById('fab');
+      const icon = document.querySelector('#fab-toggle i');
+      menu.classList.toggle('hidden');
+      fab.classList.toggle('fab-open');
+      icon.classList.toggle('fa-plus');
+      icon.classList.toggle('fa-times');
+    }
+
+    document.addEventListener('click', function(e) {
+      const fab = document.getElementById('fab');
+      if (!fab || fab.contains(e.target)) return;
+      const menu = document.getElementById('fab-menu');
+      const icon = document.querySelector('#fab-toggle i');
+      if (!menu.classList.contains('hidden')) {
+        menu.classList.add('hidden');
+        fab.classList.remove('fab-open');
+        icon.classList.add('fa-plus');
+        icon.classList.remove('fa-times');
+      }
+    });
 
     function escapeHtml(text = '') {
       return text
@@ -1400,439 +1426,186 @@
       document.getElementById('resumenCausa').textContent = causaRaiz || 'No definida';
     }
 
-    // Variable para guardar el handle del archivo
-    let excelFileHandle = null;
-
-    // Exportar RCA a Excel con columnas específicas
     async function exportExcel() {
-      // Recopilar acciones
-      const accionesCorrectivas = [];
-      const accionesPreventivas = [];
-
-      document.querySelectorAll('#accionesCorrectivas > div').forEach((div, i) => {
-        accionesCorrectivas.push({
-          descripcion: document.getElementById(`accion-correctiva-${i}-desc`)?.value || '',
-          responsable: document.getElementById(`accion-correctiva-${i}-resp`)?.value || '',
-          fecha: document.getElementById(`accion-correctiva-${i}-fecha`)?.value || '',
-          prioridad: document.getElementById(`accion-correctiva-${i}-prio`)?.value || ''
-        });
-      });
-
-      document.querySelectorAll('#accionesPreventivas > div').forEach((div, i) => {
-        accionesPreventivas.push({
-          descripcion: document.getElementById(`accion-preventiva-${i}-desc`)?.value || '',
-          responsable: document.getElementById(`accion-preventiva-${i}-resp`)?.value || '',
-          fecha: document.getElementById(`accion-preventiva-${i}-fecha`)?.value || '',
-          prioridad: document.getElementById(`accion-preventiva-${i}-prio`)?.value || ''
-        });
-      });
-
-      rcaData.acciones = { correctivas: accionesCorrectivas, preventivas: accionesPreventivas };
-
-      // Crear workbook de Excel
-      let workbook = XLSX.utils.book_new();
-
-      // Combinar todas las acciones para el reporte principal
-      const todasAcciones = [
-        ...accionesCorrectivas.map(accion => ({ ...accion, tipo: 'Correctivo' })),
-        ...accionesPreventivas.map(accion => ({ ...accion, tipo: 'Preventivo' }))
-      ];
-
-      // Obtener la causa raíz (último porqué respondido)
-      const causaRaiz = rcaData.whys.why5 || rcaData.whys.why4 || rcaData.whys.why3 || rcaData.whys.why2 || rcaData.whys.why1 || '';
-
-      // Crear datos para el reporte principal con las columnas solicitadas
-      const reporteData = [
-        [
-          'Fecha',
-          'Máquina', 
-          'Problema',
-          'Tipo de Mantenimiento',
-          'Plan de Acción',
-          'Status del Plan',
-          'Responsable',
-          'Fecha de Finalización',
-          'Causa Raíz'
-        ]
-      ];
-
-      // Siempre crear una sola fila consolidada (independientemente del número de acciones)
-      if (todasAcciones.length > 0) {
-        // Separar correctivas y preventivas
-        const correctivas = todasAcciones.filter(a => a.tipo === 'Correctivo');
-        const preventivas = todasAcciones.filter(a => a.tipo === 'Preventivo');
-
-        // Determinar tipo de acción para la columna "Correctivo"
-        const tipoAccion = correctivas.length > 0 && preventivas.length > 0
-          ? 'Correctivo / Preventivo'
-          : correctivas.length > 0
-            ? 'Correctivo'
-            : 'Preventivo';
-
-        // Concatenar planes de acción y responsables en una sola celda
-        const planesAccion = todasAcciones
-          .map(a => `[${a.tipo}] ${a.descripcion}`.trim())
-          .filter(Boolean)
-          .join('\n');
-
-        const responsables = [...new Set(
-          todasAcciones.map(a => a.responsable).filter(Boolean)
-        )].join(', ');
-
-        const fechasFin = todasAcciones
-          .map(a => a.fecha)
-          .filter(Boolean)
-          .join(', ');
-
-        reporteData.push([
-          rcaData.captura.fecha || '',
-          rcaData.captura.maquina || '',
-          rcaData.captura.problema || '',
-          tipoAccion,
-          planesAccion,
-          'Pendiente',
-          responsables || rcaData.captura.responsable || '',
-          fechasFin,
-          causaRaiz
-        ]);
-      } else {
-        // Sin acciones: una fila con los datos básicos
-        reporteData.push([
-          rcaData.captura.fecha || '',
-          rcaData.captura.maquina || '',
-          rcaData.captura.problema || '',
-          '',
-          '',
-          'Pendiente',
-          rcaData.captura.responsable || '',
-          '',
-          causaRaiz
-        ]);
+      if (typeof ExcelJS === 'undefined') {
+        alert('La librería ExcelJS no se ha cargado. Verifica tu conexión a internet.');
+        return;
       }
 
-      // Calcular anchos de columna según el contenido
-      function calcColumnWidths(data, minWidth = 8, maxWidth = 60) {
-        if (!data || data.length === 0) return [];
-        const numCols = Math.max(...data.map(r => r.length));
-        const widths = Array(numCols).fill(0);
-        data.forEach(row => {
-          for (let c = 0; c < row.length; c++) {
-            const cell = String(row[c] ?? '');
-            const maxLineLen = cell.split('\n').reduce((max, l) => Math.max(max, l.length), 0);
-            widths[c] = Math.max(widths[c], maxLineLen);
+      try {
+        const accionesCorrectivas = [];
+        const accionesPreventivas = [];
+
+        document.querySelectorAll('#accionesCorrectivas > div').forEach((div, i) => {
+          accionesCorrectivas.push({
+            descripcion: document.getElementById(`accion-correctiva-${i}-desc`)?.value || '',
+            responsable: document.getElementById(`accion-correctiva-${i}-resp`)?.value || '',
+            fecha: document.getElementById(`accion-correctiva-${i}-fecha`)?.value || '',
+            prioridad: document.getElementById(`accion-correctiva-${i}-prio`)?.value || ''
+          });
+        });
+
+        document.querySelectorAll('#accionesPreventivas > div').forEach((div, i) => {
+          accionesPreventivas.push({
+            descripcion: document.getElementById(`accion-preventiva-${i}-desc`)?.value || '',
+            responsable: document.getElementById(`accion-preventiva-${i}-resp`)?.value || '',
+            fecha: document.getElementById(`accion-preventiva-${i}-fecha`)?.value || '',
+            prioridad: document.getElementById(`accion-preventiva-${i}-prio`)?.value || ''
+          });
+        });
+
+        rcaData.acciones = { correctivas: accionesCorrectivas, preventivas: accionesPreventivas };
+
+        const todasAcciones = [
+          ...accionesCorrectivas.map(a => ({ ...a, tipo: 'Correctivo' })),
+          ...accionesPreventivas.map(a => ({ ...a, tipo: 'Preventivo' }))
+        ];
+
+        const causaRaiz = rcaData.whys.why5 || rcaData.whys.why4 || rcaData.whys.why3 || rcaData.whys.why2 || rcaData.whys.why1 || '';
+
+        const workbook = new ExcelJS.Workbook();
+        const reporteSheet = workbook.addWorksheet('Reporte de Fallas', { views: [{ state: 'frozen', ySplit: 1 }] });
+
+        const headerRow = reporteSheet.addRow(['Fecha', 'Máquina', 'Problema', 'Tipo de Mantenimiento', 'Plan de Acción Correctivo', 'Plan de Acción Preventivo', 'Status del Plan', 'Responsable', 'Fecha de Finalización', 'Causa Raíz']);
+        headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F4E79' } };
+        headerRow.font = { bold: true, size: 11, name: 'Calibri', color: { argb: 'FFFFFFFF' } };
+        headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+        headerRow.height = 20;
+
+        if (todasAcciones.length > 0) {
+          const correctivas = todasAcciones.filter(a => a.tipo === 'Correctivo');
+          const preventivas = todasAcciones.filter(a => a.tipo === 'Preventivo');
+          const tipoAccion = correctivas.length > 0 && preventivas.length > 0
+            ? 'Correctivo / Preventivo'
+            : correctivas.length > 0 ? 'Correctivo' : 'Preventivo';
+          const correctivoText = correctivas.map(a => a.descripcion).filter(Boolean).join('\n');
+          const preventivoText = preventivas.map(a => a.descripcion).filter(Boolean).join('\n');
+          const responsables = [...new Set(todasAcciones.map(a => a.responsable).filter(Boolean))].join(', ');
+          const fechasFin = todasAcciones.map(a => a.fecha).filter(Boolean).join(', ');
+
+          reporteSheet.addRow([
+            rcaData.captura.fecha || '',
+            rcaData.captura.maquina || '',
+            rcaData.captura.problema || '',
+            tipoAccion,
+            correctivoText,
+            preventivoText,
+            'Pendiente',
+            responsables || rcaData.captura.responsable || '',
+            fechasFin,
+            causaRaiz
+          ]);
+        } else {
+          reporteSheet.addRow([
+            rcaData.captura.fecha || '',
+            rcaData.captura.maquina || '',
+            rcaData.captura.problema || '',
+            '', '', '', 'Pendiente',
+            rcaData.captura.responsable || '',
+            '', causaRaiz
+          ]);
+        }
+
+        const dataRow = reporteSheet.getRow(2);
+        dataRow.alignment = { vertical: 'top', wrapText: true };
+        reporteSheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: 2, column: 10 } };
+
+        // Auto-fit column widths based on content
+        reporteSheet.columns.forEach((col, i) => {
+          let maxLen = 0;
+          reporteSheet.getColumn(i + 1).eachCell(cell => {
+            const text = cell.value ? String(cell.value) : '';
+            const lines = text.split('\n');
+            lines.forEach(line => {
+              maxLen = Math.max(maxLen, line.length);
+            });
+          });
+          reporteSheet.getColumn(i + 1).width = Math.min(Math.max(maxLen + 3, 10), 55);
+        });
+
+        const maquina = rcaData.captura.maquina || 'No especificada';
+
+        // Hoja: Ishikawa
+        const ishikawaSheet = workbook.addWorksheet('Ishikawa');
+        ishikawaSheet.getCell('A1').value = 'Máquina';
+        ishikawaSheet.getCell('A2').value = maquina;
+        ishikawaSheet.getRow(1).font = { bold: true };
+        const ishikawaImageData = createSimplifiedIshikawa();
+        if (ishikawaImageData && ishikawaImageData.imgData) {
+          const imgId = workbook.addImage({ base64: ishikawaImageData.imgData });
+          ishikawaSheet.addImage(imgId, {
+            tl: { col: 0, row: 3 },
+            br: { col: 15, row: 33 }
+          });
+          ishikawaSheet.getColumn(1).width = 60;
+        }
+
+        // Hoja: Pareto
+        const paretoItems = getIshikawaParetoData();
+        if (paretoItems.length > 0) {
+          const paretoSheet = workbook.addWorksheet('Pareto');
+          paretoSheet.getCell('A1').value = 'Máquina';
+          paretoSheet.getCell('A2').value = maquina;
+          paretoSheet.getRow(1).font = { bold: true };
+          const paretoImageData = createSimplifiedPareto();
+          if (paretoImageData && paretoImageData.imgData) {
+            const imgId = workbook.addImage({ base64: paretoImageData.imgData });
+            paretoSheet.addImage(imgId, {
+              tl: { col: 0, row: 3 },
+              br: { col: 15, row: 28 }
+            });
+            paretoSheet.getColumn(1).width = 60;
           }
-        });
-        return widths.map(w => ({ wch: Math.min(Math.max(w + 2, minWidth), maxWidth) }));
-      }
+        }
 
-      // Crear hoja principal con las columnas solicitadas
-      const reporteSheet = XLSX.utils.aoa_to_sheet(reporteData);
-      reporteSheet['!cols'] = calcColumnWidths(reporteData);
-      const reporteRange = XLSX.utils.decode_range(reporteSheet['!ref']);
-      reporteSheet['!autofilter'] = { ref: XLSX.utils.encode_range(reporteRange) };
+        const rawBuffer = await workbook.xlsx.writeBuffer();
+        const buffer = new Uint8Array(rawBuffer);
 
-      XLSX.utils.book_append_sheet(workbook, reporteSheet, 'Reporte de Fallas');
-
-      // Hoja adicional: Datos completos del análisis (opcional, para referencia)
-      const datas = rcaData.captura;
-      const whys = rcaData.whys;
-      const ishikawa = rcaData.ishikawa;
-
-      const datosCompletos = [[
-        'Fecha', 'Máquina', 'Tiempo de paro (min)', 'Problema', 'Síntomas', 'Responsable',
-        'Por qué 1', 'Por qué 2', 'Por qué 3', 'Por qué 4', 'Por qué 5',
-        'Ishikawa Máquina', 'Ishikawa Método', 'Ishikawa Materiales',
-        'Ishikawa Mano de obra', 'Ishikawa Medición', 'Ishikawa Medio ambiente'
-      ]];
-
-      datosCompletos.push([
-        datas.fecha || '',
-        datas.maquina || '',
-        datas.tiempoParo || '',
-        datas.problema || '',
-        datas.sintomas || '',
-        datas.responsable || '',
-        whys.why1 || '',
-        whys.why2 || '',
-        whys.why3 || '',
-        whys.why4 || '',
-        whys.why5 || '',
-        ishikawa.maquina || '',
-        ishikawa.metodo || '',
-        ishikawa.materiales || '',
-        ishikawa.manoObra || '',
-        ishikawa.medicion || '',
-        ishikawa.medioAmbiente || ''
-      ]);
-
-      const datosCompletosSheet = XLSX.utils.aoa_to_sheet(datosCompletos);
-      datosCompletosSheet['!cols'] = calcColumnWidths(datosCompletos);
-      XLSX.utils.book_append_sheet(workbook, datosCompletosSheet, 'Datos Completos');
-
-      // Hoja adicional: Análisis de Pareto (desde Ishikawa)
-      const paretoItems = getIshikawaParetoData();
-      if (paretoItems.length > 0) {
-        const sortedPareto = [...paretoItems].sort((a, b) => b.frecuencia - a.frecuencia);
-        const totalFreq = sortedPareto.reduce((sum, item) => sum + item.frecuencia, 0);
-        let acumulado = 0;
-
-        const paretoSheetData = [['Categoría Ishikawa', 'Causas', '%', '% Acum']];
-        sortedPareto.forEach(item => {
-          acumulado += item.frecuencia;
-          const pct = ((item.frecuencia / totalFreq) * 100).toFixed(1);
-          const pctAcum = ((acumulado / totalFreq) * 100).toFixed(1);
-          paretoSheetData.push([item.causa, item.frecuencia, parseFloat(pct), parseFloat(pctAcum)]);
-        });
-        paretoSheetData.push(['Total', totalFreq, 100, 100]);
-
-        const paretoSheet = XLSX.utils.aoa_to_sheet(paretoSheetData);
-        paretoSheet['!cols'] = calcColumnWidths(paretoSheetData, 10, 50);
-
-        const paretoRange = XLSX.utils.decode_range(paretoSheet['!ref']);
-        paretoSheet['!autofilter'] = { ref: XLSX.utils.encode_range(paretoRange) };
-
-        XLSX.utils.book_append_sheet(workbook, paretoSheet, 'Análisis Pareto');
-      }
-
-      // Usar File System Access API si está disponible
-      if ('showSaveFilePicker' in window) {
-        try {
-          let handle;
-          let existingWorkbook;
-
-          // Si ya tenemos un handle guardado, usarlo
-          if (excelFileHandle) {
-            handle = excelFileHandle;
-            // Leer el archivo existente
-            const file = await handle.getFile();
-            const arrayBuffer = await file.arrayBuffer();
-            existingWorkbook = XLSX.read(arrayBuffer, { type: 'array' });
-          } else {
-            // Pedir al usuario que seleccione dónde guardar el archivo
-            handle = await window.showSaveFilePicker({
+        if ('showSaveFilePicker' in window) {
+          try {
+            const handle = await window.showSaveFilePicker({
               suggestedName: 'Diagnostico_Fallas.xlsx',
               types: [{
                 description: 'Archivo Excel',
                 accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] }
               }]
             });
-            // Guardar el handle para futuras exportaciones
-            excelFileHandle = handle;
+            const writable = await handle.createWritable();
+            await writable.write(buffer);
+            await writable.close();
+          } catch (error) {
+            if (error.name !== 'AbortError') {
+              alert('Error al guardar: ' + error.message);
+            }
           }
-
-          // Si existe un workbook, agregar datos nuevos a todas las hojas
-          if (existingWorkbook) {
-            existingWorkbook.SheetNames.forEach(sheetName => {
-              const existingSheet = existingWorkbook.Sheets[sheetName];
-              const newSheet = workbook.Sheets[sheetName];
-              if (!existingSheet || !newSheet) return;
-
-              const existingData = XLSX.utils.sheet_to_json(existingSheet, { header: 1, defval: '' });
-              const newData = XLSX.utils.sheet_to_json(newSheet, { header: 1, defval: '' });
-
-              // Saltar encabezado de los datos nuevos (fila 0)
-              const newRows = newData.slice(1).filter(row => row.some(cell => cell !== ''));
-              if (newRows.length === 0) return;
-
-              // Agregar nuevos rows sin separador
-              newRows.forEach(row => existingData.push([...row]));
-
-              // Reconstruir hoja con ancho de columna autoajustado
-              const mergedSheet = XLSX.utils.aoa_to_sheet(existingData);
-              mergedSheet['!cols'] = calcColumnWidths(existingData);
-              existingWorkbook.Sheets[sheetName] = mergedSheet;
-            });
-
-            workbook = existingWorkbook;
-          }
-
-          // Convertir el workbook a ArrayBuffer
-          const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-
-          // Crear un writable stream
-          const writable = await handle.createWritable();
-
-          // Escribir el contenido
-          await writable.write(excelBuffer);
-
-          // Cerrar el archivo
-          await writable.close();
-
-        } catch (error) {
-          console.error('Error al guardar el archivo:', error);
-          if (error.name !== 'AbortError') {
-            alert('Error al guardar: ' + error.message);
-          }
+        } else {
+          const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'Diagnostico_Fallas.xlsx';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
         }
-      } else {
-        // Fallback para navegadores que no soportan File System Access API
-        const fileName = 'Diagnostico_Fallas.xlsx';
-        XLSX.writeFile(workbook, fileName);
-
+      } catch (error) {
+        console.error('Error en exportExcel:', error);
+        alert('Error al exportar a Excel: ' + (error.message || error));
       }
     }
-
-    // Manejar exportación PDF (wrapper para función async)
-    function handlePDFExport() {
-      exportPDF().catch(error => {
-        console.error('Error al exportar PDF:', error);
-        alert('Error al generar el PDF.');
-      });
-    }
-
-    // Exportar PDF completo con información de todos los tabs
-    async function exportPDF() {
-      try {
-        // Verificar que las librerías estén cargadas
-        if (!window.jspdf) {
-          throw new Error('La librería jsPDF no está cargada');
-        }
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-
-      // Configuración de página
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const margin = 15;
-      let yPosition = margin;
-
-      // Colores corporativos
-      const colors = {
-        navy: [30, 58, 95],
-        blue: [37, 99, 235],
-        sky: [224, 242, 254],
-        green: [22, 163, 74],
-        orange: [234, 88, 12],
-        red: [220, 38, 38],
-        gray: [107, 114, 128]
-      };
-
-      // Función para agregar encabezado premium
-      function addHeader() {
-        // Fondo del encabezado
-        doc.setFillColor(...colors.navy);
-        doc.rect(0, 0, pageWidth, 28, 'F');
-
-        // Título principal
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Reporte de Diagnóstico de Fallas', pageWidth / 2, 11, { align: 'center' });
-
-        // Fecha de generación debajo del título
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        const fechaGeneracion = new Date().toLocaleDateString('es-ES', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-        doc.text(`Generado: ${fechaGeneracion}`, pageWidth / 2, 21, { align: 'center' });
-
-        // Línea decorativa
-        doc.setFillColor(...colors.blue);
-        doc.rect(0, 28, pageWidth, 1, 'F');
-
-        yPosition = 38;
-      }
-
-      // Función para agregar pie de página
-      function addFooter() {
-        const footerY = pageHeight - 12;
-        doc.setFillColor(...colors.navy);
-        doc.rect(0, footerY, pageWidth, 12, 'F');
-
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(7);
-        doc.setFont('helvetica', 'italic');
-        doc.text('Generado por Herramienta de Diagnóstico de Fallas - Proquinal', pageWidth / 2, footerY + 8, { align: 'center' });
-      }
-
-      // Función para agregar nueva página si es necesario
-      function checkPageBreak(requiredHeight) {
-        if (yPosition + requiredHeight > pageHeight - 22) {
-          addFooter();
-          doc.addPage();
-          addHeader();
-          yPosition = 38;
-          return true;
-        }
-        return false;
-      }
-
-      // Función para agregar caja con borde
-      function addBox(content, title = null, bgColor = [245, 245, 245], borderColor = [200, 200, 200]) {
-        checkPageBreak(30);
-
-        const boxWidth = pageWidth - 2 * margin;
-        const boxHeight = 25 + (content.length * 5);
-
-        doc.setFillColor(...bgColor);
-        doc.setDrawColor(...borderColor);
-        doc.setLineWidth(0.5);
-        doc.roundedRect(margin, yPosition, boxWidth, boxHeight, 3, 3, 'FD');
-
-        if (title) {
-          doc.setTextColor(...colors.navy);
-          doc.setFontSize(11);
-          doc.setFont('helvetica', 'bold');
-          doc.text(title, margin + 5, yPosition + 8);
-          yPosition += 12;
-        }
-
-        doc.setTextColor(...colors.gray);
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        const lines = doc.splitTextToSize(content, boxWidth - 10);
-        lines.forEach((line, i) => {
-          doc.text(line, margin + 5, yPosition + 5 + (i * 4));
-        });
-
-        yPosition += boxHeight + 10;
-      }
-
-      // Función para agregar texto con salto de línea automático
-      function addText(text, fontSize = 11, fontStyle = 'normal', textColor = colors.gray) {
-        doc.setFontSize(fontSize);
-        doc.setFont('helvetica', fontStyle);
-        doc.setTextColor(...textColor);
-        const lines = doc.splitTextToSize(text, pageWidth - 2 * margin);
-        const lineHeight = fontSize * 0.4;
-
-        checkPageBreak(lines.length * lineHeight + 10);
-
-        lines.forEach(line => {
-          doc.text(line, margin, yPosition);
-          yPosition += lineHeight;
-        });
-
-        yPosition += 4;
-      }
-
-      // Función para agregar título de sección premium
-      function addSectionTitle(title, icon = '') {
-        checkPageBreak(20);
-
-        // Fondo del título
-        doc.setFillColor(...colors.sky);
-        doc.roundedRect(margin, yPosition, pageWidth - 2 * margin, 12, 2, 2, 'F');
-
-        // Texto del título
-        doc.setTextColor(...colors.navy);
-        doc.setFontSize(13);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`${icon} ${title}`, margin + 5, yPosition + 8);
-
-        yPosition += 18;
-      }
-
-      // Agregar encabezado inicial
-      addHeader();
 
       // Función para crear diagrama Ishikawa simplificado
+      function upscaleCanvas(src, scale) {
+        const dst = document.createElement('canvas');
+        dst.width = src.width * scale;
+        dst.height = src.height * scale;
+        const dctx = dst.getContext('2d');
+        dctx.scale(scale, scale);
+        dctx.drawImage(src, 0, 0);
+        return dst;
+      }
+
       function createSimplifiedIshikawa() {
         const canvas = document.createElement('canvas');
         canvas.width = 1000;
@@ -1853,7 +1626,8 @@
           ctx.font = '12px Arial';
           ctx.fillStyle = '#666666';
           ctx.fillText('No hay datos de Ishikawa disponibles', 370, 210);
-          return { imgData: canvas.toDataURL(), width: canvas.width, height: canvas.height };
+          const scNoData = upscaleCanvas(canvas, 4);
+          return { imgData: scNoData.toDataURL(), width: scNoData.width, height: scNoData.height };
         }
 
         const spineY = 210;
@@ -2043,7 +1817,8 @@
         ctx.textBaseline = 'top';
         wrapCanvasText(ctx, problema, pbX + 15, pbY + 38, pbW - 30, 15, pbY + pbH - 10);
 
-        return { imgData: canvas.toDataURL(), width: canvas.width, height: canvas.height };
+        const scIshikawa = upscaleCanvas(canvas, 4);
+        return { imgData: scIshikawa.toDataURL(), width: scIshikawa.width, height: scIshikawa.height };
       }
       
       // Función para crear diagrama Pareto simplificado
@@ -2064,7 +1839,8 @@
           ctx.font = '12px Arial';
           ctx.fillStyle = '#666666';
           ctx.fillText('No hay datos de Pareto disponibles', 150, 150);
-          return { imgData: canvas.toDataURL(), width: canvas.width, height: canvas.height };
+          const scParetoEmpty = upscaleCanvas(canvas, 4);
+          return { imgData: scParetoEmpty.toDataURL(), width: scParetoEmpty.width, height: scParetoEmpty.height };
         }
 
         // Ordenar por frecuencia descendente
@@ -2160,13 +1936,6 @@
           ctx.fill();
           ctx.stroke();
 
-          // Valor sobre la barra
-          ctx.fillStyle = '#1f2937';
-          ctx.font = 'bold 10px Arial';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'bottom';
-          ctx.fillText(item.frecuencia.toString(), x + barWidth / 2, y - 3);
-
           // Etiqueta en eje X
           ctx.fillStyle = '#374151';
           ctx.font = 'bold 8px Arial';
@@ -2250,10 +2019,10 @@
         ctx.textBaseline = 'middle';
         ctx.fillText('% Acumulado', legendLineX + 36, legendY + 5);
 
-        return { imgData: canvas.toDataURL(), width: canvas.width, height: canvas.height };
+        const scPareto = upscaleCanvas(canvas, 4);
+        return { imgData: scPareto.toDataURL(), width: scPareto.width, height: scPareto.height };
       }
 
-      // Helper: rectángulo redondeado
       function roundRect(ctx, x, y, w, h, r) {
         ctx.beginPath();
         ctx.moveTo(x + r, y);
@@ -2267,7 +2036,169 @@
         ctx.quadraticCurveTo(x, y, x + r, y);
         ctx.closePath();
       }
-      
+  
+
+    // Manejar exportación PDF (wrapper para función async)
+    function handlePDFExport() {
+      exportPDF().catch(error => {
+        console.error('Error al exportar PDF:', error);
+        alert('Error al generar el PDF.');
+      });
+    }
+
+    // Exportar PDF completo con información de todos los tabs
+    async function exportPDF() {
+      try {
+        // Verificar que las librerías estén cargadas
+        if (!window.jspdf) {
+          throw new Error('La librería jsPDF no está cargada');
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+
+      // Configuración de página
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 15;
+      let yPosition = margin;
+
+      // Colores corporativos
+      const colors = {
+        navy: [30, 58, 95],
+        blue: [37, 99, 235],
+        sky: [224, 242, 254],
+        green: [22, 163, 74],
+        orange: [234, 88, 12],
+        red: [220, 38, 38],
+        gray: [107, 114, 128]
+      };
+
+      // Función para agregar encabezado premium
+      function addHeader() {
+        // Fondo del encabezado
+        doc.setFillColor(...colors.navy);
+        doc.rect(0, 0, pageWidth, 28, 'F');
+
+        // Título principal
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Reporte de Diagnóstico de Fallas', pageWidth / 2, 11, { align: 'center' });
+
+        // Fecha de generación debajo del título
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        const fechaGeneracion = new Date().toLocaleDateString('es-ES', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+        doc.text(`Generado: ${fechaGeneracion}`, pageWidth / 2, 21, { align: 'center' });
+
+        // Línea decorativa
+        doc.setFillColor(...colors.blue);
+        doc.rect(0, 28, pageWidth, 1, 'F');
+
+        yPosition = 38;
+      }
+
+      // Función para agregar pie de página
+      function addFooter() {
+        const footerY = pageHeight - 12;
+        doc.setFillColor(...colors.navy);
+        doc.rect(0, footerY, pageWidth, 12, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'italic');
+        doc.text('Generado por Herramienta de Diagnóstico de Fallas - Proquinal', pageWidth / 2, footerY + 8, { align: 'center' });
+      }
+
+      // Función para agregar nueva página si es necesario
+      function checkPageBreak(requiredHeight) {
+        if (yPosition + requiredHeight > pageHeight - 22) {
+          addFooter();
+          doc.addPage();
+          addHeader();
+          yPosition = 38;
+          return true;
+        }
+        return false;
+      }
+
+      // Función para agregar caja con borde
+      function addBox(content, title = null, bgColor = [245, 245, 245], borderColor = [200, 200, 200]) {
+        checkPageBreak(30);
+
+        const boxWidth = pageWidth - 2 * margin;
+        const boxHeight = 25 + (content.length * 5);
+
+        doc.setFillColor(...bgColor);
+        doc.setDrawColor(...borderColor);
+        doc.setLineWidth(0.5);
+        doc.roundedRect(margin, yPosition, boxWidth, boxHeight, 3, 3, 'FD');
+
+        if (title) {
+          doc.setTextColor(...colors.navy);
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'bold');
+          doc.text(title, margin + 5, yPosition + 8);
+          yPosition += 12;
+        }
+
+        doc.setTextColor(...colors.gray);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        const lines = doc.splitTextToSize(content, boxWidth - 10);
+        lines.forEach((line, i) => {
+          doc.text(line, margin + 5, yPosition + 5 + (i * 4));
+        });
+
+        yPosition += boxHeight + 10;
+      }
+
+      // Función para agregar texto con salto de línea automático
+      function addText(text, fontSize = 11, fontStyle = 'normal', textColor = colors.gray) {
+        doc.setFontSize(fontSize);
+        doc.setFont('helvetica', fontStyle);
+        doc.setTextColor(...textColor);
+        const lines = doc.splitTextToSize(text, pageWidth - 2 * margin);
+        const lineHeight = fontSize * 0.4;
+
+        checkPageBreak(lines.length * lineHeight + 10);
+
+        lines.forEach(line => {
+          doc.text(line, margin, yPosition);
+          yPosition += lineHeight;
+        });
+
+        yPosition += 4;
+      }
+
+      // Función para agregar título de sección premium
+      function addSectionTitle(title, icon = '') {
+        checkPageBreak(20);
+
+        // Fondo del título
+        doc.setFillColor(...colors.sky);
+        doc.roundedRect(margin, yPosition, pageWidth - 2 * margin, 12, 2, 2, 'F');
+
+        // Texto del título
+        doc.setTextColor(...colors.navy);
+        doc.setFontSize(13);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${icon} ${title}`, margin + 5, yPosition + 8);
+
+        yPosition += 18;
+      }
+
+      // Agregar encabezado inicial
+      addHeader();
+
+    
       yPosition += 10;
 
       // 1. INFORMACIÓN DE CAPTURA DEL PROBLEMA
@@ -2555,6 +2486,17 @@ Esta acción no se puede deshacer.`;
 
         // Ocultar botón Limpiar Todo
         updateClearAllButton();
+
+        // Cerrar FAB menu
+        const fabMenu = document.getElementById('fab-menu');
+        const fab = document.getElementById('fab');
+        const icon = document.querySelector('#fab-toggle i');
+        if (fabMenu && !fabMenu.classList.contains('hidden')) {
+          fabMenu.classList.add('hidden');
+          fab.classList.remove('fab-open');
+          icon.classList.add('fa-plus');
+          icon.classList.remove('fa-times');
+        }
 
 
       }
