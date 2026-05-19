@@ -751,33 +751,42 @@ async function exportExcel() {
       ishikawaSheet.getCell('A1').value = 'No hay diagramas Ishikawa guardados.';
       ishikawaSheet.getCell('A1').font = { italic: true, size: 11, name: 'Calibri', color: { argb: 'FF9CA3AF' } };
     } else {
-      ishikawaSheet.properties.outlineProperties = { summaryBelow: false };
+      ishikawaSheet.getCell('A1').value = 'Máquina';
+      ishikawaSheet.getCell('A1').font = { bold: true, size: 11, name: 'Calibri', color: { argb: 'FF1F4E79' } };
       let ishikawaRow = 1;
-      ishikawaMachines.forEach((machine, idx) => {
+      ishikawaMachines.forEach(machine => {
         const entry = ishikawaHistoryData[machine];
         const ishikawaData = entry.ishikawa || {};
         if (!Object.values(ishikawaData).some(v => v)) return;
 
+ishikawaRow++;
         ishikawaSheet.getCell(`A${ishikawaRow}`).value = machine;
         ishikawaSheet.getCell(`A${ishikawaRow}`).font = { bold: true, size: 12, name: 'Calibri', color: { argb: 'FF1F4E79' } };
-        const headerRow = ishikawaRow;
-        ishikawaRow++;
 
         const imgData = createSimplifiedIshikawa(ishikawaData, entry.problema);
-        if (imgData && imgData.imgData) {
+        const hasImage = imgData && imgData.imgData;
+        
+        for (let r = ishikawaRow; r <= ishikawaRow + 30; r++) {
+          ishikawaSheet.getCell(`A${r}`).value = machine;
+        }
+        
+        if (hasImage) {
           const base64Data = imgData.imgData.split(',')[1];
           const imgId = workbook.addImage({ base64: base64Data, extension: 'png' });
           ishikawaSheet.addImage(imgId, {
             tl: { col: 0, row: ishikawaRow },
             br: { col: 15, row: ishikawaRow + 30 }
           });
-          for (let r = headerRow + 1; r <= ishikawaRow + 30; r++) {
-            ishikawaSheet.getRow(r).outlineLevel = 1;
-          }
-          if (idx > 0) ishikawaSheet.getRow(headerRow).collapsed = true;
-          ishikawaRow += 31;
         }
+        ishikawaRow += 31;
       });
+
+      if (ishikawaRow > 2) {
+        ishikawaSheet.autoFilter = {
+          from: { row: 1, column: 1 },
+          to: { row: ishikawaRow - 1, column: 1 }
+        };
+      }
     }
     ishikawaSheet.getColumn(1).width = 30;
 
@@ -794,38 +803,40 @@ async function exportExcel() {
       paretoSheet.getCell('A1').value = 'No hay datos de Pareto acumulados.';
       paretoSheet.getCell('A1').font = { italic: true, size: 11, name: 'Calibri', color: { argb: 'FF9CA3AF' } };
     } else {
-      paretoSheet.properties.outlineProperties = { summaryBelow: false };
+      paretoSheet.getCell('A1').value = 'Máquina';
+      paretoSheet.getCell('A1').font = { bold: true, size: 11, name: 'Calibri', color: { argb: 'FF1F4E79' } };
       let paretoRow = 1;
-      machines.forEach((machine, idx) => {
+      machines.forEach(machine => {
         const paretoItems = getAccumulatedParetoData(machine);
         if (paretoItems.length === 0) return;
 
+paretoRow++;
         paretoSheet.getCell(`A${paretoRow}`).value = machine;
         paretoSheet.getCell(`A${paretoRow}`).font = { bold: true, size: 12, name: 'Calibri', color: { argb: 'FF1F4E79' } };
-        const headerRow = paretoRow;
-        paretoRow++;
 
         const sorted = [...paretoItems].sort((a, b) => b.frecuencia - a.frecuencia);
         const imgData = createSimplifiedPareto(sorted);
-        if (imgData && imgData.imgData) {
+        const hasImage = imgData && imgData.imgData;
+        
+        for (let r = paretoRow; r <= paretoRow + 30; r++) {
+          paretoSheet.getCell(`A${r}`).value = machine;
+        }
+        
+        if (hasImage) {
           const base64Data = imgData.imgData.split(',')[1];
           const imgId = workbook.addImage({ base64: base64Data, extension: 'png' });
           paretoSheet.addImage(imgId, {
             tl: { col: 0, row: paretoRow },
             br: { col: 15, row: paretoRow + 30 }
           });
-          for (let r = headerRow + 1; r <= paretoRow + 30; r++) {
-            paretoSheet.getRow(r).outlineLevel = 1;
-          }
-          if (idx > 0) paretoSheet.getRow(headerRow).collapsed = true;
-          paretoRow += 31;
-        } else {
-          for (let r = headerRow + 1; r < paretoRow; r++) {
-            paretoSheet.getRow(r).outlineLevel = 1;
-          }
-          if (idx > 0) paretoSheet.getRow(headerRow).collapsed = true;
         }
+        paretoRow += 31;
       });
+
+      paretoSheet.autoFilter = {
+        from: { row: 1, column: 1 },
+        to: { row: paretoRow - 1, column: 1 }
+      };
     }
     paretoSheet.getColumn(1).width = 30;
 
