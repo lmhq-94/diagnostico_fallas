@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Título de la aplicación -->
+  <title>Herramienta de Diagnóstico de Fallas</title>
+
+  <!-- Utilidades CSS (Tailwind vía CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Iconos (Font Awesome) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Librería para exportar a Excel -->
+  <script src="https://unpkg.com/exceljs@4.4.0/dist/exceljs.min.js"></script>
+
+  <!-- Librería para exportar a PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- Estilos personalizados de la aplicación -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- ==========================================================================
+       ENCABEZADO
+       Logo, título y descripción de la herramienta
+       ========================================================================== -->
+  <header class="bg-gradient-to-r from-[#1e3a5f] to-[#2563eb] text-white shadow-lg">
+    <div class="px-4 sm:px-6 py-3">
+      <div class="flex items-center justify-start gap-8">
+        <img src="https://static.spradling.group/uploads/instances/1/logo-proquinal.png"
+             alt="Proquinal"
+             class="w-40 h-40 flex-shrink-0 object-contain -my-12"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="w-px h-16 bg-white/30 flex-shrink-0"></div>
+        <div class="max-w-7xl xl:max-w-8xl flex-1">
+          <h1 class="text-xl sm:text-2xl font-bold">Herramienta de Diagnóstico de Fallas</h1>
+          <p class="text-blue-100 text-xs sm:text-sm">Identifica y soluciona problemas de raíz</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       BARRA DE NAVEGACIÓN (Tabs)
+       Captura | Ishikawa | 5 Porqués | Plan de Acción
+       ========================================================================== -->
+  <div class="tabs-container">
+    <div class="max-w-7xl xl:max-w-8xl mx-auto px-4 sm:px-6">
+      <div class="bg-white rounded-t-xl">
+        <div class="flex flex-wrap">
+          <button onclick="showTab('captura')" id="tab-captura"
+                  class="flex-1 min-w-[140px] px-3 sm:px-6 py-4 font-semibold text-gray-600 hover:text-blue-600 transition tab-active text-sm sm:text-base">
+            <i class="fas fa-edit mr-1 sm:mr-2"></i>
+            <span class="hidden sm:inline">Captura del Problema</span>
+            <span class="sm:hidden">Captura</span>
+          </button>
+          <button onclick="showTab('ishikawa')" id="tab-ishikawa"
+                  class="flex-1 min-w-[140px] px-3 sm:px-6 py-4 font-semibold text-gray-600 hover:text-blue-600 transition text-sm sm:text-base">
+            <i class="fas fa-project-diagram mr-1 sm:mr-2"></i>
+            <span class="hidden sm:inline">Ishikawa</span>
+            <span class="sm:hidden">Ishikawa</span>
+          </button>
+          <button onclick="showTab('5whys')" id="tab-5whys"
+                  class="flex-1 min-w-[140px] px-3 sm:px-6 py-4 font-semibold text-gray-600 hover:text-blue-600 transition text-sm sm:text-base">
+            <i class="fas fa-question-circle mr-1 sm:mr-2"></i>
+            <span class="hidden sm:inline">5 Porqués</span>
+            <span class="sm:hidden">5 Porqués</span>
+          </button>
+          <button onclick="showTab('plan')" id="tab-plan"
+                  class="flex-1 min-w-[140px] px-3 sm:px-6 py-4 font-semibold text-gray-600 hover:text-blue-600 transition text-sm sm:text-base">
+            <i class="fas fa-tasks mr-1 sm:mr-2"></i>
+            <span class="hidden sm:inline">Plan de Acción</span>
+            <span class="sm:hidden">Plan</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       CONTENIDO PRINCIPAL
+       ========================================================================== -->
+  <main class="main-content w-full px-24 sm:px-28 lg:px-32 xl:px-40 2xl:px-56">
+
+    <!-- ===== TAB 1: Captura del Problema ===== -->
+    <div id="content-captura" class="fade-in">
+      <div class="bg-white rounded-xl shadow-md p-4 sm:p-6">
+
+        <h2 class="text-lg sm:text-xl font-bold text-[#1e3a5f] mb-4 sm:mb-6">
+          <i class="fas fa-exclamation-triangle mr-2 text-orange-500"></i>Descripción del Problema
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div>
+            <label class="std-label" for="fechaEvento">Fecha del análisis</label>
+            <input type="date" id="fechaEvento" class="std-input" max="">
+          </div>
+
+          <div class="select-wrapper">
+            <label class="std-label" for="maquina">Máquina / Equipo</label>
+            <select id="maquina" class="std-input">
+              <option value="">Seleccionar...</option>
+              <option value="Generadora 1">Generadora 1</option>
+              <option value="Generadora 2">Generadora 2</option>
+              <option value="Grabadora 1">Grabadora 1</option>
+              <option value="Grabadora 2">Grabadora 2</option>
+              <option value="Grabadora 3">Grabadora 3</option>
+              <option value="Estampadora 1">Estampadora 1</option>
+              <option value="Estampadora 2">Estampadora 2</option>
+              <option value="Estampadora 3">Estampadora 3</option>
+              <option value="CR3">CR3</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="std-label" for="tiempoParo">Tiempo de paro (minutos)</label>
+            <input type="number" id="tiempoParo" min="0" placeholder="0" class="std-input">
+          </div>
+
+          <div>
+            <label class="std-label" for="responsable">Responsable del análisis</label>
+            <input type="text" id="responsable" name="responsable" placeholder="Nombre del analista" class="std-input">
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="std-label" for="descripcionProblema">Descripción del problema</label>
+            <textarea id="descripcionProblema" rows="4"
+                      placeholder="Describe detalladamente qué ocurrió..." class="std-textarea"></textarea>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="std-label" for="sintomas">Síntomas observados</label>
+            <textarea id="sintomas" rows="3"
+                      placeholder="¿Qué se observó? ¿Ruidos, olores, vibraciones, alarmas?" class="std-textarea"></textarea>
+          </div>
+        </div>
+
+        <div class="mt-4 sm:mt-6 flex justify-end gap-3">
+          <button onclick="clearCaptura()"
+                  class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition text-sm sm:text-base">
+            <i class="fas fa-eraser mr-2"></i>Limpiar
+          </button>
+          <button onclick="saveCaptura()" class="std-button std-button-primary">
+            <i class="fas fa-save"></i>
+            <span>Guardar y Continuar</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== TAB 2: 5 Porqués ===== -->
+    <div id="content-5whys" class="hidden fade-in">
+      <div class="bg-white rounded-xl shadow-md p-4 sm:p-6">
+
+        <h2 class="text-lg sm:text-xl font-bold text-[#1e3a5f] mb-4 sm:mb-6">
+          <i class="fas fa-question-circle mr-2 text-blue-500"></i>Los 5 Porqués
+        </h2>
+
+        <p class="text-gray-500 mb-4 sm:mb-6 text-sm">
+          La técnica de los 5 Porqués consiste en preguntar "¿por qué?" repetidamente
+          para profundizar en las causas de un problema hasta encontrar su origen.
+        </p>
+        <p class="text-gray-500 mb-4 sm:mb-6 text-sm">
+          <strong>Cómo usarlo:</strong> Responde cada "¿Por qué?" basándote en hechos.
+          La respuesta de cada nivel se convierte en la pregunta del siguiente.
+          Al llegar al quinto nivel, habrás identificado la causa raíz.
+        </p>
+
+        <!-- Contenedor de los 5 niveles de porqué -->
+        <div class="space-y-2">
+
+          <!-- Nivel 1 -->
+          <div class="why-card bg-gradient-to-r from-blue-50 to-white border-l-4 border-blue-500 rounded-lg p-2 sm:p-3">
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0 text-xs">1</div>
+              <div class="flex-1">
+                <label class="std-label" for="why1">¿Por qué ocurrió el problema?</label>
+                <input type="text" id="why1" class="std-input" placeholder="Describe la primera causa...">
+              </div>
+            </div>
+          </div>
+
+          <!-- Nivel 2 -->
+          <div class="why-card bg-gradient-to-r from-indigo-50 to-white border-l-4 border-indigo-500 rounded-lg p-2 sm:p-3">
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0 text-xs">2</div>
+              <div class="flex-1">
+                <label class="std-label" for="why2">¿Por qué ocurrió eso?</label>
+                <input type="text" id="why2" class="std-input" placeholder="Profundiza en la causa...">
+              </div>
+            </div>
+          </div>
+
+          <!-- Nivel 3 -->
+          <div class="why-card bg-gradient-to-r from-purple-50 to-white border-l-4 border-purple-500 rounded-lg p-2 sm:p-3">
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0 text-xs">3</div>
+              <div class="flex-1">
+                <label class="std-label" for="why3">¿Por qué ocurrió eso?</label>
+                <input type="text" id="why3" class="std-input" placeholder="Sigue profundizando...">
+              </div>
+            </div>
+          </div>
+
+          <!-- Nivel 4 -->
+          <div class="why-card bg-gradient-to-r from-pink-50 to-white border-l-4 border-pink-500 rounded-lg p-2 sm:p-3">
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 bg-pink-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0 text-xs">4</div>
+              <div class="flex-1">
+                <label class="std-label" for="why4">¿Por qué ocurrió eso?</label>
+                <input type="text" id="why4" class="std-input" placeholder="Casi llegamos a la raíz...">
+              </div>
+            </div>
+          </div>
+
+          <!-- Nivel 5 (Causa Raíz) -->
+          <div class="why-card bg-gradient-to-r from-red-50 to-white border-l-4 border-red-500 rounded-lg p-2 sm:p-3">
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0 text-xs">5</div>
+              <div class="flex-1">
+                <label class="std-label" for="why5">
+                  ¿Por qué ocurrió eso? <span class="text-red-500 font-normal">(Causa Raíz)</span>
+                </label>
+                <input type="text" id="why5" class="std-input" placeholder="Esta es la causa raíz fundamental...">
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Resumen visual de la causa raíz identificada -->
+        <div class="mt-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-start gap-2">
+          <i class="fas fa-lightbulb text-amber-500 mt-0.5 text-sm flex-shrink-0"></i>
+          <div>
+            <span class="text-xs font-semibold text-amber-800 block mb-0.5">Causa Raíz Identificada</span>
+            <p id="causaRaizResumen" class="text-gray-600 italic text-sm">
+              Completa los 5 porqués para ver la causa raíz resumida aquí.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-3 flex justify-end gap-3">
+          <button onclick="clearWhys()" class="std-button std-button-secondary">
+            <i class="fas fa-eraser"></i>
+            <span>Limpiar</span>
+          </button>
+          <button onclick="saveWhys()" class="std-button std-button-primary">
+            <i class="fas fa-save"></i>
+            <span>Guardar</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== TAB 3: Diagrama de Ishikawa ===== -->
+    <div id="content-ishikawa" class="hidden fade-in">
+      <div class="bg-white rounded-xl shadow-md p-4 sm:p-6">
+
+        <h2 class="text-lg sm:text-xl font-bold text-[#1e3a5f] mb-4 sm:mb-6">
+          <i class="fas fa-project-diagram mr-2 text-green-500"></i>Diagrama de Ishikawa
+        </h2>
+
+        <p class="text-gray-500 mb-4 sm:mb-6 text-sm">
+          El Diagrama de Ishikawa organiza visualmente las causas potenciales de un problema
+          en 6 categorías: Máquina, Método, Materiales, Mano de obra, Medición y Medio ambiente.
+        </p>
+        <p class="text-gray-500 mb-4 sm:mb-6 text-sm">
+          <strong>Cómo usarlo:</strong> Escribe en cada categoría las causas que identificaste.
+          Al guardar, el diagrama se genera automáticamente. Haz clic en cualquier recuadro
+          del diagrama para editar esa categoría.
+        </p>
+
+        <!-- Diagrama SVG generado dinámicamente -->
+        <div id="ishikawa-diagram" class="ishikawa-svg-wrap mb-6 sm:mb-8 hidden">
+          <svg viewBox="0 0 1000 420" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="ish-arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#1e3a5f"/>
+              </marker>
+            </defs>
+
+            <!-- Cola del pescado -->
+            <line x1="85" y1="210" x2="48" y2="178" stroke="#1e3a5f" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="85" y1="210" x2="48" y2="242" stroke="#1e3a5f" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="48" y1="178" x2="48" y2="242" stroke="#1e3a5f" stroke-width="3" stroke-linecap="round"/>
+
+            <!-- Espina central -->
+            <line x1="85" y1="210" x2="762" y2="210" stroke="#1e3a5f" stroke-width="4" stroke-linecap="round" marker-end="url(#ish-arrow)"/>
+
+            <!-- Marcas en puntos de contacto de ramas -->
+            <line x1="205" y1="203" x2="205" y2="217" stroke="#1e3a5f" stroke-width="2"/>
+            <line x1="400" y1="203" x2="400" y2="217" stroke="#1e3a5f" stroke-width="2"/>
+            <line x1="595" y1="203" x2="595" y2="217" stroke="#1e3a5f" stroke-width="2"/>
+
+            <!-- Ramas superiores -->
+            <line x1="115" y1="122" x2="205" y2="210" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="310" y1="122" x2="400" y2="210" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="505" y1="122" x2="595" y2="210" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+
+            <!-- Ramas inferiores -->
+            <line x1="115" y1="298" x2="205" y2="210" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="310" y1="298" x2="400" y2="210" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="505" y1="298" x2="595" y2="210" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+
+            <!-- Categoría: Máquina -->
+            <g id="ishikawa-label-maquina" class="ish-label-group" onclick="editCategory('maquina')">
+              <rect id="ishikawa-rect-maquina" x="50" y="30" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
+              <foreignObject x="50" y="30" width="130" height="30">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="ish-category-header">
+                  <i class="fas fa-cog"></i>Máquina
+                </div>
+              </foreignObject>
+              <line x1="58" y1="60" x2="172" y2="60" stroke="#e2e8f0" stroke-width="1"/>
+              <foreignObject x="55" y="65" width="120" height="50">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-maquina" class="ish-category-content"></div>
+              </foreignObject>
+              <text id="ishikawa-check-maquina" x="173" y="38" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
+            </g>
+
+            <!-- Categoría: Método -->
+            <g id="ishikawa-label-metodo" class="ish-label-group" onclick="editCategory('metodo')" >
+              <rect id="ishikawa-rect-metodo" x="245" y="30" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
+              <foreignObject x="245" y="30" width="130" height="30">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="ish-category-header">
+                  <i class="fas fa-clipboard-list"></i>Método
+                </div>
+              </foreignObject>
+              <line x1="253" y1="60" x2="367" y2="60" stroke="#e2e8f0" stroke-width="1"/>
+              <foreignObject x="250" y="65" width="120" height="50">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-metodo" class="ish-category-content"></div>
+              </foreignObject>
+              <text id="ishikawa-check-metodo" x="368" y="38" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
+            </g>
+
+            <!-- Categoría: Materiales -->
+            <g id="ishikawa-label-materiales" class="ish-label-group" onclick="editCategory('materiales')" >
+              <rect id="ishikawa-rect-materiales" x="440" y="30" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
+              <foreignObject x="440" y="30" width="130" height="30">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="ish-category-header">
+                  <i class="fas fa-box"></i>Materiales
+                </div>
+              </foreignObject>
+              <line x1="448" y1="60" x2="562" y2="60" stroke="#e2e8f0" stroke-width="1"/>
+              <foreignObject x="445" y="65" width="120" height="50">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-materiales" class="ish-category-content"></div>
+              </foreignObject>
+              <text id="ishikawa-check-materiales" x="563" y="38" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
+            </g>
+
+            <!-- Categoría: Mano de Obra -->
+            <g id="ishikawa-label-manoObra" class="ish-label-group" onclick="editCategory('manoObra')" >
+              <rect id="ishikawa-rect-manoObra" x="50" y="298" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
+              <foreignObject x="50" y="298" width="130" height="30">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="ish-category-header">
+                  <i class="fas fa-users"></i>Mano Obra
+                </div>
+              </foreignObject>
+              <line x1="58" y1="328" x2="172" y2="328" stroke="#e2e8f0" stroke-width="1"/>
+              <foreignObject x="55" y="333" width="120" height="50">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-manoObra" class="ish-category-content"></div>
+              </foreignObject>
+              <text id="ishikawa-check-manoObra" x="173" y="306" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
+            </g>
+
+            <!-- Categoría: Medición -->
+            <g id="ishikawa-label-medicion" class="ish-label-group" onclick="editCategory('medicion')" >
+              <rect id="ishikawa-rect-medicion" x="245" y="298" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
+              <foreignObject x="245" y="298" width="130" height="30">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="ish-category-header">
+                  <i class="fas fa-chart-line"></i>Medición
+                </div>
+              </foreignObject>
+              <line x1="253" y1="328" x2="367" y2="328" stroke="#e2e8f0" stroke-width="1"/>
+              <foreignObject x="250" y="333" width="120" height="50">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-medicion" class="ish-category-content"></div>
+              </foreignObject>
+              <text id="ishikawa-check-medicion" x="368" y="306" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
+            </g>
+
+            <!-- Categoría: Medio Ambiente -->
+            <g id="ishikawa-label-medioAmbiente" class="ish-label-group" onclick="editCategory('medioAmbiente')" >
+              <rect id="ishikawa-rect-medioAmbiente" x="440" y="298" width="130" height="92" rx="8" fill="white" stroke="#d1d5db" stroke-width="1.5"/>
+              <foreignObject x="440" y="298" width="130" height="30">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="ish-category-header">
+                  <i class="fas fa-leaf"></i>Medio Amb.
+                </div>
+              </foreignObject>
+              <line x1="448" y1="328" x2="562" y2="328" stroke="#e2e8f0" stroke-width="1"/>
+              <foreignObject x="445" y="333" width="120" height="50">
+                <div xmlns="http://www.w3.org/1999/xhtml" id="ishikawa-content-medioAmbiente" class="ish-category-content"></div>
+              </foreignObject>
+              <text id="ishikawa-check-medioAmbiente" x="563" y="306" font-size="14" fill="#3b82f6" visibility="hidden">&#x2713;</text>
+            </g>
+
+            <!-- Recuadro del problema/efecto -->
+            <g id="ishikawa-cause">
+              <rect x="767" y="164" width="220" height="120" rx="10" fill="#1e3a5f"/>
+              <foreignObject x="767" y="164" width="220" height="120">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="ish-problem-box">
+                  <div class="ish-problem-label">PROBLEMA</div>
+                  <div class="ish-problem-divider"></div>
+                  <div id="ishikawa-cause-text" class="ish-problem-text">No definido</div>
+                </div>
+              </foreignObject>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Formulario de entrada para cada categoría -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+
+          <div class="bg-blue-50 rounded-lg p-3 sm:p-4 border border-blue-200">
+            <h3 class="font-bold text-[#1e3a5f] mb-2 text-sm sm:text-base">
+              <i class="fas fa-cog mr-2"></i>Máquina
+            </h3>
+            <textarea id="ishikawa-maquina" rows="3" class="std-textarea"
+                      placeholder="Fallas en equipos, desgaste, mantenimiento..." autocomplete="off"></textarea>
+          </div>
+
+          <div class="bg-indigo-50 rounded-lg p-3 sm:p-4 border border-indigo-200">
+            <h3 class="font-bold text-[#1e3a5f] mb-2 text-sm sm:text-base">
+              <i class="fas fa-clipboard-list mr-2"></i>Método
+            </h3>
+            <textarea id="ishikawa-metodo" rows="3" class="std-textarea"
+                      placeholder="Procedimientos, estándares, instrucciones..." autocomplete="off"></textarea>
+          </div>
+
+          <div class="bg-purple-50 rounded-lg p-3 sm:p-4 border border-purple-200">
+            <h3 class="font-bold text-[#1e3a5f] mb-2 text-sm sm:text-base">
+              <i class="fas fa-box mr-2"></i>Materiales
+            </h3>
+            <textarea id="ishikawa-materiales" rows="3" class="std-textarea"
+                      placeholder="Repuestos, consumibles, calidad..." autocomplete="off"></textarea>
+          </div>
+
+          <div class="bg-pink-50 rounded-lg p-3 sm:p-4 border border-pink-200">
+            <h3 class="font-bold text-[#1e3a5f] mb-2 text-sm sm:text-base">
+              <i class="fas fa-users mr-2"></i>Mano de obra
+            </h3>
+            <textarea id="ishikawa-manoObra" rows="3" class="std-textarea"
+                      placeholder="Capacitación, fatiga, errores..." autocomplete="off"></textarea>
+          </div>
+
+          <div class="bg-orange-50 rounded-lg p-3 sm:p-4 border border-orange-200">
+            <h3 class="font-bold text-[#1e3a5f] mb-2 text-sm sm:text-base">
+              <i class="fas fa-chart-line mr-2"></i>Medición
+            </h3>
+            <textarea id="ishikawa-medicion" rows="3" class="std-textarea"
+                      placeholder="Sensores, inspecciones, datos..." autocomplete="off"></textarea>
+          </div>
+
+          <div class="bg-green-50 rounded-lg p-3 sm:p-4 border border-green-200">
+            <h3 class="font-bold text-[#1e3a5f] mb-2 text-sm sm:text-base">
+              <i class="fas fa-leaf mr-2"></i>Medio ambiente
+            </h3>
+            <textarea id="ishikawa-medioAmbiente" rows="3" class="std-textarea"
+                      placeholder="Temperatura, humedad, condiciones..." autocomplete="off"></textarea>
+          </div>
+
+        </div>
+
+        <div class="mt-4 sm:mt-6 flex justify-end gap-3 flex-wrap">
+          <button onclick="clearIshikawa()"
+                  class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition text-sm sm:text-base">
+            <i class="fas fa-eraser mr-2"></i>Limpiar
+          </button>
+          <button onclick="saveIshikawa()"
+                  class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition shadow-md text-sm sm:text-base">
+            <i class="fas fa-save mr-2"></i>Guardar
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== TAB 4: Plan de Acción ===== -->
+    <div id="content-plan" class="hidden fade-in">
+      <div class="bg-white rounded-xl shadow-md p-4 sm:p-6">
+
+        <h2 class="text-lg sm:text-xl font-bold text-[#1e3a5f] mb-4 sm:mb-6">
+          <i class="fas fa-tasks mr-2 text-red-500"></i>Plan de Acción
+        </h2>
+
+        <p class="text-gray-500 mb-4 sm:mb-6 text-sm">
+          El Plan de Acción registra las acciones correctivas (para solucionar la causa raíz)
+          y preventivas (para evitar que vuelva a ocurrir), asignando responsables y fechas límite.
+        </p>
+        <p class="text-gray-500 mb-4 sm:mb-6 text-sm">
+          <strong>Cómo usarlo:</strong> Agrega las acciones necesarias, especifica quién es responsable
+          y la fecha de finalización esperada. Marca la prioridad de cada acción para enfocar los esfuerzos.
+        </p>
+
+        <!-- Resumen del análisis completo -->
+        <div class="bg-gray-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+          <h3 class="font-bold text-[#1e3a5f] mb-3 text-sm sm:text-base">Resumen del Análisis</h3>
+          <div id="resumenAnalisis" class="text-sm sm:text-base text-gray-600 space-y-2">
+            <p><strong>Problema:</strong> <span id="resumenProblema">No definido</span></p>
+            <p><strong>Causa Raíz:</strong> <span id="resumenCausa">No definida</span></p>
+          </div>
+        </div>
+
+        <!-- Acciones Correctivas -->
+        <div class="mb-4 sm:mb-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 sm:mb-4 gap-2">
+            <h3 class="font-bold text-[#1e3a5f] text-sm sm:text-base">Acciones Correctivas</h3>
+            <button onclick="addAccion('correctiva')"
+                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition shadow-md text-sm sm:text-base w-full sm:w-auto">
+              <i class="fas fa-plus mr-2"></i>Agregar
+            </button>
+          </div>
+          <div id="accionesCorrectivas" class="space-y-3">
+            <!-- Las tarjetas se generan dinámicamente desde JavaScript -->
+          </div>
+        </div>
+
+        <!-- Acciones Preventivas -->
+        <div class="mb-4 sm:mb-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 sm:mb-4 gap-2">
+            <h3 class="font-bold text-[#1e3a5f] text-sm sm:text-base">Acciones Preventivas</h3>
+            <button onclick="addAccion('preventiva')"
+                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition shadow-md text-sm sm:text-base w-full sm:w-auto">
+              <i class="fas fa-plus mr-2"></i>Agregar
+            </button>
+          </div>
+          <div id="accionesPreventivas" class="space-y-3">
+            <!-- Las tarjetas se generan dinámicamente desde JavaScript -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ==========================================================================
+       PIE DE PÁGINA
+       ========================================================================== -->
+  <footer class="text-gray-400 py-4 sm:py-5 mt-8">
+    <div class="max-w-8xl xl:max-w-9xl mx-auto px-4 sm:px-6 text-center">
+      <p class="text-xs sm:text-sm">
+        Herramienta de Análisis Causa Raíz · Generado para gestión de mantenimiento y confiabilidad
+      </p>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       BOTÓN DE ACCIÓN FLOTANTE (FAB)
+       Exportar PDF, Excel y Limpiar Todo
+       ========================================================================== -->
+  <div id="fab" class="hidden fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div id="fab-menu" class="hidden mb-3 flex flex-col gap-2">
+      <button onclick="handlePDFExport()"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2.5 rounded-lg shadow-lg transition text-sm flex items-center gap-2 whitespace-nowrap">
+        <i class="fas fa-file-pdf"></i> Exportar PDF
+      </button>
+      <button onclick="exportExcel()"
+              class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2.5 rounded-lg shadow-lg transition text-sm flex items-center gap-2 whitespace-nowrap">
+        <i class="fas fa-file-excel"></i> Exportar Excel
+      </button>
+      <button id="clearAllBtn" onclick="clearAll()"
+              class="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2.5 rounded-lg shadow-lg transition text-sm flex items-center gap-2 whitespace-nowrap hidden">
+        <i class="fas fa-trash-alt"></i> Limpiar Todo
+      </button>
+    </div>
+    <button id="fab-toggle" onclick="toggleFab(event)"
+            class="w-14 h-14 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-full shadow-xl flex items-center justify-center text-2xl transition-all duration-300"
+            aria-label="Menú de acciones">
+      <i class="fas fa-plus"></i>
+    </button>
+  </div>
+
+  <!-- Script principal de la aplicación -->
+  <script src="app.js"></script>
+</body>
+</html>
