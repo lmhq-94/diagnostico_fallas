@@ -1095,17 +1095,15 @@ function createSimplifiedIshikawa(ishikawaData, problemaText) {
 
 /** Genera una imagen del diagrama de Pareto en un canvas */
 function createSimplifiedPareto(paretoItems) {
-  const canvas = document.createElement('canvas');
-  canvas.width = 500;
-  canvas.height = 300;
-  const ctx = canvas.getContext('2d');
-
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  const items = paretoItems || getIshikawaParetoData();
+  const items = (paretoItems || getIshikawaParetoData()).slice().sort((a, b) => b.frecuencia - a.frecuencia);
 
   if (items.length === 0) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 500;
+    canvas.height = 300;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.font = '12px Arial';
     ctx.fillStyle = '#666666';
     ctx.fillText('No hay datos de Pareto disponibles', 150, 150);
@@ -1113,16 +1111,46 @@ function createSimplifiedPareto(paretoItems) {
     return { imgData: scParetoEmpty.toDataURL(), width: scParetoEmpty.width, height: scParetoEmpty.height };
   }
 
-  items.sort((a, b) => b.frecuencia - a.frecuencia);
-
-  const margin = { top: 30, right: 55, bottom: 60, left: 55 };
-  const chartWidth = canvas.width - margin.left - margin.right;
-  const chartHeight = canvas.height - margin.top - margin.bottom;
-
   const maxFreq = Math.max(...items.map(item => item.frecuencia));
   const totalFreq = items.reduce((sum, item) => sum + item.frecuencia, 0);
-  const barSpacing = chartWidth / items.length;
+
+  const tempCtx = document.createElement('canvas').getContext('2d');
+  tempCtx.font = 'bold 8px Arial';
+
+  const barSpacing = (500 - 55 - 55) / items.length;
   const barWidth = Math.min(barSpacing * 0.65, 50);
+  const maxLabelWidth = barWidth - 2;
+
+  let maxLines = 0;
+  items.forEach(item => {
+    const words = item.causa.split(' ');
+    let lines = 1;
+    let currentLine = '';
+    words.forEach(word => {
+      const testLine = currentLine ? currentLine + ' ' + word : word;
+      if (tempCtx.measureText(testLine).width > maxLabelWidth && currentLine) {
+        lines++;
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    });
+    maxLines = Math.max(maxLines, lines);
+  });
+
+  const extra = Math.max(0, maxLines - 2) * 10;
+  const bottomPad = 60 + extra;
+  const canvas = document.createElement('canvas');
+  canvas.width = 500;
+  canvas.height = 300 + extra;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const margin = { top: 30, right: 55, bottom: bottomPad, left: 55 };
+  const chartWidth = canvas.width - margin.left - margin.right;
+  const chartHeight = canvas.height - margin.top - margin.bottom;
 
   const startX = margin.left;
   const startY = canvas.height - margin.bottom;
@@ -1260,7 +1288,7 @@ function createSimplifiedPareto(paretoItems) {
   }
 
   // Leyenda
-  const legendY = canvas.height - margin.bottom + 35;
+  const legendY = startY + maxLines * 10 + 10;
   ctx.fillStyle = '#93c5fd';
   ctx.strokeStyle = '#3b82f6';
   ctx.lineWidth = 1;
@@ -1531,46 +1559,10 @@ async function exportPDF() {
 
     yPosition += 8;
 
-    // ---- Sección 4: Diagrama de Pareto ----
-    addSectionTitle('4. DIAGRAMA DE PARETO');
-
-    const currentMachine = (document.getElementById('maquina')?.value || '').trim();
-    const paretoItems = getAccumulatedParetoData(currentMachine);
-
-    if (paretoItems.length > 0) {
-      const sorted = [...paretoItems].sort((a, b) => b.frecuencia - a.frecuencia);
-      const paretoImage = createSimplifiedPareto(sorted);
-      if (paretoImage && paretoImage.imgData) {
-        const imgWidth = 175;
-        const imgHeight = (paretoImage.height / paretoImage.width) * imgWidth;
-        const imgX = (pageWidth - imgWidth) / 2;
-        doc.addImage(paretoImage.imgData, 'PNG', imgX, yPosition, imgWidth, imgHeight);
-        yPosition += imgHeight + 6;
-      }
-
-      const totalCausas = sorted.reduce((sum, item) => sum + item.frecuencia, 0);
-
-      addText(`Máquina: ${currentMachine}`, 11, 'bold', colors.navy);
-      addText('Detalle de causas raíz:', 11, 'bold', colors.navy);
-
-      let acumulado = 0;
-      sorted.forEach((item, index) => {
-        acumulado += item.frecuencia;
-        const porcentaje = ((item.frecuencia / totalCausas) * 100).toFixed(1);
-        const porcentajeAcumulado = ((acumulado / totalCausas) * 100).toFixed(1);
-        addText(
-          `${index + 1}. ${item.causa}: ${item.frecuencia} (${porcentaje}%, Acum: ${porcentajeAcumulado}%)`,
-          10, 'normal', colors.gray
-        );
-      });
-    } else {
-      addText('No hay causas raíz acumuladas para esta máquina. Completa el análisis de 5 Porqués y exporta para generar datos de Pareto.');
-    }
-
     yPosition += 15;
 
-    // ---- Sección 5: Plan de Acción ----
-    addSectionTitle('5. PLAN DE ACCIÓN');
+    // ---- Sección 4: Plan de Acción ----
+    addSectionTitle('4. PLAN DE ACCIÓN');
 
     const accionesCorrectivas = document.getElementById('accionesCorrectivas').children;
     if (accionesCorrectivas.length > 0) {
@@ -1794,8 +1786,6 @@ function clearAll() {
     };
 
     localStorage.removeItem('rcaData');
-    localStorage.removeItem('paretoHistory');
-    localStorage.removeItem('ishikawaHistory');
 
     showTab('captura');
     updateTabLockState();
