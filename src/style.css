@@ -1,0 +1,1633 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Variables CSS
+   ========================================================================== */
+:root {
+  --navy: #1e3a5f;
+  --blue: #2563eb;
+  --sky: #e0f2fe;
+}
+
+/* ==========================================================================
+   Layout General
+   ========================================================================== */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+footer {
+  display: none;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Header sticky with glass effect */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* ==========================================================================
+   Tabs Container
+   ========================================================================== */
+.tabs-container {
+  position: sticky;
+  top: 88px;
+  z-index: 40;
+  background: white;
+  height: 72px;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+[id^="content-"] {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+[id^="content-"].hidden {
+  display: none !important;
+}
+
+.tab-active {
+  border-bottom: 3px solid var(--blue);
+  color: var(--blue);
+  box-shadow: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  padding-bottom: 6px;
+}
+
+.tab-locked {
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Ishikawa SVG Diagram — Premium
+   ========================================================================== */
+.ishikawa-svg-wrap {
+  width: 100%;
+  overflow-x: auto;
+  background: linear-gradient(135deg, #f0f4f8 0%, #dce3ed 100%);
+  border-radius: 14px;
+  padding: 12px 6px;
+  border: 1px solid #e2e8f0;
+  transition: opacity 0.4s ease;
+}
+
+.ishikawa-svg-wrap.hidden {
+  display: none;
+}
+
+.ishikawa-svg {
+  display: block;
+  width: 100%;
+  min-width: 660px;
+}
+
+.ish-label-group {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.ish-label-group:hover {
+  opacity: 0.85;
+}
+
+.ish-bone-label {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e3a5f;
+  line-height: 1.3;
+  padding: 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ish-bone-label i {
+  margin-right: 5px;
+  font-size: 11px;
+}
+
+.ish-bone-content {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 11px;
+  color: #475569;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  padding: 2px 6px;
+}
+
+.ish-problem-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 14px 12px;
+  font-family: Inter, sans-serif;
+}
+
+.ish-problem-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #1e3a5f;
+  letter-spacing: 1.2px;
+  margin-bottom: 6px;
+}
+
+.ish-problem-divider {
+  width: 60%;
+  height: 1.5px;
+  background: #dbeafe;
+  margin-bottom: 8px;
+  border-radius: 2px;
+}
+
+.ish-problem-text {
+  font-size: 13px;
+  color: #1e293b;
+  text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  line-height: 1.5;
+  max-width: 190px;
+  width: 100%;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   Standard Card (shared by 5 Whys, Ishikawa, Plan, etc.)
+   ========================================================================== */
+.card-standard {
+  position: relative;
+  width: 100%;
+  height: auto;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card-standard:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.why-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+/* ==========================================================================
+   Form Styles
+   ========================================================================== */
+input[type="date"] {
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1.2em;
+  padding-right: 2.5rem !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 1;
+  direction: ltr;
+  animation: fadeIn 0.3s ease-out;
+}
+
+select:focus {
+  position: relative;
+  z-index: 1000;
+  transform: translateY(0);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  outline: none;
+}
+
+select:hover {
+  border-color: #9ca3af;
+  background-color: #f9fafb;
+}
+
+select option {
+  padding: 8px 12px;
+  background-color: white;
+  color: #374151;
+}
+
+select option:hover {
+  background-color: #f3f4f6;
+}
+
+select option:checked {
+  background-color: #2563eb;
+  color: white;
+}
+
+select:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.select-wrapper {
+  position: relative;
+  z-index: 10;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.std-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.std-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.std-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  background: white;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.std-textarea:hover {
+  border-color: #9ca3af;
+}
+
+.std-textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.std-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+.std-button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.std-button-primary {
+  background: #2563eb;
+  color: white;
+}
+
+.std-button-primary:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.std-button-secondary {
+  background: #6b7280;
+  color: white;
+}
+
+.std-button-secondary:hover {
+  background: #4b5563;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ==========================================================================
+   FOUC Prevention: hide ALL visual content until JS initializes
+   ========================================================================== */
+body.loading header,
+body.loading .stepper-wrap,
+body.loading .main-content,
+body.loading footer,
+body.loading #review-drawer,
+body.loading #drawer-overlay {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+body:not(.loading) header,
+body:not(.loading) .stepper-wrap,
+body:not(.loading) .main-content {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.45s ease-in-out, visibility 0.45s ease-in-out;
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+@media print {
+  header, footer {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  main {
+    padding: 0 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  .step-card {
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .step-body {
+    overflow: visible !important;
+  }
+
+  button {
+    display: none !important;
+  }
+
+  #drawer-overlay, #review-drawer {
+    display: none !important;
+  }
+}
+
+
+
+/* ==========================================================================
+   Header Button
+   ========================================================================== */
+.header-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.header-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.header-btn i {
+  font-size: 14px;
+}
+
+
+
+/* ==========================================================================
+   Ishikawa Generate Area
+   ========================================================================== */
+.ish-generate-area {
+  margin-top: 24px;
+  margin-bottom: 4px;
+  padding: 20px 24px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.ish-generate-area.ready {
+  border-style: solid;
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
+.ish-generate-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ish-generate-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.ish-generate-info i {
+  font-size: 20px;
+  color: #93c5fd;
+}
+
+.ish-generate-area.ready .ish-generate-info i {
+  color: #2563eb;
+}
+
+.ish-generate-area.ready .ish-generate-info span {
+  color: #1e3a5f;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   Data Table
+   ========================================================================== */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.data-table th {
+  background: #f3f4f6;
+  padding: 10px 10px;
+  text-align: left;
+  font-weight: 700;
+  color: #6b7280;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid #d1d5db;
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
+.data-table tbody tr:hover {
+  background: #fafbfc;
+}
+
+.section-header-row td {
+  background: #eef2ff;
+  font-weight: 700;
+  color: #1e3a5f;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-bottom: 1px solid #dbeafe;
+}
+
+.section-header-row td i {
+  margin-right: 6px;
+  width: 16px;
+  text-align: center;
+}
+
+.cell-field {
+  font-weight: 500;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.cell-value {
+  color: #111827;
+}
+
+.cell-value .val-empty {
+  color: #d1d5db;
+  font-style: italic;
+}
+
+.cell-actions-inline {
+  margin-left: 10px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Plan row: push button to the right end */
+.cell-plan-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cell-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px 7px;
+  border-radius: 6px;
+  color: #9ca3af;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+
+.cell-btn:hover {
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.cell-btn.btn-danger:hover {
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+.inline-edit {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.inline-input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 1.5px solid #2563eb;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.inline-save, .inline-cancel {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 7px;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.inline-save { color: #059669; }
+.inline-save:hover { background: #d1fae5; }
+.inline-cancel { color: #6b7280; }
+.inline-cancel:hover { background: #f3f4f6; }
+
+.plan-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.plan-summary span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ==========================================================================
+   Review Drawer
+   ========================================================================== */
+.review-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 500px;
+  height: 100vh;
+  height: 100dvh;
+  background: white;
+  z-index: 50;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.12);
+}
+
+.review-drawer.open {
+  display: flex;
+  flex-direction: column;
+  transform: translateX(0);
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: white;
+}
+
+.drawer-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.drawer-close:hover {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 24px 20px;
+  min-height: 0;
+}
+
+.drawer-footer {
+  padding: 16px 24px 24px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .review-drawer {
+    max-width: 100%;
+  }
+
+  .drawer-header {
+    padding: 16px 16px;
+  }
+
+  .drawer-body {
+    padding: 0 16px 16px;
+  }
+
+  .drawer-footer {
+    padding: 12px 16px 20px;
+  }
+}
+
+/* ==========================================================================
+   Full Data Table View
+   ========================================================================== */
+#content-tabla {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+#content-tabla .step-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* ==========================================================================
+   Stepper + Cards
+   ========================================================================== */
+.stepper-wrap {
+  position: sticky;
+  top: 88px;
+  z-index: 40;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px 16px 16px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.step-indicator {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  border: 2px solid #d1d5db;
+  color: #9ca3af;
+  background: white;
+}
+
+.step-indicator .step-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.step-indicator .step-check {
+  display: none;
+  font-size: 14px;
+}
+
+.step-item.active .step-indicator {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: white;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+  transform: scale(1.05);
+}
+
+.step-item.completed .step-indicator {
+  border-color: #059669;
+  background: #059669;
+  color: white;
+}
+
+.step-item.completed .step-indicator .step-num {
+  display: none;
+}
+
+.step-item.completed .step-indicator .step-check {
+  display: flex;
+}
+
+.step-item.tab-locked {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.step-item.tab-locked .step-indicator {
+  border: 2px dashed #cbd5e1;
+  background: transparent;
+  color: #cbd5e1;
+}
+
+.step-item.tab-locked .step-labels {
+  opacity: 0.5;
+  filter: grayscale(30%);
+}
+
+.step-labels {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  text-align: center;
+}
+
+.step-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.step-desc {
+  font-size: 10px;
+  color: #9ca3af;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.step-item.active .step-label {
+  color: #2563eb;
+}
+
+.step-item.completed .step-label {
+  color: #059669;
+}
+
+.step-connector {
+  flex: 1;
+  height: 2px;
+  background: #e5e7eb;
+  align-self: center;
+  margin: 0 4px;
+  margin-bottom: 28px;
+  min-width: 12px;
+  transition: background 0.3s ease;
+}
+
+.step-connector.completed {
+  background: #059669;
+}
+
+/* ==========================================================================
+   Step Header in Each Tab
+   ========================================================================== */
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.step-header .step-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: #2563eb;
+  color: white;
+}
+
+.step-header .step-badge.completed {
+  background: #059669;
+}
+
+.step-header .step-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.step-header .step-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e3a5f;
+  line-height: 1.2;
+}
+
+.step-header .step-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.2;
+}
+
+/* ==========================================================================
+   Content Cards
+   ========================================================================== */
+.step-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 12px 0;
+}
+
+.completion-banner {
+  text-align: center;
+  padding: 32px 16px;
+}
+
+.completion-banner .banner-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.completion-banner .banner-icon.success {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.completion-banner .banner-icon.info {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.completion-banner h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.completion-banner p {
+  font-size: 14px;
+  color: #6b7280;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   Step Navigation Bottom Bar
+   ========================================================================== */
+.step-nav {
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06);
+  padding: 12px 0;
+  flex-shrink: 0;
+}
+
+.step-nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 24px;
+  gap: 16px;
+}
+
+.step-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+}
+
+.step-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+  justify-content: flex-end;
+}
+
+.step-nav-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.step-nav-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d1d5db;
+  transition: all 0.3s ease;
+}
+
+.step-nav-dot.active {
+  background: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+  width: 10px;
+  height: 10px;
+}
+
+.step-nav-dot.completed {
+  background: #059669;
+}
+
+.step-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.step-nav-btn:active {
+  transform: scale(0.97);
+}
+
+.step-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.step-nav-btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.step-nav-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+}
+
+.step-nav-btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+}
+
+.step-nav-btn-secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.step-nav-btn-success {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
+}
+
+.step-nav-btn-success:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(5, 150, 105, 0.35);
+}
+
+.step-nav-btn-ghost {
+  background: transparent;
+  color: #6b7280;
+}
+
+.step-nav-btn-ghost:hover:not(:disabled) {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.action-bar-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Step Nav More Actions Dropdown
+   ========================================================================== */
+.step-nav-more {
+  position: relative;
+}
+
+.step-nav-btn-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.step-nav-btn-more:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.step-nav-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  min-width: 200px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 6px;
+  display: none;
+  z-index: 100;
+  animation: menuFadeIn 0.15s ease-out;
+}
+
+.step-nav-menu.open {
+  display: block;
+}
+
+.step-nav-menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 7px;
+  transition: all 0.15s ease;
+  text-align: left;
+  font-family: inherit;
+}
+
+.step-nav-menu button:hover {
+  background: #f3f4f6;
+}
+
+.step-nav-menu button i {
+  width: 16px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+.step-nav-menu button:last-child i {
+  color: #ef4444;
+}
+
+.step-nav-menu button:last-child:hover {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.step-nav-menu button:last-child:hover i {
+  color: #ef4444;
+}
+
+@keyframes menuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .step-nav {
+    padding: 10px 0;
+  }
+  .step-nav-inner {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .step-nav-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  .step-nav-left, .step-nav-right {
+    min-width: 0;
+  }
+}
+
+/* ==========================================================================
+   Action Plan Cards
+   ========================================================================== */
+.accion-card {
+  position: relative;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  padding-right: 56px;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.accion-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.accion-card .accion-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.accion-card .accion-delete-btn:hover {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+/* ==========================================================================
+   Plan Section Header
+   ========================================================================== */
+.plan-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.plan-section-header .plan-section-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.plan-section-header h3 {
+  font-weight: 700;
+  color: #1e3a5f;
+  flex: 1;
+}
+
+/* ==========================================================================
+   Resumen del Análisis Box
+   ========================================================================== */
+.resumen-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.resumen-box h3 {
+  font-weight: 700;
+  color: #1e3a5f;
+  margin-bottom: 12px;
+}
+
+.resumen-box .resumen-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.resumen-box .resumen-item strong {
+  color: #374151;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   5 Whys Wizard
+   ========================================================================== */
+#whys-timeline-body {
+  max-height: 600px;
+  opacity: 1;
+}
+
+#whys-timeline-body.whys-timeline-collapsed {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.why-wizard-enter {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   Whys Causa Raíz Box
+   ========================================================================== */
+.whys-causa-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  margin-top: 20px;
+  background: #fffbeb;
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.whys-causa-box .whys-causa-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+
+.whys-causa-box .whys-causa-text {
+  font-size: 14px;
+  color: #6b7280;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.whys-causa-box.hidden {
+  display: none;
+}
+
+/* ==========================================================================
+   Modern Buttons with Icons
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  line-height: 1.4;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.01em;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.35);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #6b7280;
+  padding: 10px 14px;
+}
+
+.btn-ghost:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+}
+
+/* Step header action buttons */
+.step-header-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.btn-sm {
+  padding: 7px 14px;
+  font-size: 12px;
+  border-radius: 10px;
+  gap: 6px;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid #e5e7eb;
+  color: #6b7280;
+}
+
+.btn-outline:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.04);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+}
+
+.btn-outline-success {
+  background: transparent;
+  border: 1.5px solid #e5e7eb;
+  color: #6b7280;
+}
+
+.btn-outline-success:hover {
+  border-color: #059669;
+  color: #059669;
+  background: rgba(5, 150, 105, 0.04);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.08);
+}
+
+/* ==========================================================================
+   Responsive Stepper
+   ========================================================================== */
+/* ==========================================================================
+   Notyf Toast Overrides — Rounded Corners
+   ========================================================================== */
+.notyf__toast {
+  border-radius: 14px !important;
+}
+
+.notyf__ripple {
+  border-radius: 14px !important;
+}
+
+@media (max-width: 640px) {
+  .stepper {
+    padding: 14px 8px 10px;
+    max-width: 100%;
+  }
+
+  .step-indicator {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .step-label {
+    font-size: 10px;
+  }
+
+  .step-desc {
+    display: none;
+  }
+
+  .step-connector {
+    margin-bottom: 20px;
+    min-width: 8px;
+  }
+
+  .step-header .step-title {
+    font-size: 15px;
+  }
+
+  .step-card {
+    padding: 8px 0;
+  }
+
+  .action-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-bar .action-right {
+    justify-content: flex-end;
+  }
+}
