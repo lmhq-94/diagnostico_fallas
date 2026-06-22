@@ -1,11 +1,12 @@
-import { buildDataRows, setEditingKey, getEditingKey, rcaData, type RCAWhys, type RCAIshikawa } from '../state/store';
-import { escapeHtml } from '../utils/text';
+import { buildSectionRows, setEditingKey, getEditingKey, rcaData, type RCAWhys, type RCAIshikawa, type DataSection } from '../state/store';
+import { closeReviewDrawer, renderDrawerTable } from './drawer';
 
 /* ==========================================================================
-   Full Data Table View Component
+   Full Data Table View Component — Section Tabs
    ========================================================================== */
 
 let previousTab: string | null = null;
+let currentDataTab: DataSection = 'captura';
 
 /** Opens or closes the data table view */
 export function toggleTableView(): void {
@@ -29,16 +30,27 @@ export function openTableView(): void {
   document.querySelectorAll('[id^="tab-"]').forEach(el => el.classList.remove('tab-active'));
   const tabla = document.getElementById('content-tabla');
   if (tabla) tabla.classList.remove('hidden');
+  currentDataTab = 'captura';
   renderDataTable();
+  updateSubtabUI();
   const fab = document.getElementById('fab');
   if (fab) fab.classList.add('hidden');
+  // Hide stepper and bottom nav for more space
+  const stepper = document.querySelector('.stepper-wrap') as HTMLElement | null;
+  const stepNav = document.getElementById('step-nav') as HTMLElement | null;
+  if (stepper) stepper.style.display = 'none';
+  if (stepNav) stepNav.style.display = 'none';
 }
 
 /** Closes the data table view and returns to previous tab */
 export function closeTableView(): void {
   const tabla = document.getElementById('content-tabla');
   if (tabla) tabla.classList.add('hidden');
-  // showTab is called from main module
+  // Restore stepper and bottom nav
+  const stepper = document.querySelector('.stepper-wrap') as HTMLElement | null;
+  const stepNav = document.getElementById('step-nav') as HTMLElement | null;
+  if (stepper) stepper.style.display = '';
+  if (stepNav) stepNav.style.display = '';
   if (previousTab && previousTab !== 'tabla') {
     window.__showTab(previousTab);
   } else {
@@ -46,12 +58,26 @@ export function closeTableView(): void {
   }
 }
 
-/** Renders the editable data table */
+/** Switch sub-tab within the data table */
+export function switchDataTab(section: DataSection): void {
+  currentDataTab = section;
+  renderDataTable();
+  updateSubtabUI();
+}
+
+/** Updates the sub-tab button active states */
+function updateSubtabUI(): void {
+  document.querySelectorAll('.data-subtab').forEach(btn => {
+    const section = btn.getAttribute('data-section');
+    btn.classList.toggle('active', section === currentDataTab);
+  });
+}
+
+/** Renders the current section's data table */
 export function renderDataTable(): void {
   const tbody = document.getElementById('data-table-body');
   if (!tbody) return;
-  const rows = buildDataRows('closeTableView');
-  tbody.innerHTML = rows.join('');
+  tbody.innerHTML = buildSectionRows(currentDataTab);
   if (getEditingKey()) {
     requestAnimationFrame(() => {
       const input = tbody.querySelector(`tr[data-key="${getEditingKey()}"] .inline-input`) as HTMLInputElement | null;
@@ -153,5 +179,6 @@ declare global {
     __closeReviewDrawer: () => void;
     __closeTableView: () => void;
     __showTab: (name: string) => void;
+    __switchDataTab: (section: string) => void;
   }
 }

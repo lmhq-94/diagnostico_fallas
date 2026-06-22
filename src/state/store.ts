@@ -213,6 +213,112 @@ function formatTiempoParo(minutes: string): string {
 }
 
 /* ==========================================================================
+   Section data for sub-tabs inside the full data table
+   ========================================================================== */
+
+export const DATA_SECTIONS = ['captura', 'ishikawa', '5whys', 'plan'] as const;
+export type DataSection = (typeof DATA_SECTIONS)[number];
+
+
+/** Builds HTML rows for a single section with 3 columns: Campo | Valor | Acciones */
+export function buildSectionRows(section: DataSection): string {
+  const rows: string[] = [];
+  const captura = rcaData.captura || {};
+  const whys = rcaData.whys || {};
+  const ishikawa = rcaData.ishikawa || {};
+  const acciones = rcaData.acciones || { correctivas: [], preventivas: [] };
+
+  if (section === 'captura') {
+    const capturaFields: { key: string; label: string; format?: (v: string) => string }[] = [
+      { key: 'maquina', label: 'Máquina' },
+      { key: 'problema', label: 'Problema' },
+      { key: 'fecha', label: 'Fecha', format: formatDate },
+      { key: 'tiempoParo', label: 'Tiempo Paro', format: formatTiempoParo },
+      { key: 'sintomas', label: 'Síntomas' },
+      { key: 'responsable', label: 'Responsable' }
+    ];
+    capturaFields.forEach(f => {
+      let value = captura[f.key as keyof RCACaptura] || '';
+      if (f.format) value = f.format(value);
+      rows.push(buildSectionFieldRow(`captura.${f.key}`, f.label, value));
+    });
+  } else if (section === 'ishikawa') {
+    const ishikawaCats: { key: string; label: string }[] = [
+      { key: 'maquina', label: 'Máquina' },
+      { key: 'metodo', label: 'Método' },
+      { key: 'materiales', label: 'Materiales' },
+      { key: 'manoObra', label: 'Mano de obra' },
+      { key: 'medicion', label: 'Medición' },
+      { key: 'medioAmbiente', label: 'Medio Ambiente' }
+    ];
+    ishikawaCats.forEach(c => {
+      const val = ishikawa[c.key] || '';
+      rows.push(buildSectionFieldRow(`ishikawa.${c.key}`, c.label, val));
+    });
+  } else if (section === '5whys') {
+    for (let i = 1; i <= 5; i++) {
+      const val = whys[`why${i}` as keyof RCAWhys] || '';
+      rows.push(buildSectionFieldRow(`whys.why${i}`, `Por qué ${i}`, val));
+    }
+    const causaRaiz = getCurrentCauseSummary();
+    rows.push(buildSectionFieldRow(`whys.causaRaiz`, 'Causa Raíz', causaRaiz, true));
+  } else if (section === 'plan') {
+    const countC = acciones.correctivas.length;
+    const countP = acciones.preventivas.length;
+    rows.push(buildSectionPlanRow('correctiva', countC));
+    rows.push(buildSectionPlanRow('preventiva', countP));
+  }
+
+  return rows.join('');
+}
+
+/** Builds a single field row with 3 columns for the section table */
+function buildSectionFieldRow(key: string, field: string, value: string, isCauseRoot = false): string {
+  const editingKey = _editingKey;
+  const isEditing = editingKey === key;
+  const displayVal = value ? escapeHtml(value) : '<span class="val-empty">—</span>';
+
+  let valueCell: string;
+  if (isEditing) {
+    valueCell = `<div class="inline-edit">
+      <input type="text" class="inline-input" value="${escapeHtml(value)}">
+      <button class="inline-save" onclick="window.__saveEdit('${key}')"><i class="fas fa-check"></i></button>
+      <button class="inline-cancel" onclick="window.__cancelEdit()"><i class="fas fa-times"></i></button>
+    </div>`;
+  } else {
+    valueCell = displayVal;
+  }
+
+  const actions = isEditing ? '' : `
+    <button class="cell-btn" onclick="window.__startEdit('${key}')" title="Editar"><i class="fas fa-pen"></i></button>
+    ${isCauseRoot ? '' : `<button class="cell-btn btn-danger" onclick="window.__deleteField('${key}')" title="Eliminar"><i class="fas fa-trash-alt"></i></button>`}
+  `;
+
+  return `<tr data-key="${key}">
+    <td class="cell-field">${field}</td>
+    <td class="cell-value">${valueCell}</td>
+    <td class="cell-actions">${actions}</td>
+  </tr>`;
+}
+
+/** Builds a plan row for the section table */
+function buildSectionPlanRow(tipo: string, count: number): string {
+  const field = tipo === 'correctiva' ? 'Correctivas' : 'Preventivas';
+  const icon = tipo === 'correctiva' ? 'fa-check-circle text-green-600' : 'fa-shield-alt text-blue-600';
+  const displayVal = count > 0
+    ? `<span style="display:inline-flex;align-items:center;gap:4px"><i class="fas ${icon}"></i>${count} accione(s)</span>`
+    : '<span class="val-empty">Sin acciones</span>';
+  const key = `plan.${tipo}`;
+  const actions = `<button class="cell-btn" onclick="window.__showTab('plan')" title="Ir a Plan"><i class="fas fa-external-link-alt"></i></button>`;
+
+  return `<tr data-key="${key}">
+    <td class="cell-field">${field}</td>
+    <td class="cell-value">${displayVal}</td>
+    <td class="cell-actions">${actions}</td>
+  </tr>`;
+}
+
+/* ==========================================================================
    Data Table / Drawer Builders (shared between drawer and full table)
    ========================================================================== */
 

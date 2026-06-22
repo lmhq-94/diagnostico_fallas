@@ -14,7 +14,7 @@ import {
 } from './components/ishikawa';
 import { addAccion, removeAccion, addAccionToDOM, clearActionPlan } from './components/plan';
 import { toggleReviewDrawer, openReviewDrawer, closeReviewDrawer, renderDrawerTable } from './components/drawer';
-import { toggleTableView, openTableView, closeTableView, renderDataTable, startEdit, saveEdit, cancelEdit, deleteField } from './components/data-table';
+import { toggleTableView, openTableView, closeTableView, renderDataTable, startEdit, saveEdit, cancelEdit, deleteField, switchDataTab } from './components/data-table';
 import { exportExcel } from './services/exportExcel';
 import { handlePDFExport, createSimplifiedIshikawa, createSimplifiedPareto } from './services/exportPDF';
 import { recordRootCauseForPareto, getIshikawaParetoData, getAccumulatedParetoData } from './services/pareto';
@@ -100,6 +100,7 @@ function registerGlobalAPI(): void {
   window.__toggleStepMenu = toggleStepMenu;
   window.__clearCurrentStep = clearCurrentStep;
   window.__generateIshikawa = generateIshikawa;
+  window.__switchDataTab = (section: string) => switchDataTab(section as any);
 
   // Close step menu on outside click
   document.addEventListener('click', function(e: Event) {
