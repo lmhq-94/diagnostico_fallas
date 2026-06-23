@@ -23,6 +23,18 @@ export interface RCAWhys {
   causaRaiz?: string;
 }
 
+export type WhyKey = 'why1' | 'why2' | 'why3' | 'why4' | 'why5';
+
+export function getWhy(whys: RCAWhys, i: number): string {
+  const key = `why${i}` as WhyKey;
+  return whys[key] || '';
+}
+
+export function setWhy(whys: RCAWhys, i: number, value: string): void {
+  const key = `why${i}` as WhyKey;
+  whys[key] = value;
+}
+
 export interface RCAIshikawa {
   maquina?: string;
   metodo?: string;
@@ -220,16 +232,17 @@ export const DATA_SECTIONS = ['captura', 'ishikawa', '5whys', 'plan'] as const;
 export type DataSection = (typeof DATA_SECTIONS)[number];
 
 
-/** Builds HTML rows for a single section with 3 columns: Campo | Valor | Acciones */
+/** Builds a horizontal table for a single section: field names as headers, values in one row */
 export function buildSectionRows(section: DataSection): string {
-  const rows: string[] = [];
   const captura = rcaData.captura || {};
   const whys = rcaData.whys || {};
   const ishikawa = rcaData.ishikawa || {};
   const acciones = rcaData.acciones || { correctivas: [], preventivas: [] };
 
+  let headers: { label: string; key: string; format?: (v: string) => string }[] = [];
+
   if (section === 'captura') {
-    const capturaFields: { key: string; label: string; format?: (v: string) => string }[] = [
+    headers = [
       { key: 'maquina', label: 'Máquina' },
       { key: 'problema', label: 'Problema' },
       { key: 'fecha', label: 'Fecha', format: formatDate },
@@ -237,13 +250,8 @@ export function buildSectionRows(section: DataSection): string {
       { key: 'sintomas', label: 'Síntomas' },
       { key: 'responsable', label: 'Responsable' }
     ];
-    capturaFields.forEach(f => {
-      let value = captura[f.key as keyof RCACaptura] || '';
-      if (f.format) value = f.format(value);
-      rows.push(buildSectionFieldRow(`captura.${f.key}`, f.label, value));
-    });
   } else if (section === 'ishikawa') {
-    const ishikawaCats: { key: string; label: string }[] = [
+    headers = [
       { key: 'maquina', label: 'Máquina' },
       { key: 'metodo', label: 'Método' },
       { key: 'materiales', label: 'Materiales' },
@@ -251,177 +259,313 @@ export function buildSectionRows(section: DataSection): string {
       { key: 'medicion', label: 'Medición' },
       { key: 'medioAmbiente', label: 'Medio Ambiente' }
     ];
-    ishikawaCats.forEach(c => {
-      const val = ishikawa[c.key] || '';
-      rows.push(buildSectionFieldRow(`ishikawa.${c.key}`, c.label, val));
-    });
   } else if (section === '5whys') {
     for (let i = 1; i <= 5; i++) {
-      const val = whys[`why${i}` as keyof RCAWhys] || '';
-      rows.push(buildSectionFieldRow(`whys.why${i}`, `Por qué ${i}`, val));
+      headers.push({ key: `why${i}`, label: `Por qué ${i}` });
     }
-    const causaRaiz = getCurrentCauseSummary();
-    rows.push(buildSectionFieldRow(`whys.causaRaiz`, 'Causa Raíz', causaRaiz, true));
+    headers.push({ key: 'causaRaiz', label: 'Causa Raíz' });
   } else if (section === 'plan') {
-    const countC = acciones.correctivas.length;
-    const countP = acciones.preventivas.length;
-    rows.push(buildSectionPlanRow('correctiva', countC));
-    rows.push(buildSectionPlanRow('preventiva', countP));
+    return buildHorizontalPlanTable(acciones);
   }
 
-  return rows.join('');
+  // Build header row (field names + Acciones column)
+  const headerRow = `<tr>${headers.map(h => `<th>${escapeHtml(h.label)}</th>`).join('')}<th>Acciones</th></tr>`;
+  const dataRow = buildHorizontalDataRow(section, headers);
+
+  return `<div class="data-table-scroll"><table class="data-table data-table-h">
+    <thead>${headerRow}</thead>
+    <tbody>${dataRow}</tbody>
+  </table></div>`;
 }
 
-/** Builds a single field row with 3 columns for the section table */
-function buildSectionFieldRow(key: string, field: string, value: string, isCauseRoot = false): string {
+/** Builds a single horizontal data row for the given section */
+function buildHorizontalDataRow(
+  section: DataSection,
+  headers: { key: string; label: string; format?: (v: string) => string }[]
+): string {
+  const captura = rcaData.captura || {};
+  const whys = rcaData.whys || {};
+  const ishikawa = rcaData.ishikawa || {};
+
+  const cells = headers.map(h => {
+    let value = '';
+    const key = `${section}.${h.key}`;
+    if (section === 'captura') {
+      value = captura[h.key as keyof RCACaptura] || '';
+      if (h.format) value = h.format(value);
+    } else if (section === 'ishikawa') {
+      value = ishikawa[h.key] || '';
+    } else if (section === '5whys') {
+      if (h.key === 'causaRaiz') {
+        // Causa raíz = el último why con contenido
+        for (let i = 5; i >= 1; i--) {
+          if (whys[`why${i}` as keyof RCAWhys]) {
+            value = whys[`why${i}` as keyof RCAWhys] as string;
+            break;
+          }
+        }
+      } else {
+        value = (whys[h.key as keyof RCAWhys] as string) || '';
+      }
+    }
+    return buildHorizontalCell(key, value);
+  });
+
+  // Add actions column with delete-section button at the end
+  const deleteBtn = `<td class="cell-h cell-h-actions-col">
+    <button class="cell-btn cell-btn-inline cell-btn-delete-row" onclick="window.__deleteSection('${section}')" title="Limpiar sección"><i class="fas fa-trash-alt"></i></button>
+  </td>`;
+  return `<tr>${cells.join('')}${deleteBtn}</tr>`;
+}
+
+/** Builds a single cell in the horizontal table (edit button per cell, no delete) */
+function buildHorizontalCell(key: string, value: string): string {
   const editingKey = _editingKey;
   const isEditing = editingKey === key;
   const displayVal = value ? escapeHtml(value) : '<span class="val-empty">—</span>';
 
-  let valueCell: string;
+  let cellContent: string;
   if (isEditing) {
-    valueCell = `<div class="inline-edit">
+    cellContent = `<div class="inline-edit-h">
       <input type="text" class="inline-input" value="${escapeHtml(value)}">
       <button class="inline-save" onclick="window.__saveEdit('${key}')"><i class="fas fa-check"></i></button>
       <button class="inline-cancel" onclick="window.__cancelEdit()"><i class="fas fa-times"></i></button>
     </div>`;
   } else {
-    valueCell = displayVal;
+    const editBtn = `<button class="cell-btn cell-btn-inline" onclick="window.__startEdit('${key}')" title="Editar"><i class="fas fa-pen"></i></button>`;
+    cellContent = `<span class="cell-h-val">${displayVal}</span><span class="cell-h-actions">${editBtn}</span>`;
   }
 
-  const actions = isEditing ? '' : `
-    <button class="cell-btn" onclick="window.__startEdit('${key}')" title="Editar"><i class="fas fa-pen"></i></button>
-    ${isCauseRoot ? '' : `<button class="cell-btn btn-danger" onclick="window.__deleteField('${key}')" title="Eliminar"><i class="fas fa-trash-alt"></i></button>`}
-  `;
-
-  return `<tr data-key="${key}">
-    <td class="cell-field">${field}</td>
-    <td class="cell-value">${valueCell}</td>
-    <td class="cell-actions">${actions}</td>
-  </tr>`;
+  return `<td data-key="${key}" class="cell-h">${cellContent}</td>`;
 }
 
-/** Builds a plan row for the section table */
-function buildSectionPlanRow(tipo: string, count: number): string {
-  const field = tipo === 'correctiva' ? 'Correctivas' : 'Preventivas';
-  const icon = tipo === 'correctiva' ? 'fa-check-circle text-green-600' : 'fa-shield-alt text-blue-600';
-  const displayVal = count > 0
-    ? `<span style="display:inline-flex;align-items:center;gap:4px"><i class="fas ${icon}"></i>${count} accione(s)</span>`
-    : '<span class="val-empty">Sin acciones</span>';
-  const key = `plan.${tipo}`;
-  const actions = `<button class="cell-btn" onclick="window.__showTab('plan')" title="Ir a Plan"><i class="fas fa-external-link-alt"></i></button>`;
+/** Builds a single editable cell for a plan action field */
+function buildPlanHorizontalCell(key: string, value: string, displayValue: string): string {
+  const editingKey = _editingKey;
+  const isEditing = editingKey === key;
+  const displayVal = value ? displayValue : '<span class="val-empty">—</span>';
 
-  return `<tr data-key="${key}">
-    <td class="cell-field">${field}</td>
-    <td class="cell-value">${displayVal}</td>
-    <td class="cell-actions">${actions}</td>
-  </tr>`;
+  let cellContent: string;
+  if (isEditing) {
+    cellContent = `<div class="inline-edit-h">
+      <input type="text" class="inline-input" value="${escapeHtml(value)}">
+      <button class="inline-save" onclick="window.__saveEdit('${key}')"><i class="fas fa-check"></i></button>
+      <button class="inline-cancel" onclick="window.__cancelEdit()"><i class="fas fa-times"></i></button>
+    </div>`;
+  } else {
+    const editBtn = `<button class="cell-btn cell-btn-inline" onclick="window.__startEdit('${key}')" title="Editar"><i class="fas fa-pen"></i></button>`;
+    cellContent = `<span class="cell-h-val">${displayVal}</span><span class="cell-h-actions">${editBtn}</span>`;
+  }
+
+  return `<td data-key="${key}" class="cell-h">${cellContent}</td>`;
+}
+
+/** Builds the Plan section as a horizontal table with inline editing and row deletion */
+function buildHorizontalPlanTable(acciones: RCAAcciones): string {
+  const prioLabels: Record<string, string> = { alta: 'Alta', media: 'Media', baja: 'Baja' };
+  const prioColors: Record<string, string> = { alta: '#ef4444', media: '#f59e0b', baja: '#22c55e' };
+
+  const buildActionRows = (list: Accion[], tipo: string): string => {
+    if (list.length === 0) {
+      return `<tr><td class="cell-h" colspan="5"><span class="val-empty">Sin acciones</span></td></tr>`;
+    }
+    return list.map((a, i) => {
+      const keyPrefix = `plan.${tipo}.${i}`;
+      const descCell = buildPlanHorizontalCell(`${keyPrefix}.descripcion`, a.descripcion, escapeHtml(a.descripcion || '—'));
+      const respCell = buildPlanHorizontalCell(`${keyPrefix}.responsable`, a.responsable, escapeHtml(a.responsable || '—'));
+      const fechaCell = buildPlanHorizontalCell(`${keyPrefix}.fecha`, a.fecha, escapeHtml(formatDate(a.fecha) || '—'));
+      const prioDisplay = `<span class="plan-prio" style="background:${prioColors[a.prioridad] || '#6b7280'}">${prioLabels[a.prioridad] || a.prioridad}</span>`;
+      const prioCell = buildPlanHorizontalCell(`${keyPrefix}.prioridad`, a.prioridad, prioDisplay);
+      const deleteCell = `<td class="cell-h cell-h-actions-col">
+        <button class="cell-btn cell-btn-inline cell-btn-delete-row" onclick="window.__deletePlanRow('${tipo}', ${i})" title="Eliminar acción"><i class="fas fa-trash-alt"></i></button>
+      </td>`;
+      return `<tr>${descCell}${respCell}${fechaCell}${prioCell}${deleteCell}</tr>`;
+    }).join('');
+  };
+
+  const correctivasHtml = `<div style="margin-bottom:16px">
+    <h5 style="font-size:13px;font-weight:700;color:#059669;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+      <i class="fas fa-check-circle"></i> Correctivas (${acciones.correctivas.length})
+    </h5>
+    <div class="data-table-scroll">
+      <table class="data-table data-table-h">
+        <thead><tr><th>Descripción</th><th>Responsable</th><th>Fecha</th><th>Prioridad</th><th>Acciones</th></tr></thead>
+        <tbody>${buildActionRows(acciones.correctivas, 'correctivas')}</tbody>
+      </table>
+    </div>
+  </div>`;
+
+  const preventivasHtml = `<div style="margin-bottom:4px">
+    <h5 style="font-size:13px;font-weight:700;color:#2563eb;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+      <i class="fas fa-shield-alt"></i> Preventivas (${acciones.preventivas.length})
+    </h5>
+    <div class="data-table-scroll">
+      <table class="data-table data-table-h">
+        <thead><tr><th>Descripción</th><th>Responsable</th><th>Fecha</th><th>Prioridad</th><th>Acciones</th></tr></thead>
+        <tbody>${buildActionRows(acciones.preventivas, 'preventivas')}</tbody>
+      </table>
+    </div>
+  </div>`;
+
+  const deleteBtn = `<button class="cell-btn cell-btn-inline cell-btn-delete-row" onclick="window.__deleteSection('plan')" title="Limpiar sección"><i class="fas fa-trash-alt"></i></button>`;
+
+  return `${correctivasHtml}${preventivasHtml}
+  <div style="display:flex;justify-content:flex-end;margin-top:4px">${deleteBtn}</div>`;
 }
 
 /* ==========================================================================
    Data Table / Drawer Builders (shared between drawer and full table)
    ========================================================================== */
 
-export function buildDataRows(closeFn: string, readonly = false): string[] {
-  const r: string[] = [];
+/** Builds vertical tables (Campo | Valor) for the review drawer */
+export function buildDataRows(): string {
   const captura = rcaData.captura || {};
   const whys = rcaData.whys || {};
   const ishikawa = rcaData.ishikawa || {};
   const acciones = rcaData.acciones || { correctivas: [], preventivas: [] };
 
-  // --- Captura ---
-  r.push(`<tr class="section-header-row"><td colspan="2"><i class="fas fa-clipboard text-blue-600"></i>Captura</td></tr>`);
-  const capturaFields = [
-    { key: 'maquina', label: 'Máquina' },
-    { key: 'problema', label: 'Problema' },
-    { key: 'fecha', label: 'Fecha' },
-    { key: 'tiempoParo', label: 'Tiempo Paro' },
-    { key: 'sintomas', label: 'Síntomas' },
-    { key: 'responsable', label: 'Responsable' }
-  ];
-  capturaFields.forEach(f => {
-    let value = captura[f.key as keyof RCACaptura] || '';
-    // Apply formatting
-    if (f.key === 'fecha') value = formatDate(value);
-    if (f.key === 'tiempoParo') value = formatTiempoParo(value);
-    r.push(buildFieldRow(`captura.${f.key}`, 'Captura', f.label, value, false, readonly));
-  });
+  const tables: string[] = [];
 
-  // --- Ishikawa ---
-  r.push(`<tr class="section-header-row"><td colspan="2"><i class="fas fa-project-diagram text-emerald-600"></i>Ishikawa</td></tr>`);
-  const ishikawaCats = [
-    { key: 'maquina', label: 'Máquina' },
-    { key: 'metodo', label: 'Método' },
-    { key: 'materiales', label: 'Materiales' },
-    { key: 'manoObra', label: 'Mano de obra' },
-    { key: 'medicion', label: 'Medición' },
-    { key: 'medioAmbiente', label: 'Medio Ambiente' }
-  ];
-  ishikawaCats.forEach(c => {
-    const val = ishikawa[c.key] || '';
-    r.push(buildFieldRow(`ishikawa.${c.key}`, 'Ishikawa', c.label, val, false, readonly));
-  });
-
-  // --- 5 Porqués ---
-  r.push(`<tr class="section-header-row"><td colspan="2"><i class="fas fa-question-circle text-amber-500"></i>5 Porqués</td></tr>`);
-  for (let i = 1; i <= 5; i++) {
-    const val = whys[`why${i}` as keyof RCAWhys] || '';
-    r.push(buildFieldRow(`whys.why${i}`, '5 Porqués', `Por qué ${i}`, val, false, readonly));
+  // --- Captura (solo si hay datos) ---
+  const hasCapturaData = Object.values(captura).some(v => v && String(v).trim());
+  if (hasCapturaData) {
+    const capturaFields = [
+      { key: 'maquina', label: 'Máquina' },
+      { key: 'problema', label: 'Problema' },
+      { key: 'fecha', label: 'Fecha' },
+      { key: 'tiempoParo', label: 'Tiempo Paro' },
+      { key: 'sintomas', label: 'Síntomas' },
+      { key: 'responsable', label: 'Responsable' }
+    ];
+    tables.push(buildDrawerVerticalSectionTable('Captura', 'fa-clipboard text-blue-600', capturaFields.map(f => {
+      let value = captura[f.key as keyof RCACaptura] || '';
+      if (f.key === 'fecha') value = formatDate(value);
+      if (f.key === 'tiempoParo') value = formatTiempoParo(value);
+      return { key: `captura.${f.key}`, label: f.label, value };
+    })));
   }
-  const causaRaiz = getCurrentCauseSummary();
-  r.push(buildFieldRow(`whys.causaRaiz`, '5 Porqués', 'Causa Raíz', causaRaiz, true, readonly));
 
-  // --- Plan de Acción ---
-  r.push(`<tr class="section-header-row"><td colspan="2"><i class="fas fa-tasks text-red-500"></i>Plan de Acción</td></tr>`);
-  r.push(buildPlanRow('correctiva', acciones.correctivas.length, closeFn));
-  r.push(buildPlanRow('preventiva', acciones.preventivas.length, closeFn));
+  // --- Ishikawa (solo si hay datos) ---
+  const hasIshikawaData = CATEGORY_ORDER.some(cat => !!(ishikawa[cat] || '').trim());
+  if (hasIshikawaData) {
+    const ishikawaCats = [
+      { key: 'maquina', label: 'Máquina' },
+      { key: 'metodo', label: 'Método' },
+      { key: 'materiales', label: 'Materiales' },
+      { key: 'manoObra', label: 'Mano de obra' },
+      { key: 'medicion', label: 'Medición' },
+      { key: 'medioAmbiente', label: 'Medio Ambiente' }
+    ];
+    tables.push(buildDrawerVerticalSectionTable('Ishikawa', 'fa-project-diagram text-emerald-600', ishikawaCats.map(c => ({
+      key: `ishikawa.${c.key}`,
+      label: c.label,
+      value: ishikawa[c.key] || ''
+    }))));
+  }
 
-  return r;
+  // --- 5 Porqués (solo si hay datos) ---
+  const hasWhysData = (whys.why1 || whys.why2 || whys.why3 || whys.why4 || whys.why5);
+  if (hasWhysData) {
+    const whysItems: { key: string; label: string; value: string }[] = [];
+    for (let i = 1; i <= 5; i++) {
+      const val = (whys[`why${i}` as keyof RCAWhys] as string) || '';
+      whysItems.push({ key: `whys.why${i}`, label: `Por qué ${i}`, value: val });
+    }
+    const causaRaiz = getCurrentCauseSummary();
+    whysItems.push({ key: 'whys.causaRaiz', label: 'Causa Raíz', value: causaRaiz });
+    tables.push(buildDrawerVerticalSectionTable('5 Porqués', 'fa-question-circle text-amber-500', whysItems));
+  }
+
+  // --- Plan de Acción (solo si hay datos) ---
+  const hasPlanData = acciones.correctivas.length > 0 || acciones.preventivas.length > 0;
+  if (hasPlanData) {
+    tables.push(buildDrawerPlanSection(acciones));
+  }
+
+  return tables.join('');
+}
+
+/** Builds a vertical (Campo | Valor) table for a drawer section */
+function buildDrawerVerticalSectionTable(
+  title: string,
+  icon: string,
+  items: { key: string; label: string; value: string }[],
+): string {
+  const rows = items.map(item => {
+    const displayVal = item.value ? escapeHtml(item.value) : '<span class="val-empty">—</span>';
+    return `<tr>
+      <th scope="row" class="cell-field">${escapeHtml(item.label)}</th>
+      <td class="cell-value">${displayVal}</td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="drawer-section">
+    <h4 class="drawer-section-title"><i class="fas ${icon}"></i> ${escapeHtml(title)}</h4>
+    <div class="data-table-scroll">
+      <table class="data-table drawer-vertical-table">
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+/** Builds the Plan drawer section with full action details */
+function buildDrawerPlanSection(acciones: RCAAcciones): string {
+  const prioLabels: Record<string, string> = { alta: 'Alta', media: 'Media', baja: 'Baja' };
+  const prioColors: Record<string, string> = { alta: '#ef4444', media: '#f59e0b', baja: '#22c55e' };
+
+  const buildActionTable = (list: Accion[], icon: string, label: string, color: string): string => {
+    if (list.length === 0) {
+      return `<div class="plan-subsection">
+        <h5 class="plan-subsection-title" style="color:${color}"><i class="fas ${icon}"></i> ${label}</h5>
+        <p class="plan-empty">Sin acciones</p>
+      </div>`;
+    }
+
+    const rows = list.map((a, i) => `
+      <tr>
+        <th scope="row" class="cell-field">${escapeHtml(a.descripcion || '—')}</th>
+        <td class="cell-value">
+          <span class="plan-action-meta">
+            <span><i class="fas fa-user"></i> ${escapeHtml(a.responsable || '—')}</span>
+            <span><i class="fas fa-calendar"></i> ${escapeHtml(formatDate(a.fecha) || '—')}</span>
+            <span class="plan-prio" style="background:${prioColors[a.prioridad] || '#6b7280'}">${prioLabels[a.prioridad] || a.prioridad}</span>
+          </span>
+        </td>
+      </tr>`).join('');
+
+    return `<div class="plan-subsection">
+      <h5 class="plan-subsection-title" style="color:${color}"><i class="fas ${icon}"></i> ${label} (${list.length})</h5>
+      <table class="data-table drawer-vertical-table">
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  };
+
+  const correctivas = buildActionTable(acciones.correctivas, 'fa-check-circle', 'Correctivas', '#059669');
+  const preventivas = buildActionTable(acciones.preventivas, 'fa-shield-alt', 'Preventivas', '#2563eb');
+
+  return `<div class="drawer-section">
+    <h4 class="drawer-section-title"><i class="fas fa-tasks text-red-500"></i> Plan de Acción</h4>
+    ${correctivas}
+    ${preventivas}
+  </div>`;
 }
 
 let _editingKey: string | null = null;
 export function getEditingKey(): string | null { return _editingKey; }
 export function setEditingKey(val: string | null): void { _editingKey = val; }
 
-function buildFieldRow(key: string, section: string, field: string, value: string, isCauseRoot = false, readonly = false): string {
-  const editingKey = _editingKey;
-  const isEditing = editingKey === key;
-  const displayVal = value ? escapeHtml(value) : '<span class="val-empty">—</span>';
-
-  let valueCell: string;
-  if (isEditing) {
-    valueCell = `<div class="inline-edit">
-      <input type="text" class="inline-input" value="${escapeHtml(value)}">
-      <button class="inline-save" onclick="window.__saveEdit('${key}')"><i class="fas fa-check"></i></button>
-      <button class="inline-cancel" onclick="window.__cancelEdit()"><i class="fas fa-times"></i></button>
-    </div>`;
-  } else {
-    valueCell = displayVal;
+/** Removes a single action from rcaData by tipo and index (persists, no DOM) */
+export function removeActionFromState(tipo: string, index: number): void {
+  const acciones = rcaData.acciones || { correctivas: [], preventivas: [] };
+  const list = tipo === 'correctivas' ? acciones.correctivas : acciones.preventivas;
+  if (index >= 0 && index < list.length) {
+    list.splice(index, 1);
+    rcaData.acciones[tipo === 'correctivas' ? 'correctivas' : 'preventivas'] = list;
   }
-
-  const actions = (isEditing || readonly) ? '' : `
-    <button class="cell-btn" onclick="window.__startEdit('${key}')" title="Editar"><i class="fas fa-pen"></i></button>
-    ${isCauseRoot ? '' : `<button class="cell-btn btn-danger" onclick="window.__deleteField('${key}')" title="Eliminar"><i class="fas fa-trash-alt"></i></button>`}
-  `;
-
-  return `<tr data-key="${key}">
-    <td class="cell-field">${field}</td>
-    <td class="cell-value">${valueCell}<span class="cell-actions-inline">${actions}</span></td>
-  </tr>`;
-}
-
-function buildPlanRow(tipo: string, count: number, closeFn: string): string {
-  const field = tipo === 'correctiva' ? 'Correctivas' : 'Preventivas';
-  const icon = tipo === 'correctiva' ? 'fa-check-circle text-green-600' : 'fa-shield-alt text-blue-600';
-  const displayVal = count > 0
-    ? `<span style="display:inline-flex;align-items:center;gap:4px"><i class="fas ${icon}"></i>${count} accione(s)</span>`
-    : '<span class="val-empty">Sin acciones</span>';
-  const actions = `<button class="cell-btn" onclick="window.__${closeFn}(); window.__showTab('plan')" title="Ir a Plan"><i class="fas fa-external-link-alt"></i></button>`;
-
-  return `<tr data-key="plan.${tipo}">
-    <td class="cell-field">${field}</td>
-    <td class="cell-value cell-plan-actions">${displayVal}${actions}</td>
-  </tr>`;
+  // We don't call persistCurrentState here because it reads from DOM
+  // Instead the caller (data-table.ts) will handle persistence
 }
 
 /* ==========================================================================
@@ -457,11 +601,12 @@ export function getWizardLevel(): number {
 export function getCurrentCauseSummary(): string {
   const whys = rcaData.whys || {};
   if (isWizardCompleted()) {
-    return whys[`why${getLastWhyLevel()}` as keyof RCAWhys] || '';
+    return getWhy(whys, getLastWhyLevel());
   }
   const level = getWizardLevel();
-  for (let i = level - 1; i >= 1; i--) {
-    if (whys[`why${i}` as keyof RCAWhys]) return whys[`why${i}` as keyof RCAWhys]!;
+  for (let i = level; i >= 1; i--) {
+    const v = getWhy(whys, i);
+    if (v) return v;
   }
   return '';
 }
@@ -471,7 +616,7 @@ export function getWhyTexts(): string[] {
   const whys = rcaData.whys || {};
   const values: string[] = [];
   for (let i = 1; i <= 5; i++) {
-    values.push(whys[`why${i}` as keyof RCAWhys] || '');
+    values.push(getWhy(whys, i));
   }
   return values;
 }

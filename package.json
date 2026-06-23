@@ -19,6 +19,7 @@
     "jspdf": "^2.5.1",
     "notyf": "^3.10.0",
     "sonner": "^2.0.7",
+    "sweetalert2": "^11.26.25",
     "tailwindcss": "^4.0.0"
   }
 }

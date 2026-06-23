@@ -3,6 +3,8 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { rcaData, setRcaData, persistCurrentState, hasData, CATEGORY_ORDER, type RCAData } from './state/store';
 import { escapeHtml, getTodayISODate } from './utils/text';
 import { showToast } from './utils/toast';
+import { confirmAction, confirmDanger } from './utils/confirm';
+import { saveAnalysisFile, updateAnalysisFile, checkAnalysisFile, loadAnalysis, deleteAnalysis } from './services/analysisStorage';
 import { getCurrentCauseSummary } from './state/store';
 import {
   renderWhysWizard, updateRootCauseSummary,
@@ -14,7 +16,7 @@ import {
 } from './components/ishikawa';
 import { addAccion, removeAccion, addAccionToDOM, clearActionPlan } from './components/plan';
 import { toggleReviewDrawer, openReviewDrawer, closeReviewDrawer, renderDrawerTable } from './components/drawer';
-import { toggleTableView, openTableView, closeTableView, renderDataTable, startEdit, saveEdit, cancelEdit, deleteField, switchDataTab } from './components/data-table';
+import { toggleTableView, openTableView, closeTableView, renderDataTable, startEdit, saveEdit, cancelEdit, deleteField, deleteSection, deletePlanRow, switchDataTab } from './components/data-table';
 import { exportExcel } from './services/exportExcel';
 import { handlePDFExport, createSimplifiedIshikawa, createSimplifiedPareto } from './services/exportPDF';
 import { recordRootCauseForPareto, getIshikawaParetoData, getAccumulatedParetoData } from './services/pareto';
@@ -34,6 +36,7 @@ declare global {
     __closeReviewDrawer: () => void;
     __closeTableView: () => void;
     __clearAll: () => void;
+    __clearAllFromTable: () => void;
     __whysNext: () => void;
     __whysPrev: () => void;
     __whysFinish: () => void;
@@ -50,11 +53,17 @@ declare global {
     __navigateStep: (dir: number) => void;
     __toggleStepMenu: (e: Event) => void;
     __clearCurrentStep: () => void;
+    __saveAnalysis: () => void;
     __generateIshikawa: () => void;
     __startEdit: (key: string) => void;
     __saveEdit: (key: string) => void;
     __cancelEdit: () => void;
     __deleteField: (key: string) => void;
+    __deleteSection: (section: string) => void;
+    __deletePlanRow: (tipo: string, index: number) => void;
+    __loadAnalysis: () => Promise<void>;
+    __deleteAnalysis: () => Promise<void>;
+    __switchDataTab: (section: string) => void;
   }
 }
 
@@ -70,21 +79,28 @@ function registerGlobalAPI(): void {
   window.__closeReviewDrawer = closeReviewDrawer;
   window.__closeTableView = closeTableView;
   window.__clearAll = clearAll;
+  window.__clearAllFromTable = clearAllFromTable;
   window.__whysNext = () => {
     whysNext(syncPlan, persistCurrentState);
     updateStepNav();
+    updateTabLockState();
   };
   window.__whysPrev = () => {
     whysPrev(syncPlan, persistCurrentState);
     updateStepNav();
+    updateTabLockState();
   };
   window.__whysFinish = () => {
     whysFinish(syncPlan, persistCurrentState);
     updateStepNav();
+    updateTabLockState();
   };
   window.__whysEdit = whysEdit;
   window.__toggleWhysTimeline = toggleWhysTimeline;
-  window.__clearWhys = () => clearWhys(resetWhysState, syncPlan, persistCurrentState);
+  window.__clearWhys = () => {
+    clearWhys(resetWhysState, syncPlan, persistCurrentState);
+    updateTabLockState();
+  };
   window.__saveIshikawa = () => saveIshikawa(syncPlan, persistCurrentState, updateIshikawaForMachine);
   window.__clearIshikawa = () => clearIshikawa(syncPlan, persistCurrentState);
   window.__editCategory = editCategory;
@@ -96,16 +112,21 @@ function registerGlobalAPI(): void {
   window.__saveEdit = (key: string) => saveEdit(key, renderWhysWizard, refreshIshikawaDiagram, persistCurrentState);
   window.__cancelEdit = cancelEdit;
   window.__deleteField = (key: string) => deleteField(key, renderWhysWizard, refreshIshikawaDiagram, persistCurrentState);
+  window.__deleteSection = (section: string) => deleteSection(section, renderWhysWizard, refreshIshikawaDiagram, persistCurrentState);
+  window.__deletePlanRow = (tipo: string, index: number) => deletePlanRow(tipo, index, persistCurrentState);
+  window.__switchDataTab = (section: string) => switchDataTab(section as any);
+  window.__loadAnalysis = loadAnalysisFromJson;
+  window.__deleteAnalysis = deleteAnalysisFile;
   window.__navigateStep = (dir: number) => navigateStep(dir);
   window.__toggleStepMenu = toggleStepMenu;
   window.__clearCurrentStep = clearCurrentStep;
   window.__generateIshikawa = generateIshikawa;
-  window.__switchDataTab = (section: string) => switchDataTab(section as any);
+  window.__saveAnalysis = saveAnalysis;
 
   // Close step menu on outside click
   document.addEventListener('click', function(e: Event) {
     const menu = document.getElementById('step-nav-menu');
-    const btn = document.querySelector('.step-nav-btn-more');
+    const btn = document.querySelector('.step-nav-btn-ghost');
     if (menu && menu.classList.contains('open') &&
         btn && !btn.contains(e.target as Node) &&
         !menu.contains(e.target as Node)) {
@@ -141,6 +162,9 @@ function showTab(tabName: string): void {
     syncPlanFromAnalysis();
   }
 
+  // Persist current step so it's restored on refresh
+  localStorage.setItem('rcaCurrentStep', tabName);
+
   updateStepNav();
 }
 
@@ -175,10 +199,15 @@ function navigateStep(dir: number): void {
     if (input) {
       const level = rcaData.whys.wizardLevel;
       if (level >= 1 && level <= 5) {
-        rcaData.whys[`why${level}` as keyof typeof rcaData.whys] = input.value.trim();
+      if (level === 1) rcaData.whys.why1 = input.value.trim();
+      else if (level === 2) rcaData.whys.why2 = input.value.trim();
+      else if (level === 3) rcaData.whys.why3 = input.value.trim();
+      else if (level === 4) rcaData.whys.why4 = input.value.trim();
+      else if (level === 5) rcaData.whys.why5 = input.value.trim();
       }
     }
     persistCurrentState();
+    updateTabLockState();
   }
 
   showTab(nextTab);
@@ -211,10 +240,17 @@ function updateStepNav(): void {
     dot.classList.toggle('completed', i < currentIndex);
   });
 
-  // Update prev button
+  // Hide prev button on first step (captura), enable otherwise
   const prevBtn = document.getElementById('step-nav-prev') as HTMLButtonElement | null;
   if (prevBtn) {
-    prevBtn.disabled = currentIndex === 0;
+    prevBtn.style.display = currentIndex === 0 ? 'none' : '';
+    prevBtn.disabled = false;
+  }
+
+  // Show "Acciones" label only on the first step
+  const accionesLabel = document.querySelector('#step-nav-more button span');
+  if (accionesLabel) {
+    (accionesLabel as HTMLElement).style.display = currentIndex === 0 ? '' : 'none';
   }
 
   // Update the right side
@@ -222,8 +258,13 @@ function updateStepNav(): void {
   if (!navRight) return;
 
   if (currentId === 'plan') {
-    // Last step - no "Siguiente"
-    navRight.innerHTML = '';
+    // Last step - show "Guardar" button
+    navRight.innerHTML = `
+      <button id="step-nav-save" class="step-nav-btn step-nav-btn-success" onclick="window.__saveAnalysis()">
+        <i class="fas fa-save"></i>
+        <span>Guardar</span>
+      </button>
+    `;
     return;
   }
 
@@ -262,23 +303,44 @@ function updateNextButtonState(tabId: string): void {
    ========================================================================== */
 
 function updateTabLockState(): void {
-  const capturaCompleta = !!(rcaData.captura && rcaData.captura.problema);
-  const whysCompleto = !!(rcaData.whys && (rcaData.whys.wizardLevel === 0 || rcaData.whys.causaRaiz));
+  const c = rcaData.captura || {};
+  const w = rcaData.whys || {};
+  const ish = rcaData.ishikawa || {};
   const acciones = rcaData.acciones || { correctivas: [], preventivas: [] };
-  const ishikawaCompleto = !!(rcaData.ishikawa && CATEGORY_ORDER.some(cat => rcaData.ishikawa[cat]));
+
+  // Step 1: Captura — checked only when ALL fields are filled
+  const allCapturaFields = [c.fecha, c.maquina, c.tiempoParo, c.problema, c.sintomas, c.responsable];
+  const capturaCompleta = allCapturaFields.every(val => !!val);
+
+  // Step 2: Ishikawa — checked only when ALL 6 cards are filled
+  const ishikawaCompleto = CATEGORY_ORDER.every(cat => !!ish[cat]);
+
+  // Step 3: 5 Porqués — checked when at least 1 why has content
+  const whysCompleto = !!(w.why1 || w.why2 || w.why3 || w.why4 || w.why5);
+
+  // Step 4: Plan — checked when at least 1 correctiva OR 1 preventiva
   const planCompleto = !!(acciones.correctivas.length > 0 || acciones.preventivas.length > 0);
 
+  // Captura unlocks tabs when just the problem is filled
+  const capturaDesbloqueada = !!c.problema;
+
+  // Unlock tabs based on captura having at least the problem
   const lockedTabs = ['ishikawa', '5whys', 'plan'];
   lockedTabs.forEach(tabName => {
     const btn = document.getElementById(`tab-${tabName}`);
     if (!btn) return;
-    if (capturaCompleta) {
+    if (capturaDesbloqueada) {
       btn.classList.remove('tab-locked');
       btn.onclick = null;
       btn.onclick = function() { showTab(tabName); };
     } else {
       btn.classList.add('tab-locked');
     }
+  });
+
+  // Show/hide "Resumen" buttons only when captura has data
+  document.querySelectorAll('.step-header-actions').forEach(el => {
+    el.classList.toggle('hidden', !capturaDesbloqueada);
   });
 
   const toggleComplete = (id: string, condition: boolean) => {
@@ -288,11 +350,11 @@ function updateTabLockState(): void {
 
   toggleComplete('tab-captura', capturaCompleta);
   toggleComplete('conn-0', capturaCompleta);
-  toggleComplete('tab-ishikawa', ishikawaCompleto && capturaCompleta);
-  toggleComplete('conn-1', ishikawaCompleto && capturaCompleta);
-  toggleComplete('tab-5whys', whysCompleto && capturaCompleta);
-  toggleComplete('conn-2', whysCompleto && capturaCompleta);
-  toggleComplete('tab-plan', planCompleto && capturaCompleta);
+  toggleComplete('tab-ishikawa', ishikawaCompleto && capturaDesbloqueada);
+  toggleComplete('conn-1', ishikawaCompleto && capturaDesbloqueada);
+  toggleComplete('tab-5whys', whysCompleto && capturaDesbloqueada);
+  toggleComplete('conn-2', whysCompleto && capturaDesbloqueada);
+  toggleComplete('tab-plan', planCompleto && capturaDesbloqueada);
 }
 
 /* ==========================================================================
@@ -355,7 +417,7 @@ const ISHIKAWA_FIELDS = ['maquina', 'metodo', 'materiales', 'manoObra', 'medicio
 function updateIshikawaGenerateBtn(): void {
   const allFilled = ISHIKAWA_FIELDS.every(cat => {
     const field = document.getElementById(`ishikawa-${cat}`) as HTMLTextAreaElement | null;
-    return field?.value?.trim()?.length > 0;
+    return (field?.value?.trim()?.length ?? 0) > 0;
   });
   const btn = document.getElementById('btn-generar-ishikawa') as HTMLButtonElement | null;
   const area = document.getElementById('ishikawa-generate-area');
@@ -385,13 +447,22 @@ function toggleStepMenu(e: Event): void {
   if (menu) menu.classList.toggle('open');
 }
 
-function clearCurrentStep(): void {
+async function clearCurrentStep(): Promise<void> {
   const menu = document.getElementById('step-nav-menu');
   if (menu) menu.classList.remove('open');
 
   const currentTab = document.querySelector('[id^="content-"]:not(.hidden)');
   if (!currentTab) return;
   const currentId = currentTab.id.replace('content-', '');
+
+  const labelMap: Record<string, string> = {
+    captura: 'Captura del Problema',
+    ishikawa: 'Diagrama de Ishikawa',
+    '5whys': '5 Porqués',
+    plan: 'Plan de Acción'
+  };
+  const confirmed = await confirmAction(`¿Limpiar todos los datos de ${labelMap[currentId] || currentId}?`);
+  if (!confirmed) return;
 
   switch (currentId) {
     case 'captura':
@@ -410,6 +481,7 @@ function clearCurrentStep(): void {
       break;
   }
 
+  updateTabLockState();
   updateClearAllButton();
   updateStepNav();
 }
@@ -431,55 +503,130 @@ function updateResumen(): void {
 }
 
 /* ==========================================================================
-   Clear All
+   Save Analysis (from Plan step)
    ========================================================================== */
 
-function clearAll(): void {
-  const confirmMessage = `¿Estás seguro de que quieres limpiar TODO el análisis actual?\nEsta acción no se puede deshacer.`;
+async function saveAnalysis(): Promise<void> {
+  // Save current plan data from DOM
+  persistCurrentState();
 
-  if (confirm(confirmMessage)) {
-    const ids = ['fechaEvento', 'maquina', 'tiempoParo', 'descripcionProblema', 'sintomas', 'responsable'];
-    ids.forEach(id => {
-      const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
-      if (el) el.value = '';
-    });
-
-    const causaRaizBox = document.getElementById('causaRaizBox');
-    if (causaRaizBox) causaRaizBox.classList.add('hidden');
-
-    CATEGORY_ORDER.forEach(cat => {
-      const el = document.getElementById(`ishikawa-${cat}`) as HTMLTextAreaElement | null;
-      if (el) el.value = '';
-    });
-
-    const ishikawaDiagram = document.getElementById('ishikawa-diagram');
-    if (ishikawaDiagram) ishikawaDiagram.classList.add('hidden');
-    updateIshikawaDiagram({
-      maquina: false, metodo: false, materiales: false,
-      manoObra: false, medicion: false, medioAmbiente: false
-    });
-
-    clearActionPlan();
-
-    const resumenProblema = document.getElementById('resumenProblema');
-    const resumenCausa = document.getElementById('resumenCausa');
-    if (resumenProblema) resumenProblema.textContent = 'No definido';
-    if (resumenCausa) resumenCausa.textContent = 'No definida';
-
-    setRcaData({
-      captura: {},
-      whys: { why1: '', why2: '', why3: '', why4: '', why5: '', wizardLevel: 1 },
-      ishikawa: {},
-      acciones: { correctivas: [], preventivas: [] }
-    });
-
-    renderWhysWizard();
-    localStorage.removeItem('rcaData');
-
-    showTab('captura');
-    updateTabLockState();
-    updateClearAllButton();
+  // Check if there's data to save
+  if (!rcaData.captura?.problema) {
+    showToast('No hay datos para guardar.', 'warning');
+    return;
   }
+
+  try {
+    // Snapshot the data before clearing
+    const savedData = JSON.parse(JSON.stringify(rcaData));
+
+    // Always overwrite the single analisis.json file
+    await saveAnalysisFile(rcaData);
+    showToast('Guardado correctamente.', 'success');
+
+    // Clear everything silently (DOM + state) and start fresh
+    await clearAll(true);
+
+    // Restore rcaData so the data table / review drawer can show the saved data,
+    // while the wizard forms stay clean
+    setRcaData(savedData);
+  } catch (err) {
+    showToast('Error al guardar el análisis: ' + err, 'error');
+  }
+}
+
+/* ==========================================================================
+   Clear All (wizard only — keeps rcaData intact for the table view)
+   ========================================================================== */
+
+async function clearAll(skipConfirm = false): Promise<void> {
+  if (!skipConfirm) {
+    const confirmed = await confirmDanger(
+      'Esta acción no se puede deshacer.',
+      '¿Limpiar TODO el análisis?'
+    );
+    if (!confirmed) return;
+  }
+
+  const ids = ['fechaEvento', 'maquina', 'tiempoParo', 'descripcionProblema', 'sintomas', 'responsable'];
+  ids.forEach(id => {
+    const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
+    if (el) el.value = '';
+  });
+
+  CATEGORY_ORDER.forEach(cat => {
+    const el = document.getElementById(`ishikawa-${cat}`) as HTMLTextAreaElement | null;
+    if (el) el.value = '';
+  });
+
+  const ishikawaDiagram = document.getElementById('ishikawa-diagram');
+  if (ishikawaDiagram) ishikawaDiagram.classList.add('hidden');
+  updateIshikawaDiagram({
+    maquina: false, metodo: false, materiales: false,
+    manoObra: false, medicion: false, medioAmbiente: false
+  });
+
+  clearActionPlan();
+
+  const resumenProblema = document.getElementById('resumenProblema');
+  const resumenCausa = document.getElementById('resumenCausa');
+  if (resumenProblema) resumenProblema.textContent = 'No definido';
+  if (resumenCausa) resumenCausa.textContent = 'No definida';
+
+  renderWhysWizard();
+
+  // Lock all tabs visually and reset step indicators (rcaData is preserved for the table view)
+  const allStepIds = ['tab-captura', 'conn-0', 'tab-ishikawa', 'conn-1', 'tab-5whys', 'conn-2', 'tab-plan'];
+  allStepIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('completed');
+  });
+  const lockedTabs = ['ishikawa', '5whys', 'plan'];
+  lockedTabs.forEach(tabName => {
+    const btn = document.getElementById(`tab-${tabName}`);
+    if (btn) {
+      btn.classList.add('tab-locked');
+      btn.onclick = null;
+    }
+  });
+  const capturaBtn = document.getElementById('tab-captura');
+  if (capturaBtn) capturaBtn.classList.remove('tab-active');
+
+  document.querySelectorAll('.step-header-actions').forEach(el => {
+    el.classList.add('hidden');
+  });
+
+  showTab('captura');
+  updateClearAllButton();
+}
+
+/* ==========================================================================
+   Clear All from Table View (deletes file + resets rcaData, leaves wizard)
+   ========================================================================== */
+
+async function clearAllFromTable(): Promise<void> {
+  const confirmed = await confirmDanger(
+    'Se eliminará el archivo guardado y se limpiarán los datos de la tabla.',
+    '¿Limpiar todo?'
+  );
+  if (!confirmed) return;
+
+  setRcaData({
+    captura: {},
+    whys: { why1: '', why2: '', why3: '', why4: '', why5: '', wizardLevel: 1 },
+    ishikawa: {},
+    acciones: { correctivas: [], preventivas: [] }
+  });
+
+  localStorage.removeItem('rcaData');
+
+  try {
+    await deleteAnalysis();
+  } catch {
+    // Silently fail if file doesn't exist
+  }
+
+  renderDataTable();
 }
 
 /* ==========================================================================
@@ -695,6 +842,14 @@ window.addEventListener('DOMContentLoaded', function() {
   updateClearAllButton();
   updateStepNav();
 
+  // Restore last active step (defaulting to captura if none saved or invalid)
+  const savedStep = localStorage.getItem('rcaCurrentStep');
+  const initialStep = savedStep && (STEPS as readonly string[]).includes(savedStep) ? savedStep : 'captura';
+  showTab(initialStep);
+
+  // Auto-load analysis JSON file if it exists
+  loadAnalysisFromJson();
+
   // Remove loading class to reveal content after everything is initialized and painted
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -702,3 +857,91 @@ window.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
+
+/* ==========================================================================
+   Auto-load / Delete the single analysis JSON file
+   ========================================================================== */
+
+async function loadAnalysisFromJson(): Promise<void> {
+  try {
+    const result = await checkAnalysisFile();
+    if (!result.exists) return;
+
+    const record = await loadAnalysis();
+    if (!record.data) return;
+
+    // Restore data to state and DOM
+    const data = record.data;
+    setRcaData({
+      captura: data.captura || {},
+      whys: {
+        why1: data.whys?.why1 || '',
+        why2: data.whys?.why2 || '',
+        why3: data.whys?.why3 || '',
+        why4: data.whys?.why4 || '',
+        why5: data.whys?.why5 || '',
+        wizardLevel: data.whys?.wizardLevel ?? 1,
+        causaRaiz: data.whys?.causaRaiz
+      },
+      ishikawa: data.ishikawa || {},
+      acciones: data.acciones || { correctivas: [], preventivas: [] }
+    });
+
+    // Restore DOM fields
+    const cap = rcaData.captura;
+    const fechaEl = document.getElementById('fechaEvento') as HTMLInputElement | null;
+    if (fechaEl && cap.fecha) fechaEl.value = cap.fecha;
+    const maqEl = document.getElementById('maquina') as HTMLSelectElement | null;
+    if (maqEl && cap.maquina) maqEl.value = cap.maquina;
+    const tpEl = document.getElementById('tiempoParo') as HTMLInputElement | null;
+    if (tpEl && cap.tiempoParo) tpEl.value = cap.tiempoParo;
+    const probEl = document.getElementById('descripcionProblema') as HTMLTextAreaElement | null;
+    if (probEl && cap.problema) probEl.value = cap.problema;
+    const sintEl = document.getElementById('sintomas') as HTMLTextAreaElement | null;
+    if (sintEl && cap.sintomas) sintEl.value = cap.sintomas;
+    const respEl = document.getElementById('responsable') as HTMLInputElement | null;
+    if (respEl && cap.responsable) respEl.value = cap.responsable;
+
+    CATEGORY_ORDER.forEach(cat => {
+      if (rcaData.ishikawa[cat]) {
+        const el = document.getElementById(`ishikawa-${cat}`) as HTMLTextAreaElement | null;
+        if (el) el.value = rcaData.ishikawa[cat]!;
+      }
+    });
+    refreshIshikawaDiagram();
+
+    if (rcaData.acciones.correctivas.length > 0) {
+      rcaData.acciones.correctivas.forEach((accion, index) => {
+        addAccionToDOM('correctiva', accion, index);
+      });
+    }
+    if (rcaData.acciones.preventivas.length > 0) {
+      rcaData.acciones.preventivas.forEach((accion, index) => {
+        addAccionToDOM('preventiva', accion, index);
+      });
+    }
+
+    updateTabLockState();
+    updateClearAllButton();
+    syncPlanFromAnalysis();
+    renderWhysWizard();
+  } catch {
+    // Silently fail — start fresh if JSON can't be loaded
+  }
+}
+
+async function deleteAnalysisFile(): Promise<void> {
+  const confirmed = await confirmDanger(
+    'Esta acción no se puede deshacer.',
+    '¿Eliminar el análisis guardado?'
+  );
+  if (!confirmed) return;
+
+  try {
+    await deleteAnalysis();
+    showToast('Análisis eliminado.', 'success');
+    await clearAll(true);
+  } catch (err) {
+    showToast('Error al eliminar: ' + err, 'error');
+  }
+}

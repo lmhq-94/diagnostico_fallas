@@ -36,10 +36,9 @@ export function closeReviewDrawer(): void {
   document.body.style.overflow = '';
 }
 
-/** Renders the table inside the drawer */
+/** Renders horizontal tables inside the drawer */
 export function renderDrawerTable(): void {
-  const tbody = document.getElementById('drawer-table-body');
-  if (!tbody) return;
-  const rows = buildDataRows('closeReviewDrawer', true);
-  tbody.innerHTML = rows.join('');
+  const container = document.getElementById('drawer-tables-container');
+  if (!container) return;
+  container.innerHTML = buildDataRows();
 }

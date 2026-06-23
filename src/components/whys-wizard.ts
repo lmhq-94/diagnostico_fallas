@@ -1,4 +1,4 @@
-import { rcaData, type RCAWhys, getLastWhyLevel, isWizardCompleted, getWizardLevel, getCurrentCauseSummary } from '../state/store';
+import { rcaData, type RCAWhys, getLastWhyLevel, isWizardCompleted, getWizardLevel, getCurrentCauseSummary, getWhy, setWhy } from '../state/store';
 import { escapeHtml } from '../utils/text';
 import { showToast } from '../utils/toast';
 
@@ -8,11 +8,11 @@ import { showToast } from '../utils/toast';
 
 export const WHY_COLORS = [
   null,
-  { bg: 'bg-blue-500', text: 'text-blue-700', label: 'text-blue-800' },
-  { bg: 'bg-indigo-500', text: 'text-indigo-700', label: 'text-indigo-800' },
-  { bg: 'bg-purple-500', text: 'text-purple-700', label: 'text-purple-800' },
-  { bg: 'bg-pink-500', text: 'text-pink-700', label: 'text-pink-800' },
-  { bg: 'bg-red-500', text: 'text-red-700', label: 'text-red-800' }
+  { bg: 'bg-blue-600', text: 'text-blue-700', label: 'text-blue-800' },
+  { bg: 'bg-blue-600', text: 'text-blue-700', label: 'text-blue-800' },
+  { bg: 'bg-blue-600', text: 'text-blue-700', label: 'text-blue-800' },
+  { bg: 'bg-blue-600', text: 'text-blue-700', label: 'text-blue-800' },
+  { bg: 'bg-blue-600', text: 'text-blue-700', label: 'text-blue-800' }
 ];
 
 export const WHY_LABELS: Record<number, string> = {
@@ -40,7 +40,7 @@ export function captureActiveWhyInput(): void {
   if (!input) return;
   const level = getWizardLevel();
   if (level >= 1 && level <= 5) {
-    rcaData.whys[`why${level}` as keyof RCAWhys] = input.value.trim();
+    setWhy(rcaData.whys, level, input.value.trim());
   }
 }
 
@@ -48,7 +48,7 @@ export function captureActiveWhyInput(): void {
 function getTimelineCount(whys: RCAWhys, currentLevel: number): number {
   let count = 0;
   for (let i = 1; i < currentLevel; i++) {
-    if (whys[`why${i}` as keyof RCAWhys]) count++;
+    if (getWhy(whys, i)) count++;
   }
   return count;
 }
@@ -78,7 +78,7 @@ export function renderWhysWizard(): void {
   } else {
     activeSection.classList.remove('hidden');
     completedSection.classList.add('hidden');
-    renderWhyActive(level, whys[`why${level}` as keyof RCAWhys] || '');
+    renderWhyActive(level, getWhy(whys, level));
     renderWhysAddLink(level);
   }
 
@@ -87,11 +87,6 @@ export function renderWhysWizard(): void {
     document.getElementById('whys-timeline-body')?.classList.add('whys-timeline-collapsed');
     const chevron = document.getElementById('whys-timeline-chevron');
     if (chevron) chevron.style.transform = 'rotate(-90deg)';
-  }
-
-  const causaRaizBox = document.getElementById('causaRaizBox');
-  if (causaRaizBox) {
-    causaRaizBox.classList.toggle('hidden', !(isWizardCompleted() || level >= 5));
   }
 
   updateRootCauseSummary();
@@ -104,7 +99,7 @@ function renderWhysTimeline(container: HTMLElement, whys: RCAWhys, currentLevel:
   const completedLevel = getLastWhyLevel();
 
   for (let i = 1; i <= maxLevel; i++) {
-    const text = whys[`why${i}` as keyof RCAWhys];
+    const text = getWhy(whys, i);
     if (!text) continue;
 
     const color = WHY_COLORS[i]!;
@@ -175,7 +170,7 @@ function renderWhysAddLink(level: number): void {
 /** Renders the completed state */
 function renderWhysCompleted(container: HTMLElement, whys: RCAWhys): void {
   const level = getLastWhyLevel();
-  const text = whys[`why${level}` as keyof RCAWhys] || '';
+  const text = getWhy(whys, level);
   const color = WHY_COLORS[level] || WHY_COLORS[5]!;
 
   container.innerHTML = `
@@ -237,7 +232,7 @@ export function whysPrev(syncPlan: () => void, persist: () => void): void {
   if (level <= 1) return;
   captureActiveWhyInput();
   for (let i = level; i <= 5; i++) {
-    rcaData.whys[`why${i}` as keyof RCAWhys] = '';
+    setWhy(rcaData.whys, i, '');
   }
   rcaData.whys.wizardLevel = level - 1;
   renderWhysWizard();
@@ -251,7 +246,7 @@ export function whysFinish(syncPlan: () => void, persist: () => void): void {
   captureActiveWhyInput();
   const level = getWizardLevel();
   for (let i = level + 1; i <= 5; i++) {
-    rcaData.whys[`why${i}` as keyof RCAWhys] = '';
+    setWhy(rcaData.whys, i, '');
   }
   rcaData.whys.wizardLevel = 0;
   renderWhysWizard();
@@ -264,7 +259,7 @@ export function whysEdit(level: number): void {
   captureActiveWhyInput();
   rcaData.whys.wizardLevel = level;
   for (let i = level + 1; i <= 5; i++) {
-    rcaData.whys[`why${i}` as keyof RCAWhys] = '';
+    setWhy(rcaData.whys, i, '');
   }
   renderWhysWizard();
 }
@@ -283,8 +278,6 @@ export function toggleWhysTimeline(): void {
 /** Clears all whys */
 export function clearWhys(resetState: () => void, syncPlan: () => void, persist: () => void): void {
   rcaData.whys = { why1: '', why2: '', why3: '', why4: '', why5: '', wizardLevel: 1 };
-  const causaRaizBox = document.getElementById('causaRaizBox');
-  if (causaRaizBox) causaRaizBox.classList.add('hidden');
   renderWhysWizard();
   syncPlan();
   persist();

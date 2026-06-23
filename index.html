@@ -18,19 +18,22 @@
 <body class="bg-gray-50 min-h-screen loading">
 
   <!-- Header -->
-  <header class="bg-gradient-to-r from-[#1e3a5f] to-[#2563eb] text-white shadow-lg">
-    <div class="px-4 sm:px-6 py-3">
-      <div class="flex items-center justify-start gap-8">
-        <img src="https://static.spradling.group/uploads/instances/1/logo-proquinal.png"
-             alt="Proquinal"
-             class="w-40 h-40 flex-shrink-0 object-contain -my-12"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-        <div class="w-px h-16 bg-white/30 flex-shrink-0"></div>
-        <div class="max-w-7xl xl:max-w-8xl flex-1">
-          <h1 class="text-xl sm:text-2xl font-bold">Herramienta de Diagnóstico de Fallas</h1>
-          <p class="text-blue-100 text-xs sm:text-sm">Identifica y soluciona problemas de raíz</p>
-        </div>
-
+  <header class="text-white">
+    <div class="header-inner">
+      <div class="header-logo-wrap">
+        <img src="/src/assets/logo.png"
+             alt="Logo"
+             class="header-logo">
+        <div class="header-divider"></div>
+      </div>
+      <div class="header-title-area">
+        <h1 class="header-title">Herramienta de Diagnóstico de Fallas</h1>
+        <p class="header-subtitle">Identifica y soluciona problemas de raíz</p>
+      </div>
+      <div class="header-actions">
+        <button onclick="window.__toggleTableView()" class="header-btn header-btn-table" title="Ver todos los datos en tabla">
+          <i class="fas fa-th"></i>
+        </button>
       </div>
     </div>
   </header>
@@ -45,7 +48,6 @@
         </div>
         <div class="step-labels">
           <span class="step-label">Captura</span>
-          <span class="step-desc">Problema</span>
         </div>
       </div>
       <div class="step-connector" id="conn-0"></div>
@@ -56,7 +58,6 @@
         </div>
         <div class="step-labels">
           <span class="step-label">Ishikawa</span>
-          <span class="step-desc">Causas</span>
         </div>
       </div>
       <div class="step-connector" id="conn-1"></div>
@@ -67,7 +68,6 @@
         </div>
         <div class="step-labels">
           <span class="step-label">5 Porqués</span>
-          <span class="step-desc">Causa Raíz</span>
         </div>
       </div>
       <div class="step-connector" id="conn-2"></div>
@@ -78,27 +78,25 @@
         </div>
         <div class="step-labels">
           <span class="step-label">Plan</span>
-          <span class="step-desc">Acciones</span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Main Content -->
-  <main class="main-content w-full px-24 sm:px-28 lg:px-32 xl:px-40 2xl:px-56">
+  <main class="main-content w-full">
+    <div class="content-container px-4 sm:px-6 md:px-8 mx-auto">
 
     <!-- Tab 1: Problem Capture -->
     <div id="content-captura" class="fade-in">
       <div class="step-card">
         <div class="step-header">
-          <div class="step-badge active">1</div>
           <div class="step-title-group">
-            <h2 class="step-title">Captura del Problema</h2>
-            <span class="step-subtitle">Describe el evento y contexto del fallo</span>
+            <h2 class="step-title"><i class="fas fa-clipboard step-header-icon"></i>Captura del Problema</h2>
+            <span class="step-subtitle">Completa todos los campos para registrar el evento y desbloquear los pasos siguientes</span>
           </div>
-          <div class="step-header-actions">
-            <button onclick="window.__toggleTableView()" class="btn btn-sm btn-outline"><i class="fas fa-table"></i>Ver Datos</button>
-            <button onclick="window.__toggleReviewDrawer(event)" class="btn btn-sm btn-outline-success"><i class="fas fa-file-alt"></i>Resumen</button>
+          <div class="step-header-actions hidden">
+            <button onclick="window.__toggleReviewDrawer(event)" class="btn btn-sm btn-outline-success" title="Ver resumen del análisis"><i class="fas fa-file-lines"></i>Resumen</button>
           </div>
         </div>
         <div class="step-body">
@@ -147,14 +145,12 @@
     <div id="content-5whys" class="hidden fade-in">
       <div class="step-card">
         <div class="step-header">
-          <div class="step-badge">3</div>
           <div class="step-title-group">
-            <h2 class="step-title">Los 5 Porqués</h2>
-            <span class="step-subtitle">Identifica la causa raíz preguntando "¿Por qué?" repetidamente</span>
+            <h2 class="step-title"><i class="fas fa-question-circle step-header-icon"></i>Los 5 Porqués</h2>
+            <span class="step-subtitle">Pregunta "¿Por qué?" hasta la raíz — con una respuesta basta para empezar</span>
           </div>
-          <div class="step-header-actions">
-            <button onclick="window.__toggleTableView()" class="btn btn-sm btn-outline"><i class="fas fa-table"></i>Ver Datos</button>
-            <button onclick="window.__toggleReviewDrawer(event)" class="btn btn-sm btn-outline-success"><i class="fas fa-file-alt"></i>Resumen</button>
+          <div class="step-header-actions hidden">
+            <button onclick="window.__toggleReviewDrawer(event)" class="btn btn-sm btn-outline-success" title="Ver resumen del análisis"><i class="fas fa-file-lines"></i>Resumen</button>
           </div>
         </div>
         <div class="step-body">
@@ -179,13 +175,7 @@
             <div id="whys-completed-section" class="hidden"></div>
             <div id="whys-add-link" class="mt-4"></div>
           </div>
-          <div id="causaRaizBox" class="whys-causa-box hidden">
-            <i class="fas fa-lightbulb text-amber-500 text-sm flex-shrink-0"></i>
-            <div>
-              <span class="whys-causa-label">Causa Raíz Identificada</span>
-              <p id="causaRaizResumen" class="whys-causa-text"></p>
-            </div>
-          </div>
+
         </div>
       </div>
     </div>
@@ -194,44 +184,42 @@
     <div id="content-ishikawa" class="hidden fade-in">
       <div class="step-card">
         <div class="step-header">
-          <div class="step-badge">2</div>
           <div class="step-title-group">
-            <h2 class="step-title">Diagrama de Ishikawa</h2>
-            <span class="step-subtitle">Organiza visualmente las causas potenciales del problema</span>
+            <h2 class="step-title"><i class="fas fa-project-diagram step-header-icon"></i>Diagrama de Ishikawa</h2>
+            <span class="step-subtitle">Completa las 6 categorías para generar el diagrama de causa-efecto</span>
           </div>
-          <div class="step-header-actions">
-            <button onclick="window.__toggleTableView()" class="btn btn-sm btn-outline"><i class="fas fa-table"></i>Ver Datos</button>
-            <button onclick="window.__toggleReviewDrawer(event)" class="btn btn-sm btn-outline-success"><i class="fas fa-file-alt"></i>Resumen</button>
+          <div class="step-header-actions hidden">
+            <button onclick="window.__toggleReviewDrawer(event)" class="btn btn-sm btn-outline-success" title="Ver resumen del análisis"><i class="fas fa-file-lines"></i>Resumen</button>
           </div>
         </div>
         <div class="step-body">
           <p class="text-gray-500 mb-4 text-sm">
-            Escribe en cada categoría las causas que identificaste. Al guardar, el diagrama se genera automáticamente.
+            Escribe en cada categoría las causas que identificaste. Cuando completes las 6, presiona "Generar diagrama" para visualizarlo.
             Haz clic en cualquier recuadro del diagrama para editar esa categoría.
           </p>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <div class="card-standard p-3 sm:p-4">
-              <h3 class="font-bold text-[#1e3a5f] mb-2 text-sm sm:text-base"><i class="fas fa-cog mr-2 text-blue-500"></i>Máquina</h3>
+              <h3 class="card-section-title card-section-title--blue"><i class="fas fa-cog"></i>Máquina</h3>
               <textarea id="ishikawa-maquina" rows="3" class="std-textarea" placeholder="Fallas en equipos, desgaste, mantenimiento..." autocomplete="off"></textarea>
             </div>
             <div class="card-standard p-3 sm:p-4">
-              <h3 class="font-bold text-[#1e3a5f] mb-2 text-sm sm:text-base"><i class="fas fa-clipboard-list mr-2 text-indigo-500"></i>Método</h3>
+              <h3 class="card-section-title card-section-title--indigo"><i class="fas fa-clipboard-list"></i>Método</h3>
               <textarea id="ishikawa-metodo" rows="3" class="std-textarea" placeholder="Procedimientos, estándares, instrucciones..." autocomplete="off"></textarea>
             </div>
             <div class="card-standard p-3 sm:p-4">
-              <h3 class="font-bold text-[#1e3a5f] mb-2 text-sm sm:text-base"><i class="fas fa-box mr-2 text-purple-500"></i>Materiales</h3>
+              <h3 class="card-section-title card-section-title--purple"><i class="fas fa-box"></i>Materiales</h3>
               <textarea id="ishikawa-materiales" rows="3" class="std-textarea" placeholder="Repuestos, consumibles, calidad..." autocomplete="off"></textarea>
             </div>
             <div class="card-standard p-3 sm:p-4">
-              <h3 class="font-bold text-[#1e3a5f] mb-2 text-sm sm:text-base"><i class="fas fa-users mr-2 text-pink-500"></i>Mano de obra</h3>
+              <h3 class="card-section-title card-section-title--pink"><i class="fas fa-users"></i>Mano de obra</h3>
               <textarea id="ishikawa-manoObra" rows="3" class="std-textarea" placeholder="Capacitación, fatiga, errores..." autocomplete="off"></textarea>
             </div>
             <div class="card-standard p-3 sm:p-4">
-              <h3 class="font-bold text-[#1e3a5f] mb-2 text-sm sm:text-base"><i class="fas fa-chart-line mr-2 text-orange-500"></i>Medición</h3>
+              <h3 class="card-section-title card-section-title--orange"><i class="fas fa-chart-line"></i>Medición</h3>
               <textarea id="ishikawa-medicion" rows="3" class="std-textarea" placeholder="Sensores, inspecciones, datos..." autocomplete="off"></textarea>
             </div>
             <div class="card-standard p-3 sm:p-4">
-              <h3 class="font-bold text-[#1e3a5f] mb-2 text-sm sm:text-base"><i class="fas fa-leaf mr-2 text-green-500"></i>Medio ambiente</h3>
+              <h3 class="card-section-title card-section-title--green"><i class="fas fa-leaf"></i>Medio ambiente</h3>
               <textarea id="ishikawa-medioAmbiente" rows="3" class="std-textarea" placeholder="Temperatura, humedad, condiciones..." autocomplete="off"></textarea>
             </div>
           </div>
@@ -355,14 +343,12 @@
     <div id="content-plan" class="hidden fade-in">
       <div class="step-card">
         <div class="step-header">
-          <div class="step-badge">4</div>
           <div class="step-title-group">
-            <h2 class="step-title">Plan de Acción</h2>
-            <span class="step-subtitle">Registra acciones correctivas y preventivas con responsables y fechas</span>
+            <h2 class="step-title"><i class="fas fa-tasks step-header-icon"></i>Plan de Acción</h2>
+            <span class="step-subtitle">Crea acciones correctivas o preventivas con responsables, fechas y prioridad</span>
           </div>
-          <div class="step-header-actions">
-            <button onclick="window.__toggleTableView()" class="btn btn-sm btn-outline"><i class="fas fa-table"></i>Ver Datos</button>
-            <button onclick="window.__toggleReviewDrawer(event)" class="btn btn-sm btn-outline-success"><i class="fas fa-file-alt"></i>Resumen</button>
+          <div class="step-header-actions hidden">
+            <button onclick="window.__toggleReviewDrawer(event)" class="btn btn-sm btn-outline-success" title="Ver resumen del análisis"><i class="fas fa-file-lines"></i>Resumen</button>
           </div>
         </div>
         <div class="step-body">
@@ -382,9 +368,8 @@
             </div>
           </div>
           <div class="mb-6">
-            <div class="plan-section-header">
-              <div class="plan-section-dot" style="background:#059669"></div>
-              <h3>Acciones Correctivas</h3>
+            <div class="plan-section-header plan-section-header--corrective">
+              <h3><i class="fas fa-check-circle text-green-500 mr-1"></i>Acciones Correctivas</h3>
               <button onclick="window.__addAccion('correctiva')" class="btn btn-primary btn-sm ml-auto">
                 <i class="fas fa-plus"></i>Agregar
               </button>
@@ -392,9 +377,8 @@
             <div id="accionesCorrectivas" class="space-y-3"></div>
           </div>
           <div class="mb-6">
-            <div class="plan-section-header">
-              <div class="plan-section-dot" style="background:#2563eb"></div>
-              <h3>Acciones Preventivas</h3>
+            <div class="plan-section-header plan-section-header--preventive">
+              <h3><i class="fas fa-shield-alt text-blue-500 mr-1"></i>Acciones Preventivas</h3>
               <button onclick="window.__addAccion('preventiva')" class="btn btn-primary btn-sm ml-auto">
                 <i class="fas fa-plus"></i>Agregar
               </button>
@@ -409,7 +393,7 @@
     <div id="content-tabla" class="hidden fade-in">
       <div class="step-card">
         <div class="step-header">
-          <span class="step-badge bg-purple-100 text-purple-700"><i class="fas fa-table"></i></span>
+          <i class="fas fa-table step-header-icon"></i>
           <h2 class="step-title">Todos los Datos</h2>
           <button onclick="window.__closeTableView()" class="btn btn-sm btn-outline ml-auto">
             <i class="fas fa-times"></i> Cerrar
@@ -430,19 +414,13 @@
             <i class="fas fa-tasks"></i> Plan
           </button>
         </div>
-        <div class="step-body">
-          <table class="data-table data-table-section">
-            <thead>
-              <tr>
-                <th style="width:28%">Campo</th>
-                <th style="width:52%">Valor</th>
-                <th style="width:20%">Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="data-table-body"></tbody>
-          </table>
+        <!-- Sticky toolbar with export/clear actions -->
+        <div class="data-table-toolbar" id="data-table-toolbar"></div>
+        <div class="step-body" id="data-table-body">
+          <!-- buildSectionRows renderiza la tabla completa aquí -->
         </div>
       </div>
+    </div>
     </div>
   </main>
 
@@ -455,7 +433,8 @@
           <span>Anterior</span>
         </button>
         <div class="step-nav-more" id="step-nav-more">
-          <button class="step-nav-btn-more" onclick="window.__toggleStepMenu(event)" title="Más acciones">
+          <button class="step-nav-btn step-nav-btn-ghost" onclick="window.__toggleStepMenu(event)" title="Más acciones" style="gap:10px;padding:8px 14px;font-size:12px">
+            <span>Acciones</span>
             <i class="fas fa-ellipsis-vertical"></i>
           </button>
           <div class="step-nav-menu" id="step-nav-menu">
@@ -507,27 +486,8 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
-    <div class="drawer-body">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th style="width:28%">Campo</th>
-            <th style="width:72%">Valor</th>
-          </tr>
-        </thead>
-        <tbody id="drawer-table-body"></tbody>
-      </table>
-    </div>
-    <div class="drawer-footer">
-      <button onclick="window.__handlePDFExport()" class="btn btn-primary w-full">
-        <i class="fas fa-file-pdf"></i>Exportar PDF
-      </button>
-      <button onclick="window.__exportExcel()" class="btn btn-success w-full">
-        <i class="fas fa-file-excel"></i>Exportar Excel
-      </button>
-      <button id="clearAllBtnDrawer" onclick="window.__clearAll()" class="btn btn-ghost text-red-500 hover:text-red-600 w-full">
-        <i class="fas fa-trash-alt"></i>Limpiar Todo
-      </button>
+    <div class="drawer-body" id="drawer-tables-container">
+      <!-- buildDataRows renderiza las tablas aquí -->
     </div>
   </div>
 

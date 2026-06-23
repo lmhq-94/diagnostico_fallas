@@ -1,5 +1,6 @@
 import { rcaData, type Accion } from '../state/store';
 import { getTodayISODate } from '../utils/text';
+import { confirmAction } from '../utils/confirm';
 
 /* ==========================================================================
    Action Plan Component
@@ -65,7 +66,9 @@ export function addAccion(tipo: string, persist: () => void): void {
 }
 
 /** Removes an action card */
-export function removeAccion(btn: HTMLElement, tipo: string, persist: () => void): void {
+export async function removeAccion(btn: HTMLElement, tipo: string, persist: () => void): Promise<void> {
+  const confirmed = await confirmAction('¿Eliminar esta acción?');
+  if (!confirmed) return;
   btn.closest('.accion-card')?.remove();
   persist();
 }

@@ -6,6 +6,7 @@ import { createSimplifiedIshikawa, createSimplifiedPareto } from './exportPDF';
 import { recordRootCauseForPareto } from './pareto';
 import { getIshikawaHistory, type IshikawaHistoryEntry } from './ishikawaHistory';
 import { getAccumulatedParetoData } from './pareto';
+import ExcelJS from 'exceljs';
 
 /* ==========================================================================
    Excel Export Service
@@ -15,11 +16,6 @@ import { getAccumulatedParetoData } from './pareto';
 export async function exportExcel(
   updateIshikawaForMachine: (machine: string, data: any, problem: string) => void
 ): Promise<void> {
-  if (typeof (window as any).ExcelJS === 'undefined') {
-    showToast('La librería ExcelJS no se ha cargado. Verifica tu conexión a internet.', 'error');
-    return;
-  }
-
   try {
     recordRootCauseForPareto(getCurrentCauseSummary);
     const machineIshikawa = (document.getElementById('maquina') as HTMLSelectElement)?.value?.trim() || '';
@@ -39,7 +35,6 @@ export async function exportExcel(
       rcaData.whys.why5 || rcaData.whys.why4 || rcaData.whys.why3 ||
       rcaData.whys.why2 || rcaData.whys.why1 || '';
 
-    const ExcelJS = (window as any).ExcelJS;
     const workbook = new ExcelJS.Workbook();
 
     // ---- Sheet 1: Fault Report ----
@@ -150,8 +145,8 @@ export async function exportExcel(
           const base64Data = imgData!.imgData.split(',')[1];
           const imgId = workbook.addImage({ base64: base64Data, extension: 'png' });
           ishikawaSheet.addImage(imgId, {
-            tl: { col: 0, row: ishikawaRow },
-            br: { col: 15, row: ishikawaRow + 30 }
+            tl: { col: 0.125, row: ishikawaRow + 0.125 } as any,
+            br: { col: 14.875, row: ishikawaRow + 29.875 } as any
           });
         }
         ishikawaRow += 31;
@@ -200,8 +195,8 @@ export async function exportExcel(
           const base64Data = imgData!.imgData.split(',')[1];
           const imgId = workbook.addImage({ base64: base64Data, extension: 'png' });
           paretoSheet.addImage(imgId, {
-            tl: { col: 0, row: paretoRow },
-            br: { col: 15, row: paretoRow + 30 }
+            tl: { col: 0.125, row: paretoRow + 0.125 } as any,
+            br: { col: 14.875, row: paretoRow + 29.875 } as any
           });
         }
         paretoRow += 31;

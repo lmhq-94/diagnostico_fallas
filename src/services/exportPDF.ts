@@ -4,6 +4,7 @@ import { escapeHtml } from '../utils/text';
 import { showToast } from '../utils/toast';
 import { getCurrentCauseSummary } from '../state/store';
 import { recordRootCauseForPareto } from './pareto';
+import { jsPDF } from 'jspdf';
 
 /* ==========================================================================
    PDF Export Service
@@ -19,65 +20,108 @@ export function handlePDFExport(
   });
 }
 
+async function loadLogoBase64(): Promise<string | null> {
+  try {
+    const resp = await fetch('/src/assets/logo.png');
+    const blob = await resp.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
+
 async function exportPDF(
   updateIshikawaForMachine: (machine: string, data: any, problem: string) => void
 ): Promise<void> {
   try {
     recordRootCauseForPareto(getCurrentCauseSummary);
-    const machineIshikawaPdf = (document.getElementById('maquina') as HTMLSelectElement)?.value?.trim() || '';
-    const problemIshikawaPdf = (document.getElementById('descripcionProblema') as HTMLTextAreaElement)?.value?.trim() || '';
+    const machineIshikawaPdf = rcaData.captura?.maquina || '';
+    const problemIshikawaPdf = rcaData.captura?.problema || '';
     if (machineIshikawaPdf && problemIshikawaPdf && rcaData.ishikawa) {
       updateIshikawaForMachine(machineIshikawaPdf, rcaData.ishikawa, problemIshikawaPdf);
     }
-    if (!(window as any).jspdf) {
-      throw new Error('La librería jsPDF no está cargada');
-    }
 
-    const { jsPDF } = (window as any).jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
 
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 15;
+    const contentWidth = pageWidth - 2 * margin;
     let yPosition = margin;
 
+    /* ── Color palette ───────────────────────────────────── */
     const colors = {
-      navy: [30, 58, 95],
-      blue: [37, 99, 235],
-      sky: [224, 242, 254],
-      gray: [107, 114, 128]
+      navy: [30, 58, 95] as const,
+      blue: [37, 99, 235] as const,
+      blueLight: [59, 130, 246] as const,
+      sky: [224, 242, 254] as const,
+      slate: [100, 116, 139] as const,
+      slateDark: [30, 41, 59] as const,
+      grayLight: [248, 250, 252] as const,
+      grayBorder: [226, 232, 240] as const,
+      white: [255, 255, 255] as const,
+      green: [22, 163, 74] as const,
+      amber: [217, 119, 6] as const,
+      red: [220, 38, 38] as const,
     };
 
+    const logoData = await loadLogoBase64();
+
+    /* ── Header ─────────────────────────────────────────── */
     function addHeader() {
       doc.setFillColor(...colors.navy);
-      doc.rect(0, 0, pageWidth, 28, 'F');
+      doc.rect(0, 0, pageWidth, 30, 'F');
+
+      if (logoData) {
+        doc.addImage(logoData, 'PNG', margin, 4, 28, 17.5);
+      }
+
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(16);
+      doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
-      doc.text('Reporte de Diagnóstico de Fallas', pageWidth / 2, 11, { align: 'center' });
-      doc.setFontSize(8);
+      const titleX = logoData ? margin + 32 : margin;
+      doc.text('Reporte de Diagnóstico de Fallas', titleX, 12);
+
+      doc.setFontSize(7.5);
       doc.setFont('helvetica', 'normal');
+      doc.setTextColor(148, 163, 184);
       const fechaGeneracion = new Date().toLocaleDateString('es-ES', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
       });
-      doc.text(`Generado: ${fechaGeneracion}`, pageWidth / 2, 21, { align: 'center' });
-      doc.setFillColor(...colors.blue);
-      doc.rect(0, 28, pageWidth, 1, 'F');
+      doc.text(`Generado: ${fechaGeneracion}`, titleX, 21);
+
+      doc.setDrawColor(...colors.blue);
+      doc.setLineWidth(0.8);
+      doc.line(0, 30, pageWidth, 30);
+
       yPosition = 38;
     }
 
+    /* ── Footer ──────────────────────────────────────────── */
     function addFooter() {
-      const footerY = pageHeight - 12;
+      const footerY = pageHeight - 10;
       doc.setFillColor(...colors.navy);
-      doc.rect(0, footerY, pageWidth, 12, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(7);
+      doc.rect(0, footerY, pageWidth, 10, 'F');
+
+      doc.setTextColor(148, 163, 184);
+      doc.setFontSize(6.5);
       doc.setFont('helvetica', 'italic');
-      doc.text('Generado por Herramienta de Diagnóstico de Fallas - Proquinal', pageWidth / 2, footerY + 8, { align: 'center' });
+      doc.text(
+        'Generado por Herramienta de Diagnóstico de Fallas - Proquinal',
+        pageWidth / 2,
+        footerY + 6.5,
+        { align: 'center' }
+      );
     }
 
+    /* ── Page break helper ────────────────────────────────── */
     function checkPageBreak(requiredHeight: number) {
-      if (yPosition + requiredHeight > pageHeight - 22) {
+      if (yPosition + requiredHeight > pageHeight - 20) {
         addFooter();
         doc.addPage();
         addHeader();
@@ -85,171 +129,271 @@ async function exportPDF(
       }
     }
 
-    function addText(text: string, fontSize = 11, fontStyle = 'normal', textColor = colors.gray) {
+    /* ── Section card wrapper ──────────────────────────────── */
+    function addSectionCard() {
+      checkPageBreak(14);
+      doc.setFillColor(...colors.grayLight);
+      doc.setDrawColor(...colors.grayBorder);
+      doc.roundedRect(margin, yPosition, contentWidth, 6, 3, 3, 'F');
+      yPosition += 10;
+    }
+
+    /* ── Section title with accent bar ─────────────────────── */
+    function addSectionTitle(title: string) {
+      checkPageBreak(20);
+      doc.setFillColor(...colors.blue);
+      doc.rect(margin, yPosition, 3, 14, 'F');
+      doc.setFillColor(...colors.sky);
+      doc.roundedRect(margin + 3, yPosition, contentWidth - 3, 14, 2, 2, 'F');
+      doc.setTextColor(...colors.navy);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text(title, margin + 12, yPosition + 10);
+      yPosition += 20;
+    }
+
+    /* ── Label → value pair (inline) ──────────────────────── */
+    function addField(label: string, value: string) {
+      if (!value) return;
+      checkPageBreak(8);
+      const full = `${label}  ${value}`;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...colors.slateDark);
+      const labelW = doc.getTextWidth(label);
+      doc.text(label, margin + 4, yPosition);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...colors.slate);
+      doc.text(value, margin + 4 + labelW + 1, yPosition);
+      yPosition += 6;
+    }
+
+    /* ── Full-width text block ─────────────────────────────── */
+    function addTextBlock(
+      text: string,
+      fontSize = 10,
+      fontStyle: 'normal' | 'bold' | 'italic' = 'normal',
+      textColor: readonly [number, number, number] = colors.slate
+    ) {
+      if (!text) return;
       doc.setFontSize(fontSize);
       doc.setFont('helvetica', fontStyle);
       doc.setTextColor(...textColor);
-      const lines = doc.splitTextToSize(text, pageWidth - 2 * margin);
-      const lineHeight = fontSize * 0.4;
-      checkPageBreak(lines.length * lineHeight + 10);
+      const lines = doc.splitTextToSize(text, contentWidth - 8);
+      const lineH = fontSize * 0.4;
+      checkPageBreak(lines.length * lineH + 6);
       lines.forEach((line: string) => {
-        doc.text(line, margin, yPosition);
-        yPosition += lineHeight;
+        doc.text(line, margin + 4, yPosition);
+        yPosition += lineH;
       });
-      yPosition += 4;
+      yPosition += 2;
     }
 
-    function addSectionTitle(title: string) {
-      checkPageBreak(20);
-      doc.setFillColor(...colors.sky);
-      doc.roundedRect(margin, yPosition, pageWidth - 2 * margin, 12, 2, 2, 'F');
-      doc.setTextColor(...colors.navy);
-      doc.setFontSize(13);
+    /* ── Separator line ────────────────────────────────────── */
+    function addSeparator() {
+      checkPageBreak(6);
+      yPosition += 2;
+      doc.setDrawColor(...colors.grayBorder);
+      doc.setLineWidth(0.5);
+      doc.line(margin + 4, yPosition, margin + contentWidth - 4, yPosition);
+      yPosition += 6;
+    }
+
+    /* ── Priority badge ────────────────────────────────────── */
+    function drawPriorityBadge(x: number, y: number, prioridad: string) {
+      const badgeColors: Record<string, readonly [number, number, number]> = {
+        alta: colors.red,
+        media: colors.amber,
+        baja: colors.green,
+      };
+      const color = badgeColors[prioridad] || colors.slate;
+      doc.setFillColor(...color);
+      doc.roundedRect(x, y - 2.5, 16, 6, 2, 2, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(6);
       doc.setFont('helvetica', 'bold');
-      doc.text(title, margin + 5, yPosition + 8);
-      yPosition += 18;
+      doc.text(prioridad.toUpperCase(), x + 8, y + 0.5, { align: 'center' });
     }
 
-    function addLabelValue(label: string, value: string, fontSize = 11, fontStyle = 'bold') {
-      checkPageBreak(fontSize * 0.4 + 10);
-      doc.setFontSize(fontSize);
-      doc.setFont('helvetica', fontStyle);
-      doc.setTextColor(...colors.navy);
-      doc.text(label, margin, yPosition);
-      const labelWidth = doc.getTextWidth(label);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...colors.gray);
-      doc.text(value, margin + labelWidth + 2, yPosition);
-      yPosition += fontSize * 0.4 + 3;
-    }
+    /* ── Build the report ──────────────────────────────────── */
 
     addHeader();
-    yPosition += 10;
 
-    // Section 1: Problem Information
+    // ── Section 1: Problem Information ────────────────────
     addSectionTitle('1. INFORMACIÓN DEL PROBLEMA');
+    addSectionCard();
 
-    const fechaInput = (document.getElementById('fechaEvento') as HTMLInputElement)?.value || 'No especificada';
+    const captura = rcaData.captura || {};
+
+    const fechaInput = captura.fecha || '';
     let fechaFormateada = 'No especificada';
-    if (fechaInput && fechaInput !== 'No especificada') {
+    if (fechaInput) {
       const fechaObj = new Date(fechaInput + 'T00:00:00');
       fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
       });
     }
 
-    addLabelValue('Fecha del evento:', fechaFormateada);
-    addLabelValue('Máquina/Equipo:', (document.getElementById('maquina') as HTMLSelectElement)?.value || 'No especificada');
-    addLabelValue('Tiempo de paro:', ((document.getElementById('tiempoParo') as HTMLInputElement)?.value || 'No especificado') + ' minutos');
-    addLabelValue('Responsable del análisis:', (document.getElementById('responsable') as HTMLInputElement)?.value || 'No especificado');
+    addField('Fecha del evento:', fechaFormateada);
+    addField('Máquina / Equipo:', captura.maquina || 'No especificada');
+    addField('Tiempo de paro:', captura.tiempoParo ? `${captura.tiempoParo} minutos` : 'No especificado');
+    addField('Responsable:', captura.responsable || 'No especificado');
 
-    addText('Descripción del problema:', 11, 'bold', colors.navy);
-    addText((document.getElementById('descripcionProblema') as HTMLTextAreaElement)?.value || 'No descrito');
-    addText('Síntomas observados:', 11, 'bold', colors.navy);
-    addText((document.getElementById('sintomas') as HTMLTextAreaElement)?.value || 'No descritos');
+    addSeparator();
+    addTextBlock(captura.problema || 'No descrito', 10, 'bold', colors.navy);
+    addSeparator();
+    addTextBlock(captura.sintomas || 'No descritos');
 
-    yPosition += 10;
+    yPosition += 4;
 
-    // Section 2: 5 Whys
+    // ── Section 2: 5 Whys ──────────────────────────────
     addSectionTitle('2. ANÁLISIS DE 5 PORQUÉS');
+    addSectionCard();
 
+    const whys = rcaData.whys || {};
     let hasWhys = false;
     for (let i = 1; i <= 5; i++) {
-      const whyText = rcaData.whys[`why${i}` as keyof typeof rcaData.whys] || '';
+      const whyText = whys[`why${i}` as keyof typeof whys];
       if (whyText) {
         hasWhys = true;
-        addText(`${i}. ${whyText}`);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...colors.blue);
+        doc.text(`¿Por qué #${i}?`, margin + 4, yPosition);
+        yPosition += 5;
+        addTextBlock(String(whyText));
       }
     }
 
     if (!hasWhys) {
-      addText('No se registraron análisis de 5 porqués.');
+      addTextBlock('No se registraron análisis de 5 porqués.');
     }
 
-    yPosition += 5;
-
-    const causaRaiz = document.getElementById('causaRaizResumen')?.textContent || '';
+    const causaRaiz = whys.causaRaiz || '';
     if (causaRaiz) {
-      addText('Causa Raíz Identificada:', 11, 'bold', colors.navy);
-      addText(causaRaiz);
-      yPosition += 10;
+      addSeparator();
+      doc.setFillColor(240, 253, 244);
+      doc.roundedRect(margin + 4, yPosition, contentWidth - 8, 12, 4, 4, 'F');
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...colors.green);
+      doc.text('Causa Raíz:', margin + 10, yPosition + 8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...colors.slateDark);
+      doc.text(causaRaiz, margin + 10 + doc.getTextWidth('Causa Raíz:') + 2, yPosition + 8);
+      yPosition += 16;
     }
 
-    // Section 3: Ishikawa
-    addSectionTitle('3. DIAGRAMA DE ISHIKAWA');
+    yPosition += 4;
 
-    const hasAnyIshikawaData = CATEGORY_ORDER.some(
-      cat => !!(document.getElementById(`ishikawa-${cat}`) as HTMLTextAreaElement)?.value?.trim()
-    );
+    // ── Section 3: Ishikawa Diagram ─────────────────────
+    addSectionTitle('3. DIAGRAMA DE ISHIKAWA');
+    addSectionCard();
+
+    const ishikawa = rcaData.ishikawa || {};
+    const hasAnyIshikawaData = CATEGORY_ORDER.some(cat => ishikawa[cat]?.trim());
     if (hasAnyIshikawaData) {
-      checkPageBreak(200);
+      checkPageBreak(180);
       const ishikawaImage = createSimplifiedIshikawa();
       if (ishikawaImage && ishikawaImage.imgData) {
-        const imgWidth = 180;
+        const imgWidth = 170;
         const imgHeight = (ishikawaImage.height / ishikawaImage.width) * imgWidth;
         const imgX = (pageWidth - imgWidth) / 2;
         doc.addImage(ishikawaImage.imgData, 'PNG', imgX, yPosition, imgWidth, imgHeight);
-        yPosition += imgHeight + 8;
+        yPosition += imgHeight + 6;
       }
     } else {
-      addText('No se registraron datos en el diagrama de Ishikawa.');
+      addTextBlock('No se registraron datos en el diagrama de Ishikawa.');
     }
 
-    yPosition += 15;
+    yPosition += 4;
 
-    // Section 4: Action Plan
+    // ── Section 4: Action Plan ──────────────────────────
     addSectionTitle('4. PLAN DE ACCIÓN');
+    addSectionCard();
 
-    const correctivasContainer = document.getElementById('accionesCorrectivas');
-    if (correctivasContainer && correctivasContainer.children.length > 0) {
-      addText('Acciones Correctivas:', 12, 'bold', colors.navy);
-      for (let i = 0; i < correctivasContainer.children.length; i++) {
-        const accionDiv = correctivasContainer.children[i];
-        const descripcion = accionDiv.querySelector('input[id$="-desc"]')?.getAttribute('value') || '';
-        const responsable = accionDiv.querySelector('input[id$="-resp"]')?.getAttribute('value') || '';
-        const fechaVal = accionDiv.querySelector('input[id$="-fecha"]')?.getAttribute('value') || '';
-        let fechaFmt = '';
-        if (fechaVal) {
-          const fechaObj = new Date(fechaVal + 'T00:00:00');
-          fechaFmt = fechaObj.toLocaleDateString('es-ES', {
-            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-          });
+    const acciones = rcaData.acciones || { correctivas: [], preventivas: [] };
+
+    if (acciones.correctivas.length > 0) {
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...colors.green);
+      doc.text('Acciones Correctivas', margin + 4, yPosition);
+      yPosition += 8;
+
+      acciones.correctivas.forEach((accion, i) => {
+        checkPageBreak(30);
+        doc.setFillColor(248, 250, 252);
+        doc.setDrawColor(...colors.grayBorder);
+        doc.roundedRect(margin + 4, yPosition, contentWidth - 8, 20, 3, 3, 'FD');
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...colors.slateDark);
+        doc.text(`${i + 1}. ${accion.descripcion || ''}`, margin + 10, yPosition + 6);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...colors.slate);
+        doc.setFontSize(8);
+        let detailX = margin + 10;
+        if (accion.responsable) {
+          doc.text(`Resp: ${accion.responsable}`, detailX, yPosition + 13);
+          detailX += doc.getTextWidth(`Resp: ${accion.responsable}`) + 10;
         }
-        if (descripcion) {
-          addText(`${i + 1}. ${descripcion}`);
-          if (responsable) addText(`   Responsable: ${responsable}`, 10);
-          if (fechaFmt) addText(`   Fecha límite: ${fechaFmt}`, 10);
+        if (accion.fecha) {
+          doc.text(`Fecha: ${accion.fecha}`, detailX, yPosition + 13);
         }
-      }
+        if (accion.prioridad) {
+          drawPriorityBadge(margin + contentWidth - 26, yPosition + 10, accion.prioridad);
+        }
+
+        yPosition += 24;
+      });
+
+      yPosition += 4;
     } else {
-      addText('No se registraron acciones correctivas.');
+      addTextBlock('No se registraron acciones correctivas.');
     }
 
-    yPosition += 5;
+    if (acciones.preventivas.length > 0) {
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...colors.blue);
+      doc.text('Acciones Preventivas', margin + 4, yPosition);
+      yPosition += 8;
 
-    const preventivasContainer = document.getElementById('accionesPreventivas');
-    if (preventivasContainer && preventivasContainer.children.length > 0) {
-      addText('Acciones Preventivas:', 12, 'bold', colors.navy);
-      for (let i = 0; i < preventivasContainer.children.length; i++) {
-        const accionDiv = preventivasContainer.children[i];
-        const descripcion = accionDiv.querySelector('input[id$="-desc"]')?.getAttribute('value') || '';
-        const responsable = accionDiv.querySelector('input[id$="-resp"]')?.getAttribute('value') || '';
-        const fechaVal = accionDiv.querySelector('input[id$="-fecha"]')?.getAttribute('value') || '';
-        let fechaFmt = '';
-        if (fechaVal) {
-          const fechaObj = new Date(fechaVal + 'T00:00:00');
-          fechaFmt = fechaObj.toLocaleDateString('es-ES', {
-            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-          });
+      acciones.preventivas.forEach((accion, i) => {
+        checkPageBreak(30);
+        doc.setFillColor(248, 250, 252);
+        doc.setDrawColor(...colors.grayBorder);
+        doc.roundedRect(margin + 4, yPosition, contentWidth - 8, 20, 3, 3, 'FD');
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...colors.slateDark);
+        doc.text(`${i + 1}. ${accion.descripcion || ''}`, margin + 10, yPosition + 6);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...colors.slate);
+        doc.setFontSize(8);
+        let detailX = margin + 10;
+        if (accion.responsable) {
+          doc.text(`Resp: ${accion.responsable}`, detailX, yPosition + 13);
+          detailX += doc.getTextWidth(`Resp: ${accion.responsable}`) + 10;
         }
-        if (descripcion) {
-          addText(`${i + 1}. ${descripcion}`);
-          if (responsable) addText(`   Responsable: ${responsable}`, 10);
-          if (fechaFmt) addText(`   Fecha límite: ${fechaFmt}`, 10);
+        if (accion.fecha) {
+          doc.text(`Fecha: ${accion.fecha}`, detailX, yPosition + 13);
         }
-      }
+        if (accion.prioridad) {
+          drawPriorityBadge(margin + contentWidth - 26, yPosition + 10, accion.prioridad);
+        }
+
+        yPosition += 24;
+      });
+
+      yPosition += 4;
     } else {
-      addText('No se registraron acciones preventivas.');
+      addTextBlock('No se registraron acciones preventivas.');
     }
 
     addFooter();
