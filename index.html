@@ -239,6 +239,13 @@
           </div>
 
           <div id="ishikawa-diagram" class="ishikawa-svg-wrap mt-6 hidden">
+            <div class="ishikawa-diagram-header">
+              <span class="ishikawa-diagram-title"><i class="fas fa-project-diagram text-blue-600 mr-1"></i>Diagrama de Ishikawa</span>
+              <button class="ishikawa-fullscreen-btn" onclick="window.__viewIshikawaFullscreen()" title="Ver en grande">
+                <i class="fas fa-expand"></i>
+                <span>Ver en grande</span>
+              </button>
+            </div>
             <svg viewBox="0 0 1000 460" xmlns="http://www.w3.org/2000/svg" class="ishikawa-svg">
               <defs>
                 <filter id="ish-shadow" x="-4" y="-4" width="140%" height="140%">
@@ -367,23 +374,25 @@
               <span id="resumenCausa">No definida</span>
             </div>
           </div>
-          <div class="mb-6">
-            <div class="plan-section-header plan-section-header--corrective">
-              <h3><i class="fas fa-check-circle text-green-500 mr-1"></i>Acciones Correctivas</h3>
-              <button onclick="window.__addAccion('correctiva')" class="btn btn-primary btn-sm ml-auto">
-                <i class="fas fa-plus"></i>Agregar
-              </button>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <div class="plan-section-header plan-section-header--corrective">
+                <h3><i class="fas fa-check-circle text-green-500 mr-1"></i>Acciones Correctivas</h3>
+                <button onclick="window.__addAccion('correctiva')" class="btn btn-primary btn-sm ml-auto">
+                  <i class="fas fa-plus"></i>Agregar
+                </button>
+              </div>
+              <div id="accionesCorrectivas" class="space-y-3"></div>
             </div>
-            <div id="accionesCorrectivas" class="space-y-3"></div>
-          </div>
-          <div class="mb-6">
-            <div class="plan-section-header plan-section-header--preventive">
-              <h3><i class="fas fa-shield-alt text-blue-500 mr-1"></i>Acciones Preventivas</h3>
-              <button onclick="window.__addAccion('preventiva')" class="btn btn-primary btn-sm ml-auto">
-                <i class="fas fa-plus"></i>Agregar
-              </button>
+            <div>
+              <div class="plan-section-header plan-section-header--preventive">
+                <h3><i class="fas fa-shield-alt text-blue-500 mr-1"></i>Acciones Preventivas</h3>
+                <button onclick="window.__addAccion('preventiva')" class="btn btn-primary btn-sm ml-auto">
+                  <i class="fas fa-plus"></i>Agregar
+                </button>
+              </div>
+              <div id="accionesPreventivas" class="space-y-3"></div>
             </div>
-            <div id="accionesPreventivas" class="space-y-3"></div>
           </div>
         </div>
       </div>
@@ -488,6 +497,14 @@
     </div>
     <div class="drawer-body" id="drawer-tables-container">
       <!-- buildDataRows renderiza las tablas aquí -->
+    </div>
+  </div>
+
+  <!-- Ishikawa Fullscreen Modal -->
+  <div id="ish-modal-overlay" class="ish-modal-overlay" onclick="if (event.target === this) window.__closeIshikawaModal()">
+    <div class="ish-modal-content">
+      <button class="ish-modal-close" onclick="window.__closeIshikawaModal()"><i class="fas fa-times"></i></button>
+      <svg viewBox="0 0 1000 460" xmlns="http://www.w3.org/2000/svg" class="ishikawa-svg"></svg>
     </div>
   </div>
 

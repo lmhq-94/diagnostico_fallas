@@ -48,22 +48,20 @@ async function exportPDF(
 
     const doc = new jsPDF('p', 'mm', 'a4');
 
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 15;
-    const contentWidth = pageWidth - 2 * margin;
-    let yPosition = margin;
+    const pw = doc.internal.pageSize.getWidth();
+    const ph = doc.internal.pageSize.getHeight();
+    const m = 15;
+    const cw = pw - 2 * m;
+    let y = m;
 
-    /* ── Color palette ───────────────────────────────────── */
     const colors = {
       navy: [30, 58, 95] as const,
       blue: [37, 99, 235] as const,
-      blueLight: [59, 130, 246] as const,
       sky: [224, 242, 254] as const,
       slate: [100, 116, 139] as const,
       slateDark: [30, 41, 59] as const,
-      grayLight: [248, 250, 252] as const,
-      grayBorder: [226, 232, 240] as const,
+      grayBg: [249, 250, 251] as const,
+      grayBorder: [229, 231, 235] as const,
       white: [255, 255, 255] as const,
       green: [22, 163, 74] as const,
       amber: [217, 119, 6] as const,
@@ -72,106 +70,79 @@ async function exportPDF(
 
     const logoData = await loadLogoBase64();
 
-    /* ── Header ─────────────────────────────────────────── */
     function addHeader() {
       doc.setFillColor(...colors.navy);
-      doc.rect(0, 0, pageWidth, 30, 'F');
-
+      doc.rect(0, 0, pw, 28, 'F');
       if (logoData) {
-        doc.addImage(logoData, 'PNG', margin, 4, 28, 17.5);
+        doc.addImage(logoData, 'PNG', m, 4, 24, 15);
       }
-
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(14);
+      doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
-      const titleX = logoData ? margin + 32 : margin;
-      doc.text('Reporte de Diagnóstico de Fallas', titleX, 12);
-
-      doc.setFontSize(7.5);
+      const tx = logoData ? m + 28 : m;
+      doc.text('Reporte de Diagnóstico de Fallas', tx, 11);
+      doc.setFontSize(7);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(148, 163, 184);
-      const fechaGeneracion = new Date().toLocaleDateString('es-ES', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-      });
-      doc.text(`Generado: ${fechaGeneracion}`, titleX, 21);
-
+      const fg = new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      doc.text(`Generado: ${fg}`, tx, 19);
       doc.setDrawColor(...colors.blue);
-      doc.setLineWidth(0.8);
-      doc.line(0, 30, pageWidth, 30);
-
-      yPosition = 38;
+      doc.setLineWidth(0.6);
+      doc.line(0, 28, pw, 28);
+      y = 36;
     }
 
-    /* ── Footer ──────────────────────────────────────────── */
     function addFooter() {
-      const footerY = pageHeight - 10;
+      const fy = ph - 10;
       doc.setFillColor(...colors.navy);
-      doc.rect(0, footerY, pageWidth, 10, 'F');
-
+      doc.rect(0, fy, pw, 10, 'F');
       doc.setTextColor(148, 163, 184);
-      doc.setFontSize(6.5);
-      doc.setFont('helvetica', 'italic');
-      doc.text(
-        'Generado por Herramienta de Diagnóstico de Fallas - Proquinal',
-        pageWidth / 2,
-        footerY + 6.5,
-        { align: 'center' }
-      );
+      doc.setFontSize(6);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Herramienta de Diagnóstico de Fallas', pw / 2, fy + 6, { align: 'center' });
     }
 
-    /* ── Page break helper ────────────────────────────────── */
-    function checkPageBreak(requiredHeight: number) {
-      if (yPosition + requiredHeight > pageHeight - 20) {
+    function checkPageBreak(h: number) {
+      if (y + h > ph - 18) {
         addFooter();
         doc.addPage();
         addHeader();
-        yPosition = 38;
       }
     }
 
-    /* ── Section card wrapper ──────────────────────────────── */
-    function addSectionCard() {
-      checkPageBreak(14);
-      doc.setFillColor(...colors.grayLight);
-      doc.setDrawColor(...colors.grayBorder);
-      doc.roundedRect(margin, yPosition, contentWidth, 6, 3, 3, 'F');
-      yPosition += 10;
-    }
-
-    /* ── Section title with accent bar ─────────────────────── */
+    /** Section title with min bar + color badge, then content starts immediately below */
     function addSectionTitle(title: string) {
-      checkPageBreak(20);
+      checkPageBreak(16);
       doc.setFillColor(...colors.blue);
-      doc.rect(margin, yPosition, 3, 14, 'F');
+      doc.rect(m, y, 3, 12, 'F');
       doc.setFillColor(...colors.sky);
-      doc.roundedRect(margin + 3, yPosition, contentWidth - 3, 14, 2, 2, 'F');
+      doc.roundedRect(m + 3, y, cw - 3, 12, 2, 2, 'F');
       doc.setTextColor(...colors.navy);
-      doc.setFontSize(12);
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.text(title, margin + 12, yPosition + 10);
-      yPosition += 20;
+      doc.text(title, m + 10, y + 8.5);
+      y += 16;
     }
 
-    /* ── Label → value pair (inline) ──────────────────────── */
+    /** Two-column label/value pairs */
     function addField(label: string, value: string) {
       if (!value) return;
-      checkPageBreak(8);
-      const full = `${label}  ${value}`;
-      doc.setFontSize(10);
+      checkPageBreak(7);
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(...colors.slateDark);
-      const labelW = doc.getTextWidth(label);
-      doc.text(label, margin + 4, yPosition);
+      const lw = doc.getTextWidth(label);
+      doc.text(label, m + 4, y);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...colors.slate);
-      doc.text(value, margin + 4 + labelW + 1, yPosition);
-      yPosition += 6;
+      doc.text(value, m + 4 + lw + 2, y);
+      y += 5;
     }
 
-    /* ── Full-width text block ─────────────────────────────── */
+    /** Text block with word-wrap */
     function addTextBlock(
       text: string,
-      fontSize = 10,
+      fontSize = 9,
       fontStyle: 'normal' | 'bold' | 'italic' = 'normal',
       textColor: readonly [number, number, number] = colors.slate
     ) {
@@ -179,222 +150,173 @@ async function exportPDF(
       doc.setFontSize(fontSize);
       doc.setFont('helvetica', fontStyle);
       doc.setTextColor(...textColor);
-      const lines = doc.splitTextToSize(text, contentWidth - 8);
-      const lineH = fontSize * 0.4;
-      checkPageBreak(lines.length * lineH + 6);
+      const lines = doc.splitTextToSize(text, cw - 8);
+      const lh = fontSize * 0.38;
+      checkPageBreak(lines.length * lh + 4);
       lines.forEach((line: string) => {
-        doc.text(line, margin + 4, yPosition);
-        yPosition += lineH;
+        doc.text(line, m + 4, y);
+        y += lh;
       });
-      yPosition += 2;
+      y += 1;
     }
 
-    /* ── Separator line ────────────────────────────────────── */
-    function addSeparator() {
-      checkPageBreak(6);
-      yPosition += 2;
+    /** Light horizontal rule */
+    function addHR() {
+      checkPageBreak(5);
+      y += 1;
       doc.setDrawColor(...colors.grayBorder);
-      doc.setLineWidth(0.5);
-      doc.line(margin + 4, yPosition, margin + contentWidth - 4, yPosition);
-      yPosition += 6;
+      doc.setLineWidth(0.4);
+      doc.line(m + 4, y, m + cw - 4, y);
+      y += 4;
     }
 
-    /* ── Priority badge ────────────────────────────────────── */
-    function drawPriorityBadge(x: number, y: number, prioridad: string) {
-      const badgeColors: Record<string, readonly [number, number, number]> = {
-        alta: colors.red,
-        media: colors.amber,
-        baja: colors.green,
-      };
-      const color = badgeColors[prioridad] || colors.slate;
-      doc.setFillColor(...color);
-      doc.roundedRect(x, y - 2.5, 16, 6, 2, 2, 'F');
+    /** Priority badge */
+    function drawPriorityBadge(x: number, cy: number, prioridad: string) {
+      const map: Record<string, readonly [number, number, number]> = { alta: colors.red, media: colors.amber, baja: colors.green };
+      const c = map[prioridad] || colors.slate;
+      doc.setFillColor(...c);
+      doc.roundedRect(x, cy - 2.5, 14, 6, 2, 2, 'F');
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(6);
+      doc.setFontSize(5.5);
       doc.setFont('helvetica', 'bold');
-      doc.text(prioridad.toUpperCase(), x + 8, y + 0.5, { align: 'center' });
+      doc.text(prioridad.toUpperCase(), x + 7, cy + 0.5, { align: 'center' });
     }
 
-    /* ── Build the report ──────────────────────────────────── */
+    /* ═══════════ BUILD REPORT ═══════════ */
 
     addHeader();
 
-    // ── Section 1: Problem Information ────────────────────
-    addSectionTitle('1. INFORMACIÓN DEL PROBLEMA');
-    addSectionCard();
+    // ── 1. PROBLEM INFO ──
+    addSectionTitle('1. Información del Problema');
 
     const captura = rcaData.captura || {};
-
     const fechaInput = captura.fecha || '';
-    let fechaFormateada = 'No especificada';
+    let fechaStr = 'No especificada';
     if (fechaInput) {
-      const fechaObj = new Date(fechaInput + 'T00:00:00');
-      fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
+      fechaStr = new Date(fechaInput + 'T00:00:00').toLocaleDateString('es-ES', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
       });
     }
 
-    addField('Fecha del evento:', fechaFormateada);
+    addField('Fecha del evento:', fechaStr);
     addField('Máquina / Equipo:', captura.maquina || 'No especificada');
     addField('Tiempo de paro:', captura.tiempoParo ? `${captura.tiempoParo} minutos` : 'No especificado');
     addField('Responsable:', captura.responsable || 'No especificado');
 
-    addSeparator();
-    addTextBlock(captura.problema || 'No descrito', 10, 'bold', colors.navy);
-    addSeparator();
+    addHR();
+    addTextBlock(captura.problema || 'No descrito', 9, 'bold', colors.navy);
+    addHR();
     addTextBlock(captura.sintomas || 'No descritos');
+    y += 3;
 
-    yPosition += 4;
-
-    // ── Section 2: 5 Whys ──────────────────────────────
-    addSectionTitle('2. ANÁLISIS DE 5 PORQUÉS');
-    addSectionCard();
+    // ── 2. 5 WHYS ──
+    addSectionTitle('2. Análisis de 5 Porqués');
 
     const whys = rcaData.whys || {};
     let hasWhys = false;
     for (let i = 1; i <= 5; i++) {
-      const whyText = whys[`why${i}` as keyof typeof whys];
-      if (whyText) {
+      const wt = whys[`why${i}` as keyof typeof whys];
+      if (wt) {
         hasWhys = true;
-        doc.setFontSize(10);
+        checkPageBreak(6);
+        doc.setFontSize(9);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(...colors.blue);
-        doc.text(`¿Por qué #${i}?`, margin + 4, yPosition);
-        yPosition += 5;
-        addTextBlock(String(whyText));
+        doc.text(`¿Por qué #${i}?`, m + 4, y);
+        y += 4.5;
+        addTextBlock(String(wt));
       }
     }
-
-    if (!hasWhys) {
-      addTextBlock('No se registraron análisis de 5 porqués.');
-    }
+    if (!hasWhys) addTextBlock('No se registraron análisis de 5 porqués.');
 
     const causaRaiz = whys.causaRaiz || '';
     if (causaRaiz) {
-      addSeparator();
+      addHR();
+      checkPageBreak(10);
       doc.setFillColor(240, 253, 244);
-      doc.roundedRect(margin + 4, yPosition, contentWidth - 8, 12, 4, 4, 'F');
-      doc.setFontSize(10);
+      doc.roundedRect(m + 4, y, cw - 8, 10, 3, 3, 'F');
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(...colors.green);
-      doc.text('Causa Raíz:', margin + 10, yPosition + 8);
+      doc.text('Causa Raíz:', m + 10, y + 7);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(...colors.slateDark);
-      doc.text(causaRaiz, margin + 10 + doc.getTextWidth('Causa Raíz:') + 2, yPosition + 8);
-      yPosition += 16;
+      doc.text(causaRaiz, m + 10 + doc.getTextWidth('Causa Raíz:') + 2, y + 7);
+      y += 14;
     }
+    y += 2;
 
-    yPosition += 4;
-
-    // ── Section 3: Ishikawa Diagram ─────────────────────
-    addSectionTitle('3. DIAGRAMA DE ISHIKAWA');
-    addSectionCard();
+    // ── 3. ISHIKAWA ──
+    addSectionTitle('3. Diagrama de Ishikawa');
 
     const ishikawa = rcaData.ishikawa || {};
-    const hasAnyIshikawaData = CATEGORY_ORDER.some(cat => ishikawa[cat]?.trim());
-    if (hasAnyIshikawaData) {
-      checkPageBreak(180);
-      const ishikawaImage = createSimplifiedIshikawa();
-      if (ishikawaImage && ishikawaImage.imgData) {
-        const imgWidth = 170;
-        const imgHeight = (ishikawaImage.height / ishikawaImage.width) * imgWidth;
-        const imgX = (pageWidth - imgWidth) / 2;
-        doc.addImage(ishikawaImage.imgData, 'PNG', imgX, yPosition, imgWidth, imgHeight);
-        yPosition += imgHeight + 6;
+    const hasIshikawa = CATEGORY_ORDER.some(cat => ishikawa[cat]?.trim());
+    if (hasIshikawa) {
+      checkPageBreak(170);
+      const img = createSimplifiedIshikawa();
+      if (img && img.imgData) {
+        const iw = 170;
+        const ih = (img.height / img.width) * iw;
+        doc.addImage(img.imgData, 'PNG', (pw - iw) / 2, y, iw, ih);
+        y += ih + 6;
       }
     } else {
       addTextBlock('No se registraron datos en el diagrama de Ishikawa.');
     }
+    y += 3;
 
-    yPosition += 4;
-
-    // ── Section 4: Action Plan ──────────────────────────
-    addSectionTitle('4. PLAN DE ACCIÓN');
-    addSectionCard();
+    // ── 4. ACTION PLAN ──
+    addSectionTitle('4. Plan de Acción');
 
     const acciones = rcaData.acciones || { correctivas: [], preventivas: [] };
 
-    if (acciones.correctivas.length > 0) {
-      doc.setFontSize(10);
+    function renderActions(list: typeof acciones.correctivas, label: string, labelColor: readonly [number, number, number]) {
+      if (list.length === 0) {
+        addTextBlock(`No se registraron acciones ${label.toLowerCase()}.`);
+        return;
+      }
+
+      checkPageBreak(10);
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...colors.green);
-      doc.text('Acciones Correctivas', margin + 4, yPosition);
-      yPosition += 8;
+      doc.setTextColor(...labelColor);
+      doc.text(label, m + 4, y);
+      y += 7;
 
-      acciones.correctivas.forEach((accion, i) => {
-        checkPageBreak(30);
-        doc.setFillColor(248, 250, 252);
+      list.forEach((accion, i) => {
+        checkPageBreak(22);
+        doc.setFillColor(...colors.white);
         doc.setDrawColor(...colors.grayBorder);
-        doc.roundedRect(margin + 4, yPosition, contentWidth - 8, 20, 3, 3, 'FD');
+        doc.roundedRect(m + 4, y, cw - 8, 18, 3, 3, 'FD');
 
-        doc.setFontSize(9);
+        doc.setFontSize(8.5);
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(...colors.slateDark);
-        doc.text(`${i + 1}. ${accion.descripcion || ''}`, margin + 10, yPosition + 6);
+        const desc = `${i + 1}. ${accion.descripcion || ''}`;
+        doc.text(desc, m + 10, y + 6);
 
+        let dx = m + 10;
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(...colors.slate);
-        doc.setFontSize(8);
-        let detailX = margin + 10;
+        doc.setFontSize(7.5);
         if (accion.responsable) {
-          doc.text(`Resp: ${accion.responsable}`, detailX, yPosition + 13);
-          detailX += doc.getTextWidth(`Resp: ${accion.responsable}`) + 10;
+          const rtxt = `Resp: ${accion.responsable}`;
+          doc.text(rtxt, dx, y + 13);
+          dx += doc.getTextWidth(rtxt) + 8;
         }
         if (accion.fecha) {
-          doc.text(`Fecha: ${accion.fecha}`, detailX, yPosition + 13);
+          doc.text(`Fecha: ${accion.fecha}`, dx, y + 13);
         }
         if (accion.prioridad) {
-          drawPriorityBadge(margin + contentWidth - 26, yPosition + 10, accion.prioridad);
+          drawPriorityBadge(m + cw - 24, y + 9, accion.prioridad);
         }
-
-        yPosition += 24;
+        y += 22;
       });
-
-      yPosition += 4;
-    } else {
-      addTextBlock('No se registraron acciones correctivas.');
+      y += 2;
     }
 
-    if (acciones.preventivas.length > 0) {
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...colors.blue);
-      doc.text('Acciones Preventivas', margin + 4, yPosition);
-      yPosition += 8;
-
-      acciones.preventivas.forEach((accion, i) => {
-        checkPageBreak(30);
-        doc.setFillColor(248, 250, 252);
-        doc.setDrawColor(...colors.grayBorder);
-        doc.roundedRect(margin + 4, yPosition, contentWidth - 8, 20, 3, 3, 'FD');
-
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(...colors.slateDark);
-        doc.text(`${i + 1}. ${accion.descripcion || ''}`, margin + 10, yPosition + 6);
-
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(...colors.slate);
-        doc.setFontSize(8);
-        let detailX = margin + 10;
-        if (accion.responsable) {
-          doc.text(`Resp: ${accion.responsable}`, detailX, yPosition + 13);
-          detailX += doc.getTextWidth(`Resp: ${accion.responsable}`) + 10;
-        }
-        if (accion.fecha) {
-          doc.text(`Fecha: ${accion.fecha}`, detailX, yPosition + 13);
-        }
-        if (accion.prioridad) {
-          drawPriorityBadge(margin + contentWidth - 26, yPosition + 10, accion.prioridad);
-        }
-
-        yPosition += 24;
-      });
-
-      yPosition += 4;
-    } else {
-      addTextBlock('No se registraron acciones preventivas.');
-    }
+    renderActions(acciones.correctivas, 'Acciones Correctivas', colors.green);
+    renderActions(acciones.preventivas, 'Acciones Preventivas', colors.blue);
 
     addFooter();
     doc.save('Diagnostico_Fallas.pdf');
@@ -714,11 +636,13 @@ export function createSimplifiedPareto(paretoItems?: ParetoItem[]): IshikawaImag
   const totalFreq = items.reduce((sum, item) => sum + item.frecuencia, 0);
 
   const tempCtx = document.createElement('canvas').getContext('2d')!;
-  tempCtx.font = 'bold 8px Arial';
+  tempCtx.font = 'bold 9px Inter, Arial, sans-serif';
 
-  const barSpacing = (500 - 55 - 55) / items.length;
-  const barWidth = Math.min(barSpacing * 0.65, 50);
-  const maxLabelWidth = barWidth - 2;
+  // Wider canvas for a more spacious look
+  const CANVAS_W = 560;
+  const barSpacing = (CANVAS_W - 120) / items.length;
+  const barWidth = Math.min(barSpacing * 0.6, 52);
+  const maxLabelWidth = barWidth + 4;
 
   let maxLines = 0;
   items.forEach(item => {
@@ -737,95 +661,135 @@ export function createSimplifiedPareto(paretoItems?: ParetoItem[]): IshikawaImag
     maxLines = Math.max(maxLines, lines);
   });
 
-  const extra = Math.max(0, maxLines - 2) * 10;
-  const bottomPad = 60 + extra;
+  const extra = Math.max(0, maxLines - 2) * 11;
+  const bottomPad = 68 + extra;
   const canvas = document.createElement('canvas');
-  canvas.width = 500;
-  canvas.height = 300 + extra;
+  canvas.width = CANVAS_W;
+  canvas.height = 340 + extra;
   const ctx = canvas.getContext('2d')!;
 
-  ctx.fillStyle = '#ffffff';
+  // Background
+  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  gradient.addColorStop(0, '#f8fafc');
+  gradient.addColorStop(1, '#ffffff');
+  ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  const m = { top: 30, right: 55, bottom: bottomPad, left: 55 };
+  // Title
+  ctx.fillStyle = '#1e3a5f';
+  ctx.font = 'bold 14px Inter, Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText('Análisis de Pareto', canvas.width / 2, 10);
+
+  // Subtitle
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px Inter, Arial, sans-serif';
+  const dateStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+  ctx.fillText(`Generado: ${dateStr}`, canvas.width / 2, 28);
+
+  const m = { top: 50, right: 60, bottom: bottomPad, left: 60 };
   const chartWidth = canvas.width - m.left - m.right;
   const chartHeight = canvas.height - m.top - m.bottom;
   const startX = m.left;
   const startY = canvas.height - m.bottom;
 
-  // Grid and Y axis
-  const gridSteps = 5;
+  // ── Grid lines (subtle) ──
+  const gridSteps = 4;
   for (let i = 0; i <= gridSteps; i++) {
     const y = startY - (i * chartHeight / gridSteps);
     const freqValue = Math.round(maxFreq * i / gridSteps);
-    ctx.strokeStyle = '#e5e7eb';
-    ctx.lineWidth = 0.8;
-    ctx.setLineDash([3, 3]);
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 0.5;
     ctx.beginPath();
     ctx.moveTo(startX, y);
     ctx.lineTo(canvas.width - m.right, y);
     ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = '#6b7280';
-    ctx.font = 'bold 10px Arial';
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = 'bold 9px Inter, Arial, sans-serif';
     ctx.textAlign = 'end';
     ctx.textBaseline = 'middle';
-    ctx.fillText(freqValue.toString(), startX - 8, y);
+    ctx.fillText(freqValue.toString(), startX - 10, y);
   }
 
-  // Right Y axis (cumulative %)
+  // ── Right axis (cumulative %) ──
   for (let i = 0; i <= gridSteps; i++) {
     const y = startY - (i * chartHeight / gridSteps);
     const pctValue = Math.round(100 * i / gridSteps);
     ctx.fillStyle = '#dc2626';
-    ctx.font = 'bold 10px Arial';
+    ctx.font = 'bold 9px Inter, Arial, sans-serif';
     ctx.textAlign = 'start';
     ctx.textBaseline = 'middle';
-    ctx.fillText(pctValue + '%', canvas.width - m.right + 5, y);
+    ctx.fillText(pctValue + '%', canvas.width - m.right + 10, y);
   }
 
-  // Main axes
-  ctx.strokeStyle = '#374151';
+  // ── Axes ──
+  ctx.strokeStyle = '#cbd5e1';
   ctx.lineWidth = 1.5;
-  ctx.setLineDash([]);
   ctx.beginPath();
-  ctx.moveTo(startX, startY);
-  ctx.lineTo(startX, m.top);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(startX, startY);
+  ctx.moveTo(startX, m.top);
+  ctx.lineTo(startX, startY);
   ctx.lineTo(canvas.width - m.right, startY);
   ctx.stroke();
 
-  // 80% reference line
+  // ── 80% reference line ──
   const eightyY = startY - (0.8 * chartHeight);
-  ctx.strokeStyle = 'rgba(220, 38, 38, 0.4)';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([5, 5]);
+  ctx.strokeStyle = 'rgba(220, 38, 38, 0.25)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 4]);
   ctx.beginPath();
   ctx.moveTo(startX, eightyY);
   ctx.lineTo(canvas.width - m.right, eightyY);
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Bars and cumulative line
+  // "80%" label on the reference line
+  ctx.fillStyle = 'rgba(220, 38, 38, 0.5)';
+  ctx.font = 'italic 8px Inter, Arial, sans-serif';
+  ctx.textAlign = 'end';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText('80%', canvas.width - m.right - 4, eightyY - 2);
+
+  // ── Bars ──
+  const barColors = ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#dbeafe'];
   let acumulado = 0;
-  const linePoints: { x: number; y: number; pct: number; label: string }[] = [];
+  const linePoints: { x: number; y: number; pct: number; label: string; count: number }[] = [];
 
   items.forEach((item, index) => {
-    const barHeight = (item.frecuencia / maxFreq) * chartHeight;
+    const barHeight = Math.max((item.frecuencia / maxFreq) * chartHeight, 2);
     const x = startX + (index * barSpacing) + (barSpacing - barWidth) / 2;
     const y = startY - barHeight;
 
-    ctx.fillStyle = '#93c5fd';
-    ctx.strokeStyle = '#3b82f6';
+    // Bar shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+    roundRect(ctx, x + 2, y + 2, barWidth, barHeight, 3);
+    ctx.fill();
+
+    // Bar fill with gradient
+    const barColor = barColors[index % barColors.length];
+    const grad = ctx.createLinearGradient(x, y, x, startY);
+    grad.addColorStop(0, barColor);
+    grad.addColorStop(1, barColor + '99');
+    ctx.fillStyle = grad;
+    ctx.strokeStyle = barColor;
     ctx.lineWidth = 1;
-    roundRect(ctx, x, y, barWidth, barHeight, 2);
+    roundRect(ctx, x, y, barWidth, barHeight, 3);
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = '#374151';
-    ctx.font = 'bold 8px Arial';
+    // Frequency count inside bar (if tall enough)
+    if (barHeight > 20) {
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 8px Inter, Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(item.frecuencia), x + barWidth / 2, y + barHeight / 2);
+    }
+
+    // X-axis label (word-wrapped cause)
+    ctx.fillStyle = '#334155';
+    ctx.font = 'bold 9px Inter, Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     const words = item.causa.split(' ');
@@ -842,77 +806,106 @@ export function createSimplifiedPareto(paretoItems?: ParetoItem[]): IshikawaImag
     });
     if (currentLine) labelLines.push(currentLine);
     labelLines.forEach((line, li) => {
-      ctx.fillText(line, x + barWidth / 2, startY + 5 + li * 10);
+      ctx.fillText(line, x + barWidth / 2, startY + 6 + li * 11);
     });
 
     acumulado += item.frecuencia;
     const cumPct = (acumulado / totalFreq) * 100;
     const lineX = x + barWidth / 2;
     const lineY = startY - (cumPct / 100) * chartHeight;
-    linePoints.push({ x: lineX, y: lineY, pct: cumPct, label: cumPct.toFixed(0) + '%' });
+    linePoints.push({ x: lineX, y: lineY, pct: cumPct, label: cumPct.toFixed(0) + '%', count: item.frecuencia });
   });
 
+  // ── Cumulative line ──
   if (linePoints.length > 0) {
+    // Area under curve
+    ctx.beginPath();
+    ctx.moveTo(linePoints[0].x, startY);
+    linePoints.forEach(pt => ctx.lineTo(pt.x, pt.y));
+    ctx.lineTo(linePoints[linePoints.length - 1].x, startY);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(220, 38, 38, 0.04)';
+    ctx.fill();
+
+    // Line
     ctx.beginPath();
     ctx.strokeStyle = '#dc2626';
     ctx.lineWidth = 2.5;
-    ctx.setLineDash([]);
+    ctx.lineJoin = 'round';
     ctx.moveTo(linePoints[0].x, linePoints[0].y);
     for (let i = 1; i < linePoints.length; i++) {
       ctx.lineTo(linePoints[i].x, linePoints[i].y);
     }
     ctx.stroke();
 
+    // Dots
     linePoints.forEach((pt, i) => {
       ctx.beginPath();
-      ctx.arc(pt.x, pt.y, 3.5, 0, 2 * Math.PI);
+      ctx.arc(pt.x, pt.y, 4, 0, 2 * Math.PI);
       ctx.fillStyle = '#dc2626';
       ctx.fill();
       ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 2;
       ctx.stroke();
 
+      // Percentage label for key points
       if (i === 0 || i === linePoints.length - 1 || pt.pct >= 75) {
         ctx.fillStyle = '#dc2626';
-        ctx.font = 'bold 9px Arial';
+        ctx.font = 'bold 9px Inter, Arial, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
-        ctx.fillText(pt.label, pt.x, pt.y - 7);
+        const label = pt.label;
+        const labelW = ctx.measureText(label).width;
+        const lx = pt.x;
+        const ly = pt.y - 10;
+        // Small label background
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        roundRect(ctx, lx - labelW / 2 - 3, ly - 6, labelW + 6, 14, 4);
+        ctx.fill();
+        ctx.fillStyle = '#dc2626';
+        ctx.font = 'bold 9px Inter, Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, lx, ly + 1);
       }
     });
   }
 
-  // Legend
-  const legendY = startY + maxLines * 10 + 10;
-  ctx.fillStyle = '#93c5fd';
-  ctx.strokeStyle = '#3b82f6';
-  ctx.lineWidth = 1;
-  roundRect(ctx, startX, legendY, 14, 10, 2);
-  ctx.fill();
-  ctx.stroke();
-  ctx.fillStyle = '#374151';
-  ctx.font = 'bold 10px Arial';
-  ctx.textAlign = 'start';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('Frecuencia', startX + 20, legendY + 5);
+  // ── Legend ──
+  const legendY = startY + maxLines * 11 + 18;
+  ctx.fillStyle = '#64748b';
+  ctx.font = '8px Inter, Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
 
-  const legendLineX = startX + 100;
+  // Bar legend
+  const barLegendX = canvas.width / 2 - 80;
+  ctx.fillStyle = barColors[0];
+  roundRect(ctx, barLegendX, legendY, 12, 10, 2);
+  ctx.fill();
+  ctx.fillStyle = '#475569';
+  ctx.font = 'bold 9px Inter, Arial, sans-serif';
+  ctx.textAlign = 'start';
+  ctx.textBaseline = 'top';
+  ctx.fillText('Frecuencia', barLegendX + 17, legendY);
+
+  // Line legend
+  const lineLegendX = canvas.width / 2 + 20;
   ctx.strokeStyle = '#dc2626';
   ctx.lineWidth = 2.5;
-  ctx.setLineDash([]);
   ctx.beginPath();
-  ctx.moveTo(legendLineX, legendY + 5);
-  ctx.lineTo(legendLineX + 30, legendY + 5);
+  ctx.moveTo(lineLegendX, legendY + 5);
+  ctx.lineTo(lineLegendX + 24, legendY + 5);
   ctx.stroke();
   ctx.beginPath();
-  ctx.arc(legendLineX + 15, legendY + 5, 3, 0, 2 * Math.PI);
+  ctx.arc(lineLegendX + 12, legendY + 5, 3, 0, 2 * Math.PI);
   ctx.fillStyle = '#dc2626';
   ctx.fill();
-  ctx.fillStyle = '#374151';
-  ctx.font = 'bold 10px Arial';
+  ctx.fillStyle = '#475569';
+  ctx.font = 'bold 9px Inter, Arial, sans-serif';
   ctx.textAlign = 'start';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('% Acumulado', legendLineX + 36, legendY + 5);
+  ctx.textBaseline = 'top';
+  ctx.fillText('% Acumulado', lineLegendX + 30, legendY);
 
   const scPareto = upscaleCanvas(canvas, 4);
   return { imgData: scPareto.toDataURL(), width: scPareto.width, height: scPareto.height };

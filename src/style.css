@@ -849,6 +849,124 @@ body:not(.loading) .main-content {
   text-align: center;
 }
 
+/* ── Ishikawa diagram animation ────────────────────── */
+@keyframes ishikawaFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ishikawa-svg-wrap {
+  animation: ishikawaFadeSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.ishikawa-diagram-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.ishikawa-diagram-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.ishikawa-fullscreen-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ishikawa-fullscreen-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #1e293b;
+}
+
+/* ── Ishikawa Fullscreen Modal ─────────────────────── */
+.ish-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+  padding: 24px;
+}
+
+.ish-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ish-modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  max-height: 90vh;
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+  transform: scale(0.95);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: auto;
+}
+
+.ish-modal-overlay.open .ish-modal-content {
+  transform: scale(1);
+}
+
+.ish-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.ish-modal-close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.ish-modal-content svg {
+  width: 100%;
+  height: auto;
+}
+
 .cell-field {
   font-weight: 600;
   color: #374151;
@@ -1300,6 +1418,17 @@ body:not(.loading) .main-content {
   box-shadow: none;
   border: 1px solid #f1f5f9;
   border-radius: 10px;
+  min-width: 100%;
+  width: 100%;
+}
+
+.drawer-body .data-table-scroll {
+  overflow-x: auto;
+}
+
+.drawer-body .data-table-scroll table {
+  min-width: 100%;
+  width: 100%;
 }
 
 .drawer-vertical-table .cell-field {
@@ -2356,6 +2485,13 @@ body:not(.loading) .main-content {
 
 .btn:active {
   transform: scale(0.97);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
 }
 
 .btn-primary {

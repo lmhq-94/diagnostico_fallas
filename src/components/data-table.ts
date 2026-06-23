@@ -1,4 +1,4 @@
-import { buildSectionRows, setEditingKey, getEditingKey, rcaData, removeActionFromState, persistCurrentState, DATA_SECTIONS, type DataSection, type RCAWhys, type RCAIshikawa } from '../state/store';
+import { buildSectionRows, setEditingKey, getEditingKey, rcaData, savedRcaData, setSavedRcaData, removeActionFromState, persistCurrentState, DATA_SECTIONS, type DataSection, type RCAWhys, type RCAIshikawa } from '../state/store';
 import { confirmAction } from '../utils/confirm';
 import { closeReviewDrawer, renderDrawerTable } from './drawer';
 import { addAccionToDOM } from './plan';
@@ -108,7 +108,7 @@ export function renderDataTable(): void {
   const container = document.getElementById('data-table-body');
   if (!container) return;
 
-  const sectionHtml = buildSectionRows(currentDataTab);
+  const sectionHtml = buildSectionRows(currentDataTab, savedRcaData);
 
   container.innerHTML = `<div class="data-section-block">${sectionHtml}</div>`;
 
@@ -126,7 +126,7 @@ function tryAutoSyncFile(): void {
   (async () => {
     try {
       persistCurrentState(); // ensure DOM data is captured
-      await updateAnalysisFile(rcaData);
+      await updateAnalysisFile(savedRcaData);
     } catch {
       // Silently fail
     }
@@ -193,7 +193,7 @@ export async function deleteField(
   tryAutoSyncFile();
 }
 
-/** Applies a change to rcaData and the DOM */
+/** Applies a change to rcaData, savedRcaData, and the DOM */
 function applyFieldEdit(key: string, value: string): void {
   const parts = key.split('.');
   const field = parts[1];
@@ -201,6 +201,8 @@ function applyFieldEdit(key: string, value: string): void {
   if (parts[0] === 'captura') {
     rcaData.captura = rcaData.captura || {};
     (rcaData.captura as Record<string, string>)[field] = value;
+    savedRcaData.captura = savedRcaData.captura || {};
+    (savedRcaData.captura as Record<string, string>)[field] = value;
     const domMap: Record<string, string> = {
       maquina: 'maquina',
       problema: 'descripcionProblema',
@@ -217,9 +219,13 @@ function applyFieldEdit(key: string, value: string): void {
   } else if (parts[0] === 'whys' || parts[0] === '5whys') {
     rcaData.whys = rcaData.whys || { why1: '', why2: '', why3: '', why4: '', why5: '', wizardLevel: 1 };
     (rcaData.whys as unknown as Record<string, string | number>)[field] = value;
+    savedRcaData.whys = savedRcaData.whys || { why1: '', why2: '', why3: '', why4: '', why5: '', wizardLevel: 1 };
+    (savedRcaData.whys as unknown as Record<string, string | number>)[field] = value;
   } else if (parts[0] === 'ishikawa') {
     rcaData.ishikawa = rcaData.ishikawa || {};
     (rcaData.ishikawa as Record<string, string>)[field] = value;
+    savedRcaData.ishikawa = savedRcaData.ishikawa || {};
+    (savedRcaData.ishikawa as Record<string, string>)[field] = value;
     const el = document.getElementById(`ishikawa-${field}`) as HTMLTextAreaElement | null;
     if (el) el.value = value;
   } else if (parts[0] === 'plan') {
@@ -247,6 +253,17 @@ function applyFieldEdit(key: string, value: string): void {
       if (domInput) domInput.value = value;
     }
     rcaData.acciones = acciones;
+    // Also update savedRcaData.acciones
+    const savedAcciones = savedRcaData.acciones || { correctivas: [], preventivas: [] };
+    const savedList = tipo === 'correctivas' ? savedAcciones.correctivas : savedAcciones.preventivas;
+    if (index >= 0 && index < savedList.length && planField) {
+      const savedAction = savedList[index];
+      if (planField === 'descripcion') savedAction.descripcion = value;
+      else if (planField === 'responsable') savedAction.responsable = value;
+      else if (planField === 'fecha') savedAction.fecha = value;
+      else if (planField === 'prioridad') savedAction.prioridad = value as 'alta' | 'media' | 'baja';
+    }
+    savedRcaData.acciones = savedAcciones;
   }
 }
 
@@ -262,6 +279,9 @@ export async function deletePlanRow(
   if (!confirmed) return;
 
   removeActionFromState(tipo, index);
+  // Also remove from savedRcaData
+  const savedList = tipo === 'correctivas' ? savedRcaData.acciones.correctivas : savedRcaData.acciones.preventivas;
+  if (index >= 0 && index < savedList.length) savedList.splice(index, 1);
 
   const containerId = `acciones${tipo === 'correctivas' ? 'Correctivas' : 'Preventivas'}`;
   const container = document.getElementById(containerId);
@@ -298,20 +318,24 @@ export async function deleteSection(
 
   if (section === 'captura') {
     rcaData.captura = {};
+    savedRcaData.captura = {};
     ['maquina', 'descripcionProblema', 'fechaEvento', 'tiempoParo', 'sintomas', 'responsable'].forEach(id => {
       const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
       if (el) el.value = '';
     });
   } else if (section === 'ishikawa') {
     rcaData.ishikawa = {};
+    savedRcaData.ishikawa = {};
     ['maquina', 'metodo', 'materiales', 'manoObra', 'medicion', 'medioAmbiente'].forEach(field => {
       const el = document.getElementById(`ishikawa-${field}`) as HTMLTextAreaElement | null;
       if (el) el.value = '';
     });
   } else if (section === '5whys') {
     rcaData.whys = { why1: '', why2: '', why3: '', why4: '', why5: '', wizardLevel: 1 };
+    savedRcaData.whys = { why1: '', why2: '', why3: '', why4: '', why5: '', wizardLevel: 1 };
   } else if (section === 'plan') {
     rcaData.acciones = { correctivas: [], preventivas: [] };
+    savedRcaData.acciones = { correctivas: [], preventivas: [] };
     const corrContainer = document.getElementById('accionesCorrectivas');
     const prevContainer = document.getElementById('accionesPreventivas');
     if (corrContainer) corrContainer.innerHTML = '';

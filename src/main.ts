@@ -1,6 +1,6 @@
 import './style.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { rcaData, setRcaData, persistCurrentState, hasData, CATEGORY_ORDER, type RCAData } from './state/store';
+import { rcaData, setRcaData, setSavedRcaData, commitWizardDataToSaved, persistCurrentState, hasData, CATEGORY_ORDER, type RCAData } from './state/store';
 import { escapeHtml, getTodayISODate } from './utils/text';
 import { showToast } from './utils/toast';
 import { confirmAction, confirmDanger } from './utils/confirm';
@@ -64,6 +64,8 @@ declare global {
     __loadAnalysis: () => Promise<void>;
     __deleteAnalysis: () => Promise<void>;
     __switchDataTab: (section: string) => void;
+    __viewIshikawaFullscreen: () => void;
+    __closeIshikawaModal: () => void;
   }
 }
 
@@ -121,6 +123,8 @@ function registerGlobalAPI(): void {
   window.__toggleStepMenu = toggleStepMenu;
   window.__clearCurrentStep = clearCurrentStep;
   window.__generateIshikawa = generateIshikawa;
+  window.__viewIshikawaFullscreen = viewIshikawaFullscreen;
+  window.__closeIshikawaModal = closeIshikawaModal;
   window.__saveAnalysis = saveAnalysis;
 
   // Close step menu on outside click
@@ -160,6 +164,10 @@ function showTab(tabName: string): void {
 
   if (tabName === 'plan') {
     syncPlanFromAnalysis();
+  }
+
+  if (tabName === '5whys') {
+    updateTabLockState();
   }
 
   // Persist current step so it's restored on refresh
@@ -207,10 +215,13 @@ function navigateStep(dir: number): void {
       }
     }
     persistCurrentState();
-    updateTabLockState();
   }
 
   showTab(nextTab);
+
+  if (currentId === '5whys') {
+    updateTabLockState();
+  }
 }
 
 function saveIshikawaData(): void {
@@ -315,8 +326,9 @@ function updateTabLockState(): void {
   // Step 2: Ishikawa — checked only when ALL 6 cards are filled
   const ishikawaCompleto = CATEGORY_ORDER.every(cat => !!ish[cat]);
 
-  // Step 3: 5 Porqués — checked when at least 1 why has content
-  const whysCompleto = !!(w.why1 || w.why2 || w.why3 || w.why4 || w.why5);
+  // Step 3: 5 Porqués — checked only after navigating away (Siguiente) with at least 1 why
+  const onWhysTab = !document.getElementById('content-5whys')?.classList.contains('hidden');
+  const whysCompleto = !onWhysTab && !!(w.why1 || w.why2 || w.why3 || w.why4 || w.why5);
 
   // Step 4: Plan — checked when at least 1 correctiva OR 1 preventiva
   const planCompleto = !!(acciones.correctivas.length > 0 || acciones.preventivas.length > 0);
@@ -438,6 +450,29 @@ function generateIshikawa(): void {
 }
 
 /* ==========================================================================
+   Ishikawa Fullscreen Modal
+   ========================================================================== */
+
+function viewIshikawaFullscreen(): void {
+  const overlay = document.getElementById('ish-modal-overlay');
+  const modalSvg = overlay?.querySelector('.ish-modal-content svg');
+  const sourceSvg = document.querySelector('#ishikawa-diagram svg');
+  if (!overlay || !modalSvg || !sourceSvg) return;
+
+  modalSvg.innerHTML = sourceSvg.innerHTML;
+
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeIshikawaModal(): void {
+  const overlay = document.getElementById('ish-modal-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ==========================================================================
    Step Menu & Clear Current Step
    ========================================================================== */
 
@@ -522,6 +557,7 @@ async function saveAnalysis(): Promise<void> {
 
     // Always overwrite the single analisis.json file
     await saveAnalysisFile(rcaData);
+    commitWizardDataToSaved();
     showToast('Guardado correctamente.', 'success');
 
     // Clear everything silently (DOM + state) and start fresh
@@ -574,6 +610,7 @@ async function clearAll(skipConfirm = false): Promise<void> {
   if (resumenCausa) resumenCausa.textContent = 'No definida';
 
   renderWhysWizard();
+  updateIshikawaGenerateBtn();
 
   // Lock all tabs visually and reset step indicators (rcaData is preserved for the table view)
   const allStepIds = ['tab-captura', 'conn-0', 'tab-ishikawa', 'conn-1', 'tab-5whys', 'conn-2', 'tab-plan'];
@@ -611,12 +648,14 @@ async function clearAllFromTable(): Promise<void> {
   );
   if (!confirmed) return;
 
-  setRcaData({
+  const empty: RCAData = {
     captura: {},
     whys: { why1: '', why2: '', why3: '', why4: '', why5: '', wizardLevel: 1 },
     ishikawa: {},
     acciones: { correctivas: [], preventivas: [] }
-  });
+  };
+  setRcaData(empty);
+  setSavedRcaData(empty);
 
   localStorage.removeItem('rcaData');
 
@@ -760,7 +799,7 @@ window.addEventListener('DOMContentLoaded', function() {
   const saved = localStorage.getItem('rcaData');
   if (saved) {
     const parsed = JSON.parse(saved);
-    setRcaData({
+    const restored: RCAData = {
       captura: parsed.captura || {},
       whys: {
         why1: parsed.whys?.why1 || '',
@@ -773,7 +812,9 @@ window.addEventListener('DOMContentLoaded', function() {
       },
       ishikawa: parsed.ishikawa || {},
       acciones: parsed.acciones || { correctivas: [], preventivas: [] }
-    });
+    };
+    setRcaData(restored);
+    setSavedRcaData(JSON.parse(JSON.stringify(restored)));
 
     if (rcaData.captura.fecha) {
       const el = document.getElementById('fechaEvento') as HTMLInputElement | null;
@@ -816,6 +857,7 @@ window.addEventListener('DOMContentLoaded', function() {
       }
     });
     refreshIshikawaDiagram();
+    updateIshikawaGenerateBtn();
 
     if (rcaData.acciones.correctivas) {
       rcaData.acciones.correctivas.forEach((accion, index) => {
@@ -872,7 +914,7 @@ async function loadAnalysisFromJson(): Promise<void> {
 
     // Restore data to state and DOM
     const data = record.data;
-    setRcaData({
+    const restored: RCAData = {
       captura: data.captura || {},
       whys: {
         why1: data.whys?.why1 || '',
@@ -885,7 +927,9 @@ async function loadAnalysisFromJson(): Promise<void> {
       },
       ishikawa: data.ishikawa || {},
       acciones: data.acciones || { correctivas: [], preventivas: [] }
-    });
+    };
+    setRcaData(restored);
+    setSavedRcaData(JSON.parse(JSON.stringify(restored)));
 
     // Restore DOM fields
     const cap = rcaData.captura;
@@ -909,6 +953,7 @@ async function loadAnalysisFromJson(): Promise<void> {
       }
     });
     refreshIshikawaDiagram();
+    updateIshikawaGenerateBtn();
 
     if (rcaData.acciones.correctivas.length > 0) {
       rcaData.acciones.correctivas.forEach((accion, index) => {

@@ -36,21 +36,37 @@ export async function exportExcel(
       rcaData.whys.why2 || rcaData.whys.why1 || '';
 
     const workbook = new ExcelJS.Workbook();
+    const colors = {
+      navy: 'FF1E3A5F', blue: 'FF2563EB', sky: 'FFE0F2FE',
+      slate: 'FF64748B', slateDark: 'FF1E293B', white: 'FFFFFFFF',
+      grayBg: 'FFF9FAFB', grayBorder: 'FFE5E7EB',
+      green: 'FF16A34A', amber: 'FFD97706', red: 'FFDC2626',
+    };
 
-    // ---- Sheet 1: Fault Report ----
+    // ============ SHEET 1: FAULT REPORT ============
     const reporteSheet = workbook.addWorksheet('Reporte de Fallas', {
       views: [{ state: 'frozen', ySplit: 1 }]
     });
 
-    const headerRow = reporteSheet.addRow([
+    const headers = [
       'Fecha', 'Máquina', 'Problema', 'Tipo de Mantenimiento',
       'Plan de Acción Correctivo', 'Plan de Acción Preventivo',
       'Status del Plan', 'Responsable', 'Fecha de Finalización', 'Causa Raíz'
-    ]);
-    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F4E79' } };
-    headerRow.font = { bold: true, size: 11, name: 'Calibri', color: { argb: 'FFFFFFFF' } };
-    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
-    headerRow.height = 20;
+    ];
+
+    const headerRow = reporteSheet.addRow(headers);
+    headerRow.eachCell((cell: any) => {
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.navy } };
+      cell.font = { bold: true, size: 10, name: 'Calibri', color: { argb: colors.white } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+      cell.border = {
+        top: { style: 'thin', color: { argb: colors.navy } },
+        bottom: { style: 'thin', color: { argb: colors.navy } },
+        left: { style: 'thin', color: { argb: colors.navy } },
+        right: { style: 'thin', color: { argb: colors.navy } },
+      };
+    });
+    headerRow.height = 22;
 
     const correctivas = todasAcciones.filter(a => a.tipo === 'Correctivo');
     const preventivas = todasAcciones.filter(a => a.tipo === 'Preventivo');
@@ -87,30 +103,45 @@ export async function exportExcel(
         entry.correctivoText, entry.preventivoText, entry.status || 'Pendiente',
         entry.responsable, entry.fechaFin, entry.causaRaiz
       ]);
-      if (i > 0) row.alignment = { vertical: 'top', wrapText: true };
+      row.alignment = { vertical: 'top', wrapText: true };
+      row.eachCell((cell: any, colIdx: number) => {
+        // Alternating rows
+        cell.fill = {
+          type: 'pattern', pattern: 'solid',
+          fgColor: { argb: i % 2 === 0 ? colors.white : colors.grayBg }
+        };
+        cell.font = { size: 9.5, name: 'Calibri', color: { argb: colors.slateDark } };
+        cell.border = {
+          top: { style: 'thin', color: { argb: colors.grayBorder } },
+          bottom: { style: 'thin', color: { argb: colors.grayBorder } },
+          left: { style: 'thin', color: { argb: colors.grayBorder } },
+          right: { style: 'thin', color: { argb: colors.grayBorder } },
+        };
+        // Center narrow columns
+        if ([1, 4, 7].includes(colIdx)) {
+          cell.alignment = { vertical: 'top', horizontal: 'center', wrapText: true };
+        }
+      });
     });
-    reporteSheet.getRow(2).alignment = { vertical: 'top', wrapText: true };
 
     const lastRow = exportHistory.length + 1;
     reporteSheet.autoFilter = {
       from: { row: 1, column: 1 }, to: { row: lastRow, column: 10 }
     };
 
-    const maxWidths = [15, 25, 60, 22, 80, 80, 18, 30, 20, 60];
+    const maxWidths = [14, 22, 55, 20, 70, 70, 16, 28, 18, 55];
     reporteSheet.columns.forEach((col: any, i: number) => {
       let maxLen = 0;
       col.eachCell((cell: any) => {
         const text = cell.value ? String(cell.value) : '';
-        const lines = text.split('\n');
-        lines.forEach((line: string) => {
+        text.split('\n').forEach((line: string) => {
           maxLen = Math.max(maxLen, line.length);
         });
       });
-      const cap = maxWidths[i] || 60;
-      col.width = Math.min(Math.max(maxLen + 3, 10), cap);
+      col.width = Math.min(Math.max(maxLen + 3, 10), maxWidths[i] || 55);
     });
 
-    // ---- Sheet 2: Ishikawa ----
+    // ============ SHEET 2: ISHIKAWA ============
     const ishikawaSheet = workbook.addWorksheet('Ishikawa');
     const ishikawaHistoryData = getIshikawaHistory();
     const ishikawaMachines = Object.keys(ishikawaHistoryData).filter(m => {
@@ -120,10 +151,20 @@ export async function exportExcel(
 
     if (ishikawaMachines.length === 0) {
       ishikawaSheet.getCell('A1').value = 'No hay diagramas Ishikawa guardados.';
-      ishikawaSheet.getCell('A1').font = { italic: true, size: 11, name: 'Calibri', color: { argb: 'FF9CA3AF' } };
+      ishikawaSheet.getCell('A1').font = { italic: true, size: 11, name: 'Calibri', color: { argb: colors.slate } };
     } else {
-      ishikawaSheet.getCell('A1').value = 'Máquina';
-      ishikawaSheet.getCell('A1').font = { bold: true, size: 11, name: 'Calibri', color: { argb: 'FF1F4E79' } };
+      const hCell = ishikawaSheet.getCell('A1');
+      hCell.value = 'Máquina';
+      hCell.font = { bold: true, size: 11, name: 'Calibri', color: { argb: colors.white } };
+      hCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.navy } };
+      hCell.alignment = { vertical: 'middle', horizontal: 'center' };
+      hCell.border = {
+        top: { style: 'thin', color: { argb: colors.navy } },
+        bottom: { style: 'thin', color: { argb: colors.navy } },
+        left: { style: 'thin', color: { argb: colors.navy } },
+        right: { style: 'thin', color: { argb: colors.navy } },
+      };
+
       let ishikawaRow = 1;
       ishikawaMachines.forEach(machine => {
         const entry = ishikawaHistoryData[machine];
@@ -131,8 +172,10 @@ export async function exportExcel(
         if (!Object.values(ishikawaData).some(v => v)) return;
 
         ishikawaRow++;
-        ishikawaSheet.getCell(`A${ishikawaRow}`).value = machine;
-        ishikawaSheet.getCell(`A${ishikawaRow}`).font = { bold: true, size: 12, name: 'Calibri', color: { argb: 'FF1F4E79' } };
+        const mCell = ishikawaSheet.getCell(`A${ishikawaRow}`);
+        mCell.value = machine;
+        mCell.font = { bold: true, size: 11, name: 'Calibri', color: { argb: colors.blue } };
+        mCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.sky } };
 
         const imgData = createSimplifiedIshikawa(ishikawaData, entry.problema);
         const hasImage = imgData && imgData.imgData;
@@ -160,7 +203,7 @@ export async function exportExcel(
     }
     ishikawaSheet.getColumn(1).width = 30;
 
-    // ---- Sheet 3: Pareto ----
+    // ============ SHEET 3: PARETO ============
     const paretoSheet = workbook.addWorksheet('Pareto');
     const allParetoData = JSON.parse(localStorage.getItem('paretoHistory') || '{}');
     const machines = Object.keys(allParetoData).filter(m => {
@@ -170,18 +213,30 @@ export async function exportExcel(
 
     if (machines.length === 0) {
       paretoSheet.getCell('A1').value = 'No hay datos de Pareto acumulados.';
-      paretoSheet.getCell('A1').font = { italic: true, size: 11, name: 'Calibri', color: { argb: 'FF9CA3AF' } };
+      paretoSheet.getCell('A1').font = { italic: true, size: 11, name: 'Calibri', color: { argb: colors.slate } };
     } else {
-      paretoSheet.getCell('A1').value = 'Máquina';
-      paretoSheet.getCell('A1').font = { bold: true, size: 11, name: 'Calibri', color: { argb: 'FF1F4E79' } };
+      const hCell = paretoSheet.getCell('A1');
+      hCell.value = 'Máquina';
+      hCell.font = { bold: true, size: 11, name: 'Calibri', color: { argb: colors.white } };
+      hCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.navy } };
+      hCell.alignment = { vertical: 'middle', horizontal: 'center' };
+      hCell.border = {
+        top: { style: 'thin', color: { argb: colors.navy } },
+        bottom: { style: 'thin', color: { argb: colors.navy } },
+        left: { style: 'thin', color: { argb: colors.navy } },
+        right: { style: 'thin', color: { argb: colors.navy } },
+      };
+
       let paretoRow = 1;
       machines.forEach(machine => {
         const paretoItems = getAccumulatedParetoData(machine);
         if (paretoItems.length === 0) return;
 
         paretoRow++;
-        paretoSheet.getCell(`A${paretoRow}`).value = machine;
-        paretoSheet.getCell(`A${paretoRow}`).font = { bold: true, size: 12, name: 'Calibri', color: { argb: 'FF1F4E79' } };
+        const mCell = paretoSheet.getCell(`A${paretoRow}`);
+        mCell.value = machine;
+        mCell.font = { bold: true, size: 11, name: 'Calibri', color: { argb: colors.blue } };
+        mCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colors.sky } };
 
         const sorted = [...paretoItems].sort((a, b) => b.frecuencia - a.frecuencia);
         const imgData = createSimplifiedPareto(sorted);

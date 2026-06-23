@@ -114,9 +114,27 @@ export let rcaData: RCAData = {
   acciones: { correctivas: [], preventivas: [] }
 };
 
-/** Replace the entire rcaData (used during load/init) */
+/** Replaces rcaData (used during load/init) */
 export function setRcaData(data: RCAData): void {
   rcaData = data;
+}
+
+/* ── Committed (saved) data for the data table ───────── */
+
+export let savedRcaData: RCAData = {
+  captura: {},
+  whys: { why1: '', why2: '', why3: '', why4: '', why5: '', wizardLevel: 1 },
+  ishikawa: {},
+  acciones: { correctivas: [], preventivas: [] }
+};
+
+export function setSavedRcaData(data: RCAData): void {
+  savedRcaData = data;
+}
+
+/** Copies the current rcaData into savedRcaData (called on explicit Save) */
+export function commitWizardDataToSaved(): void {
+  savedRcaData = JSON.parse(JSON.stringify(rcaData));
 }
 
 /* ==========================================================================
@@ -233,11 +251,12 @@ export type DataSection = (typeof DATA_SECTIONS)[number];
 
 
 /** Builds a horizontal table for a single section: field names as headers, values in one row */
-export function buildSectionRows(section: DataSection): string {
-  const captura = rcaData.captura || {};
-  const whys = rcaData.whys || {};
-  const ishikawa = rcaData.ishikawa || {};
-  const acciones = rcaData.acciones || { correctivas: [], preventivas: [] };
+export function buildSectionRows(section: DataSection, source?: RCAData): string {
+  const data = source || rcaData;
+  const captura = data.captura || {};
+  const whys = data.whys || {};
+  const ishikawa = data.ishikawa || {};
+  const acciones = data.acciones || { correctivas: [], preventivas: [] };
 
   let headers: { label: string; key: string; format?: (v: string) => string }[] = [];
 
@@ -270,7 +289,7 @@ export function buildSectionRows(section: DataSection): string {
 
   // Build header row (field names + Acciones column)
   const headerRow = `<tr>${headers.map(h => `<th>${escapeHtml(h.label)}</th>`).join('')}<th>Acciones</th></tr>`;
-  const dataRow = buildHorizontalDataRow(section, headers);
+  const dataRow = buildHorizontalDataRow(section, headers, data);
 
   return `<div class="data-table-scroll"><table class="data-table data-table-h">
     <thead>${headerRow}</thead>
@@ -281,11 +300,13 @@ export function buildSectionRows(section: DataSection): string {
 /** Builds a single horizontal data row for the given section */
 function buildHorizontalDataRow(
   section: DataSection,
-  headers: { key: string; label: string; format?: (v: string) => string }[]
+  headers: { key: string; label: string; format?: (v: string) => string }[],
+  source?: RCAData
 ): string {
-  const captura = rcaData.captura || {};
-  const whys = rcaData.whys || {};
-  const ishikawa = rcaData.ishikawa || {};
+  const data = source || rcaData;
+  const captura = data.captura || {};
+  const whys = data.whys || {};
+  const ishikawa = data.ishikawa || {};
 
   const cells = headers.map(h => {
     let value = '';
@@ -536,9 +557,11 @@ function buildDrawerPlanSection(acciones: RCAAcciones): string {
 
     return `<div class="plan-subsection">
       <h5 class="plan-subsection-title" style="color:${color}"><i class="fas ${icon}"></i> ${label} (${list.length})</h5>
-      <table class="data-table drawer-vertical-table">
-        <tbody>${rows}</tbody>
-      </table>
+      <div class="data-table-scroll">
+        <table class="data-table drawer-vertical-table">
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
     </div>`;
   };
 
