@@ -65,7 +65,7 @@ header {
   gap: 6px;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 8px 16px;
+  padding: 6px 16px;
 }
 
 @media (min-width: 640px) {
@@ -91,7 +91,7 @@ header {
 
 .header-logo {
   width: auto;
-  height: clamp(34px, 5vw, 64px);
+  height: clamp(38px, 5.5vw, 72px);
   object-fit: contain;
   flex-shrink: 0;
   filter: brightness(1) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
@@ -155,7 +155,7 @@ header {
 
 @media (max-width: 480px) {
   .header-inner {
-    padding: 6px 16px;
+    padding: 3px 12px;
     gap: 4px;
   }
   .header-logo {
@@ -165,8 +165,25 @@ header {
     display: none;
   }
   .header-logo-wrap {
-    gap: 5px;
+    gap: 4px;
     margin-right: 0;
+  }
+  header {
+    box-shadow:
+      0 2px 12px rgba(0, 0, 0, 0.08),
+      0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  }
+  .header-title {
+    font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+    letter-spacing: 0;
+  }
+  .header-actions {
+    gap: 4px;
+  }
+  .header-btn-table {
+    min-width: 34px;
+    height: 34px;
+    font-size: 13px;
   }
 }
 
@@ -400,6 +417,7 @@ select {
   background-position: right 0.7rem center;
   background-size: 1.2em;
   padding-right: 2.5rem !important;
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
@@ -409,9 +427,6 @@ select {
 }
 
 select:focus {
-  position: relative;
-  z-index: 1000;
-  transform: translateY(0);
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
   outline: none;
@@ -2238,7 +2253,7 @@ body:not(.loading) .main-content {
 
 .step-nav-menu {
   position: absolute;
-  bottom: calc(100% + 8px);
+  top: calc(100% + 4px);
   left: 0;
   min-width: 200px;
   background: white;
@@ -2309,18 +2324,36 @@ body:not(.loading) .main-content {
 
 @media (max-width: 640px) {
   .step-nav {
-    padding: 10px 0;
+    padding: 8px 0;
+    box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.05);
   }
   .step-nav-inner {
-    padding: 0 12px;
-    gap: 8px;
+    padding: 0 10px;
+    gap: 6px;
   }
   .step-nav-btn {
-    padding: 8px 14px;
-    font-size: 13px;
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 8px;
   }
   .step-nav-left, .step-nav-right {
     min-width: 0;
+  }
+  .step-nav-center {
+    gap: 4px;
+  }
+  .step-nav-dot {
+    width: 6px;
+    height: 6px;
+  }
+  .step-nav-dot.active {
+    width: 8px;
+    height: 8px;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  }
+  .step-nav-menu {
+    top: auto;
+    bottom: calc(100% + 4px);
   }
 }
 
@@ -2675,33 +2708,42 @@ body:not(.loading) .main-content {
 
   /* Stepper */
   .stepper-wrap {
-    top: 54px;
+    top: 48px;
   }
   .stepper {
-    padding: 10px 4px 8px;
+    padding: 8px 4px 14px;
     gap: 0;
   }
+  .step-item {
+    gap: 4px;
+  }
   .step-indicator {
-    width: 26px;
-    height: 26px;
-    font-size: 10px;
+    width: 24px;
+    height: 24px;
+    font-size: 9px;
+    border-width: 1.5px;
   }
   .step-indicator::after {
     display: none;
   }
-  .step-label {
-    font-size: 9px;
-    letter-spacing: 0;
+  .step-labels {
+    display: none;
   }
   .step-connector {
     height: 2px;
-    margin: 0 3px;
-    margin-bottom: 16px;
-    min-width: 6px;
+    margin: 0 2px;
+    margin-bottom: 8px;
+    min-width: 4px;
   }
   .step-item.active .step-indicator {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15), 0 2px 8px rgba(37, 99, 235, 0.2);
+    transform: scale(1.08);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2), 0 2px 6px rgba(37, 99, 235, 0.25);
+  }
+  .step-item.completed .step-indicator {
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+  }
+  .step-item .step-check {
+    font-size: 11px;
   }
 
   /* Content */
@@ -2715,6 +2757,7 @@ body:not(.loading) .main-content {
   .step-header {
     flex-wrap: wrap;
     gap: 8px;
+    margin-top: 8px;
     margin-bottom: 14px;
     padding-bottom: 12px;
   }
